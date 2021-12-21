@@ -1,0 +1,69 @@
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{calendar}
+
+\newcommand{\countweek}{\ifdate{equals=01-01}{\setcounter{weekcounter}{0}}{} \ifdate{Thursday}{\stepcounter{weekcounter}}{}}
+
+% GanttHeader setups some parameters for the rest of the diagram
+% #1 startdate
+% #2 enddate
+% #3 with of 
+\def\GanttHeader#1#2#3{%
+\newcounter{weeks}
+\newcounter{weekcounter}
+\def\withdes{3cm}
+\def\hrows{0.4cm}
+%get number of weeks
+\calendar [dates=#1 to #2,day code={},
+execute after day scope=
+{\ifdate{Thursday}{\stepcounter{weeks}}{}}];
+
+%get the currend KW
+\calendar [dates=2021-01-01 to #1+-1,day code={},
+execute after day scope=
+{\countweek}];
+
+%calcualate the shifts
+\pgfmathsetmacro{\dayshift}{(\textwidth-\withdes)/(\theweeks*7)}
+
+\tikzstyle{every day}=[anchor=mid]
+\calendar [dates=#1 to #2,day code={},
+execute after day scope=
+{\countweek \ifdate{Thursday}{\node {\tiny\textbf{\theweekcounter}};}{} 
+	\ifdate{Sunday}{\draw[thick] (0,-0.5*\hrows) -- +(0,\hrows);}{} 
+	\ifdate{day of month=15}{\node[] at (0,\hrows) {\small{\tikzmonthtext}};}{} 
+	\ifdate{day of month=1}{\draw[thick] (0,0.5*\hrows) -- +(0,\hrows);}{}
+	\pgftransformxshift{\dayshift}}] 
+at (\withdes,0); %set position
+
+%setup descriptions
+\draw[very thick] (0,0.5*\hrows) rectangle +(\withdes, \hrows);
+\draw[very thick] (0,-0.5*\hrows) rectangle +(\withdes, \hrows);
+\draw[very thick] (\withdes,0.5*\hrows) rectangle +(\textwidth-\withdes, \hrows);
+\draw[very thick] (\withdes,-0.5*\hrows) rectangle +(\textwidth-\withdes, \hrows);
+\node[] at (0.5*\withdes,\hrows) {\small{\textbf{Month}}};
+\node[] at (0.5*\withdes,0) {\small{\textbf{Week}}};
+}
+
+
+% This macro adds a task to the diagram
+% #1 Row of the Task
+% #2 Task's name
+% #3 Starting Week
+% #4 Duration (Weeks)
+\def\Task#1#2#3#4{%
+\begin{scope}[shift={(0,-0.2*\hrows-#1*\hrows)}]
+  \filldraw[fill=black!20,thick] (0,-0.5*\hrows) rectangle +(\textwidth, \hrows);
+\node[anchor=west] at (1mm,0) {\small{\textbf{#2}}};
+ \filldraw[color=red] (\dayshift*7*#3+\withdes,-0.45*\hrows) rectangle +(\dayshift*7*#4+0cm,0.9*\hrows);
+  \foreach \x in {0,...,\theweeks} {
+    \draw[thick] (\dayshift*7*\x+\withdes,-0.5*\hrows) -- +(0,\hrows);
+}
+\end{scope}
+}
+
+
+
+
+
