@@ -23,6 +23,12 @@
 % Look for citation sources in the database "diplomarbeit.bib"
 \addbibresource{thesis.bib}
 
+
+%operator declarations
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\triu}{triu}
+\DeclareMathOperator{\tril}{tril}
+
 \begin{document}
 
 % Bibliographic information about the thesis, please change accordingly!
@@ -54,7 +60,120 @@ Maximum 1(!) page, contains spoilers.
 
 
 
-\chapter{Erstes Kapitel}
+
+
+
+\chapter{Introduction} 3p
+Motivation Why
+
+What others are dooing
+
+What has been done here
+
+
+Description structure
+
+
+\chapter{Literature Review}
+\section{Neuronal Nets}
+Properties of dense matrices
+Approxiamtions of dense Layer matricies
+Other approaces (Low Rank+ Sparse... etc..)
+
+\section{Matrix structures}
+\subsection{Matrix structures}
+In the following certain matrix structures are presented.
+These have in common that the rank of sub-matrices are important.
+In Semiseperable matrices the rank of the lower and upper triangular part are important.
+Hierarchical and sequentially semiseparable matrices are concerned with the rank of subblocks of matrices.  
+
+\subsection{Semiseperable matricies}
+Semiseperable Matrices are not consistently defined in the literature. The following is uses the definitions described in \cite{vandebril_bibliography_2005,}.
+An important differentiation are generator representable semiseparable matrices and semiseparable matries.
+\paragraph{Generator Representable Semiseparable Matrix}
+A matrix $S$ is a generator representable semiseparable matrix if the lower and upper triangular parts of $S$ are taken from rank 1 matrices.
+This can be expressed as 
+\begin{align}
+	\triu(S) &= \triu(pq^\top)\\
+	\tril(S) &= \tril(uv^\top)
+\end{align}
+Where $\triu$ is the upper triangular matrix and $\tril$ is the lower triangular matrix. The vectors $p,q,u$ and $v$ are called the generators.
+It is important to note here that the diagonal of $S$ is both included in the lower and upper triangular matrix.
+A extension of this matrix class are the semiseparable plus diagonal matrices.  
+
+
+\paragraph{Semiseparable Matrix}
+In a Semiseperable matrix every subblock selected from the strictly lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the strictly lower triangular part.
+This can be formalized as 
+\begin{align}
+	\rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
+	\rank(S_{1:i,i+1:n}) &\leq 1 & \forall_i &\in\{i,\dots,n\}
+\end{align}
+
+If the matrices are invertible the semiseperable matrices are related to tridiagobal matrices.
+The inverses of a generator representable semiseparable matrix is a invertible irreducible tridiagonal matrix and vice versa. 
+The inverse of a semiseparable matrix is a tridiagonal matrix and vice versa.
+
+These matrices classes can also be extended for higher ranks.
+A matrix $S$ is a generator representable semiseparable matrix of semiseparability rank r if there exist the matrices $R_1$ and $R_2$ with $\rank(R_1)=r$ and $\rank(R_2)=r$ such that
+\begin{align}
+\triu(S) &= \triu(R_1)\\
+\tril(S) &= \tril(R_2)
+\end{align}
+
+A similar definition for semiseparable matrices of semiseparability rank $r$ is given in \cite{vandebril_bibliography_2005}.
+For this class of matrices and some slight alterations there are algorithms for the efficient calculation of different operations.
+
+\subsection{Hirarchical Matrices}
+The Hirarchical matrices are an approach to approximate Large Matrices. These were mainly introduced in \cite{grasedyck_theorie_2001,hackbusch_hierarchische_2009}.
+The H-Matrices where developed for the solution of PDEs.
+The computational cost of matrix operations is polynomial. Even for a quadratic complexity the computational cost prohibits the use of large matrices for certain applications.
+
+It PDEs are solved numerically, they have to be discreticed in order to obtain an approxiamted solution.
+As the diescretizaon already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
+
+This can be done by partitioning the Matrix in segments. These blocks are represented by low Rank matrices. It the rank is smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
+For some small partitioned it might also be adeventagious to store the full matrix.
+To make this representation possible the size of the submatrices have to be of different sizes.
+These sizes are determined by an admissibility condition. This is a way to predict the representability of a sumatrix. 
+The need for efficient operations also constraints the possible sizes of the Blocks as these should be compatible.
+The partition is done in a hierarchical fashion and the matrices are represented in a Block-Tree.
+The Hierarchical matrices make it possible to compute different matrix operations efficiently.
+
+\subsection{Sequentially semiseperable}
+Sequentially semiseperable matrices were introduced in \cite{dewilde_time-varying_1998}.
+As the Sequentially semiseperable maticies will be used in this thesis a introduction will be given in chapter\ref{chap:background}. 
+There it will be explained form the standpoint of time varying systems.
+Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
+
+The Sequentially semiseperable matrices have the properties that submatrices have a low rank.
+Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part, but only true for certain matrices.
+This makes similar to the Hirarchical Matrices that also have a segmentation.
+Unlike semiseperable matrices the Sequentially semiseperable matrices do not have to be quadratic. 
+
+\chapter{Background/Introduction}\label{chap:background}
+
+Details on SSS systems
+Hankel Operator, Reachability, Observability
+Minimality
+SSS as matrix factorization
+
+
+\chapter{Methods} 15p
+
+\chapter{Experiment Setups}
+4pages
+
+\chapter{Experiments}
+10pages
+Test it on different structures
+
+\chapter{Discussion}
+4-5 4pages
+
+\chapter{Conclusion}
+1-2 pages
+
 
 
 
