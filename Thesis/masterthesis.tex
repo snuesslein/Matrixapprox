@@ -20,6 +20,15 @@
 %   adapt your editor's settings accordingly!
 \documentclass[doctype=mastersthesis,BCOR=15mm,biblatex]{ldvbook}%lang=ngerman
 
+
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{matrix}
+
+
+
+
 % Look for citation sources in the database "diplomarbeit.bib"
 \addbibresource{thesis.bib}
 
@@ -103,16 +112,36 @@ A extension of this matrix class are the semiseparable plus diagonal matrices.
 
 
 \paragraph{Semiseparable Matrix}
-In a Semiseperable matrix every subblock selected from the strictly lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the strictly lower triangular part.
+In a Semiseperable matrix every subblock selected from the lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the upper triangular part.
 This can be formalized as 
 \begin{align}
-	\rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
-	\rank(S_{1:i,i+1:n}) &\leq 1 & \forall_i &\in\{i,\dots,n\}
+	\rank(S_{i:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
+	\rank(S_{1:i,i:n}) &\leq 1 & \forall_i &\in\{i,\dots,n\}
 \end{align}
+
+
+\paragraph{Quasiseparable Matrix}
+The quasiseparable matrices are similar to the Semiseperable matries. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ have rank 1. 
+This can be formalized as 
+\begin{align}
+\rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
+\rank(S_{1:i,i+1:n}) &\leq 1 & \forall_i &\in\{i,\dots,n\}
+\end{align}
+
+
 
 If the matrices are invertible the semiseperable matrices are related to tridiagobal matrices.
 The inverses of a generator representable semiseparable matrix is a invertible irreducible tridiagonal matrix and vice versa. 
 The inverse of a semiseparable matrix is a tridiagonal matrix and vice versa.
+If a invertible quasiseparable is inverted, the inverse is again a quasiseparable matrix.
+
+A quasiseperable Matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All the marked submatrices have the property that their rank is 1.
+\begin{figure}
+	\centering
+	\input{diagrams/semiseperable}
+	\caption{Illustration of a semiseperable matrix}
+	\label{fig:quasiseperable}
+\end{figure}
 
 These matrices classes can also be extended for higher ranks.
 A matrix $S$ is a generator representable semiseparable matrix of semiseparability rank r if there exist the matrices $R_1$ and $R_2$ with $\rank(R_1)=r$ and $\rank(R_2)=r$ such that
@@ -140,7 +169,7 @@ This is a way to predict the representability of a sumatrix.
 For discretizations of PDEs this admissibility condition is usually based on the geometrical diameter and distance of the involved sets.
 For other applications different admissibility conditions have to be derived.
 
-% TODO: \usepackage{graphicx} required
+
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{diagrams/Struktur_H-matrix}
@@ -168,8 +197,20 @@ There it will be explained form the standpoint of time varying systems.
 Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
 
 The Sequentially semiseperable matrices have the properties that submatrices have a low rank.
-Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part, but only true for certain matrices.
-This makes similar to the Hirarchical Matrices that also have a segmentation.
+This is similar to semiseperable matrices. 
+Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part.
+The sequentially semiseperable matrices are divided into blocks.
+Matrices taken form the strict lower and strict upper triangular blockmatrix have the condition that their rank is low.
+This is illustrated in Figure\,\ref{fig:sequentiallysep}.
+
+\begin{figure}
+	\centering
+	\input{diagrams/sequentially_sep}
+	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segemntation of the matrix. The thin lines represent submatrices with low rank.}
+	\label{fig:sequentiallysep}
+\end{figure}
+
+This segmentation in blocks makes similar to the Hirarchical Matrices that also have a segmentation.
 Unlike semiseperable matrices the Sequentially semiseperable matrices do not have to be quadratic. 
 
 \chapter{Background/Introduction}\label{chap:background}
