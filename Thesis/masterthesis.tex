@@ -131,14 +131,35 @@ The computational cost of matrix operations is polynomial. Even for a quadratic 
 
 It PDEs are solved numerically, they have to be discreticed in order to obtain an approxiamted solution.
 As the diescretizaon already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
-
 This can be done by partitioning the Matrix in segments. These blocks are represented by low Rank matrices. It the rank is smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
-For some small partitioned it might also be adeventagious to store the full matrix.
-To make this representation possible the size of the submatrices have to be of different sizes.
-These sizes are determined by an admissibility condition. This is a way to predict the representability of a sumatrix. 
+For some small partitioned it might also be adeventagious to store the full blockmatrix.
+To make this representation possible the size of the blockmatrices might have to be reduced.
+This is done by dividing blocks that cannot be represented using a low rank representation.
+To decide if a block has to be devided a admissabillity condition is introduced.
+This is a way to predict the representability of a sumatrix.
+For discretizations of PDEs this admissibility condition is usually based on the geometrical diameter and distance of the involved sets.
+For other applications different admissibility conditions have to be derived.
+
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{diagrams/Struktur_H-matrix}
+	\caption{Illustration of a $H$-Matrix and block cluster tree}
+	\label{fig:strukturh-matrix}
+\end{figure}
+
+
 The need for efficient operations also constraints the possible sizes of the Blocks as these should be compatible.
-The partition is done in a hierarchical fashion and the matrices are represented in a Block-Tree.
+The partition is done in a hierarchical fashion and the matrices are represented in a Block-Tree. 
+If a block is not admissible, the block is divided in smaller block matrices.
+If matrices are already small and still not admissible the matrices are stored directly.
+Such a Tree is illustrated in Figure\,\ref*{fig:strukturh-matrix}.
+In this case each non admissible block is divided in four subblocks. 
+If the a block is admissible, it is stored as a low rank representations.
+These are illustrated as the white rectangles.
+The filled rectangles illustrate the blocks that are stored directly.
 The Hierarchical matrices make it possible to compute different matrix operations efficiently.
+
 
 \subsection{Sequentially semiseperable}
 Sequentially semiseperable matrices were introduced in \cite{dewilde_time-varying_1998}.
@@ -152,6 +173,8 @@ This makes similar to the Hirarchical Matrices that also have a segmentation.
 Unlike semiseperable matrices the Sequentially semiseperable matrices do not have to be quadratic. 
 
 \chapter{Background/Introduction}\label{chap:background}
+
+Sequentially Semiseperable Matrices can be considered as descriptions of time varying systems.
 
 Details on SSS systems
 Hankel Operator, Reachability, Observability
