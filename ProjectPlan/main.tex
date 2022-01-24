@@ -30,13 +30,16 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 
 \input{kalender.tex}
 
+\usetikzlibrary{matrix}
+
+
 \DeclareMathOperator{\vect}{vec}
 
 %================================================================================
 %================================= TITLE PAGE ===================================
 %================================================================================
 
-\title{Matrix representation as sum of local low rank matricies}
+\title{Combining Matrix Representations for Structured Approximation of Neural Network Weight Matrices}
 \subtitle{Projectplan}
 \author{Stepahn Nüßlein}
 
@@ -52,11 +55,18 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 
 \section*{Motivation}
 
-\begin{itemize}
-	\item Matrices for fully connected Layers get larger -> Computational expensive 
-	\item Matrix approximations with reduced computational cost
-	\item Both approxiamtion of Matrix in some Norm important ($\|\|_F$,$\|\|_1$,$\|\|_\infty$ or similar) also Accuracy on Data set
-\end{itemize}
+As the matrices for fully connected layers get larger the evaluation of the neuronal nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
+Therefore different approaches to reduce the computational cost are being explored.
+
+A possible representation are Sequentially Semiseperable Matrices. These have a certain underling structure.
+The matrices in Neuronal Networks do not necessarily have the same underling structure.
+Even if the Matrix is close the to a Sequentially Semiseperable Matrix the structural Parameters might not be know.
+
+To increase the number of Matrices that can be represented we allow combinations of Sequentially Semiseperable Matrices.
+This means that a Matrix can also be represented as as sum of multiple Sequentially Semiseperable Matricies.
+
+To represent the matrices, an algorithm to derive the representation is needed.
+	%\item Both approxiamtion of Matrix in some Norm ($\|\|_F$,$\|\|_1$,$\|\|_\infty$ or similar) also Accuracy on Data set
 
 
 
@@ -71,17 +81,12 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 \subsection*{Goals}
 
 \begin{itemize}
-	\item Find Matrix approximation with reduced cost
-	\item Get some theoretical predictions on the behavior
-	\item Find algorithm to construct said approximation
-	\item Evaluate approximation in practical examples
+
+	\item\textbf{Matrix approximation with reduced cost} Find a Matrix approximation. This requires a formal definition, as well as a reference implementation.
+	\item\textbf{Algorithm to construct said approximation} Development of an algorithm to calculate the approximation. Also implement an reference implementation
+	\item\textbf{Theoretical description of description} Compile the theoretical properties that can be derived.
+	\item\textbf{Evaluate approximation in practical examples} Evaluate the performance on weight matrices from pretrained models form Pytorch. This includes the behaviour of the approximation algorithm, the computational cost as well as the performance of the neuronal net
 \end{itemize}
-
-
-
-
-
-
 
 
 
@@ -91,84 +96,74 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 
 These assumptions and properties are underlying the idea:
 \begin{itemize}
-	\item Matrices in Fully connected layers often have full rank -> so no rank reduction easily possible (with some caveats, as it is not certain that this is the relevant ingredient) \cite{martin_implicit_2018}
-	\item The order of inputs/outputs is not important $A$ is equivalent to $\Pi_o A \Pi_i$ with $\Pi_i$ and $\Pi_o$ permutation matrices as the ordering of the neurons can be changed. 
-	\item To get the optimal trade of between accuracy and cost it should be possible to set them at a late stage in the algorithm
+	\item Matrices in fully connected layers often have full rank. This means that a rank reduction is not easily possible (with some caveats, as it is not certain that this is the relevant ingredient) \cite{martin_implicit_2018}
+	\item To get the optimal trade of between accuracy and cost it should be possible to adapt the accuracy of the approximation by changing hyper parameters of the approximation.
 \end{itemize}
 
-Approximate the given Matrix $A \in \mathbb{R}^{n \times m}$ using the representation
+By fixing the input and output Dimensions of an a State-Space representation we fix an segmentation of the representable matrices.
+The matrices in a neuronal net might not have an underling structure that can be represented with the resulting segmentation.
 
-\begin{equation}\label{key}
-A = \sum_{i=1}^{k} a_i u_i v_i^\top 
-\end{equation}
+Therefore it might be interesting if the Matrices in an neural net can be better described with a sum of Matrices.
 
-With $k$ not necessarily $\leq \min(n,m)$ and most of $u_i$ and $v_i$ sparse. Without loss of generality we can assume $a_i \geq 0$. The $a_i$ are ordered in decreasing order.
-Therefore the vectors $u_i$ and $v_i$ have some constraint on their norm. 
-Also sparsity has to be defined in a more rigid way.
+A similar representation with products of SSS Representations with non matching output and input dimensions might also be possible, but is harder to describe.
 
-The expression can be viewed as a modification of the SVD.
-Alternatively the weighted sum can be expressed as a Matrix-vector product.
-\begin{equation}\label{eq:vec}
-\vect(A) = \sum_{i=1}^{k} a_i\vect(u_i v_i^\top) = \left[\vect(u_1 v_1^\top), \cdots, \vect(u_k v_k^\top)\right] a = \left[v_1 \otimes u_1, \cdots, v_k\otimes u_k\right] a
-\end{equation}
 
-It is possible to express different matrix structures with the proposed representation.
-Hirarchical matricies can be converted trivially. Sequentially semiseperable and semiseperable are technically possible.
-Also said structures with row and/or collumn permutations and sum of said are possible.
+\subsubsection*{Next steps}
 
-[Note: Additional further ideas: Maybe transformation in $P_1 T_{[A,B,C,D]} P_2$ where the $P$s are (sub)permutations and the $T$ is a state Space Model]
+One prerequisite is finding appropriate segmentation of the Matrix. This either includes finding a existing way of finding a segmentation and implementing it.
+Or coming up with a an algorithm to segment a matrix.
 
-Unlike the hierarchical matrices the low rank structures are overlapping. 
-This poses the risk that it might be ill defined and the prone to numerical errors. Compare it to \eqref{eq:vec}. The vectors might be linearly dependent. 
-%Risiko mathematisch -> bei vielen anderen Strukturen (besonders hirarchischen) gibt es keine Überlappungen, hier aber schon damit Risiko dass numerische Probleme auftauchen.
-Therefore it might be worthwhile to look into convergence and the properties of Matrix containing the basis vectors (Maybe something from Funktionalanalysis, look at constructions of Basis->how many entries, condition..., Any matrix can be expressed if we have $k=nm$ and the $v_i\otimes u_i$ are not linearly dependent, but this case is not desirable)
+This would require segmenting a matrix into different areas that are similar to a low rank matrix. This also has to take into account that SSS matrices have many overlaying areas with low rank.
+
+Furthermore an Algorithm to combine different SSS Representations in a adequate way is needed.
+
+\subsubsection*{Theoretical considerations}
+To support this by theory it might be interesting to build some theoretical background on the decomposition.
+A first step is having a look at the formulas from state space arithmetic. While deriving closed form representations for cases with non matching dimensions might not be possible, it might give some insight.
+
+It should be tested if the SSS Matrices can be represented as a manifold. This might allow some theoretical results.
+Additionally it should be tested if it is possible to describe more complex objects like sums.
+This might make it possible to show something on how "dense" the representable matrices are in the space of all matrices.
 
 
 
+\subsubsection*{Computational cost}
+The computational cost of evaluation a matrix vector product is determined by the number of parameters.
+For the SSS structure the number of multiplications is equal to the number of nonzero entries in the A,B,C and D matrices. These depend on the dimensions of the input and output and on the number of states.
+
+As we like to minimize the computational cost it will be necessary to setup a detailed formula for the computational cost depending on the structural parameter.
 
 
-Risk:
-Computations not cheaper: 
-if the $u_i$ and $v_i$ are not sparse enough and we need to much of them the computation will not get cheaper
-\textcolor{red}{TODO: some basic approxiamtion on the computation cost}
+\subsubsection*{Properties}
+The computational stability of the resulting algorithm should be tested numerically. This might be for further interest if it the evaluation is done on an 32-bit architecture.
 
-\textcolor{gray}{
-\# of multiplications
-Regular matrix vector: 
-$$\approx nm$$
-Representation:
-$$\approx \sum_{i=1}^k \|u_i\|_0+\|v_i\|_0$$
-With $\|x\|_0$ the "norm" of nonzero elements.}
 
-Possible ideas to get a said representation
+\subsubsection*{Calculation of Representation}
+There are two possible ideas to get the wanted representation:
 
 \paragraph{Optimization Problem}
 Convert the given properties into manifolds and objective functions and use optimization techniques.
 This might be easier to define, but will possibly result in a problem with a very high number of dimensions. Maybe it is possible to express it as some standard problem, then it would be possible to use standard solvers and use existing guarantees and runtime estimates.
 
 \paragraph{Iterative Methods}
-Use some guesses that are updated periodically.
-A SVD-Based iterative approach seems reasonable.
--> Use SVD, set vectors with large $\sigma$ aside, change vectors to make them sparse according to some measure, get residuum and decompose it again using SVD and repeat the process. This might also a update step for old vectors.
-This approach maybe more efficient, as the number of dimensions is not as high, but deriving properties like convergence might be not possible in this thesis.
-Also K-SVD might be interesting.
+Use an approach similar to Matching pursuit. Here the dictionary $D$ would be a subset of all Sequentially Semiseperable Matrices. This requires some description of a qasi-inner-product and an way to find an approximation of the closest element in $D$.
+As $D$ will have infinitely many dimensions, this might be quite involved.
+
 
 
 \section{Workpackages}
 
 \begin{itemize}
-	\item \textbf{Recherche:}	
+	\item \textbf{Recherche:}
 	\begin{itemize}
-			\item \textbf{Existing Decompositions:} Low Rank+Sparse, Multiscale Low rank,Hierarchical \cite{chandrasekaran_sparse_2009,ong_beyond_2016}
+			\item \textbf{Existing Decompositions:} Low Rank+Sparse, Multiscale Low rank \cite{chandrasekaran_sparse_2009,ong_beyond_2016,yu_compressing_2017}
 			\item \textbf{Sparsity:} Appropriate Sparsity Measures \cite{ulfarsson_sparse_2015,parekh_improved_2017}
-			\item \textbf{Random Matrix Theory:} Some ideas on structures in Random Matricies, maybee intersting to get an idea what computational cost we can expect
 			\item \textbf{Existing Algorithms:} Look into the structure of related algorithms
 		\end{itemize}
 	\item \textbf{Evaluierung:} Analyse der bisherigen Recherce
 		\begin{itemize}
-			\item \textbf{Auswahl:} choose appropriate assumtions
-			\item \textbf{Auswahl:} Evaluate if computational benefits can be expected
-			\item \textbf{Theoretical considerations:} Uniqueness, numerical stability, computations, can we guarantee that it is as least as good as the other matrix classes that can be represented with it.... and under which assumptions.
+			\item \textbf{Auswahl:} choose appropriate assumptions
+			\item \textbf{Theoretical considerations:} Try the theoretical questiosn outlined above.
 		\end{itemize}
 	\item \textbf{Implementierung:} Implement Algorithm
 		\begin{itemize}
@@ -178,9 +173,9 @@ Also K-SVD might be interesting.
 	\item \textbf{Analyse:} Entwurf und Durchführung praxisnaher Tests
 		\begin{itemize}
 			\item \textbf{Setup Test}
-			\item \textbf{Evaluation I:} Evaluation on tailor-made examples: Sum of Low Rank + low Rank sub matrix (I think we need more than $\min(n,m)$ rank sub matrices until the standard SVD not be able to recover the structure?, but even then it might be interesting, as we can reduce the computations)
-			\item \textbf{Evaluation II:} Evaluation on low rank + Random with different parameters
-			\item \textbf{Evaluation III:} Evaluation on AI maricies
+			\item \textbf{Evaluation I:} Evaluation on tailor-made examples: Combiantion of Sequentially Semiseperable Matricies %(I think we need more than $\min(n,m)$ rank sub matrices until the standard SVD not be able to recover the structure?, but even then it might be interesting, as we can reduce the computations)
+			\item \textbf{Evaluation II:} Random matrices with different parameters
+			\item \textbf{Evaluation III:} Evaluation on AI matrices
 		\end{itemize}
 	\item \textbf{Auswertung und Diskussion:} Ergebnisse zusammentragen und vergleichen
 		\begin{itemize}
@@ -194,11 +189,11 @@ Also K-SVD might be interesting.
 \section{Time Table}
 
 
-	
+
 	\begin{tikzpicture}
 	\GanttHeader{2021-11-21}{2022-05-29}{\textwidth}
-	
-	
+
+
 	\Task{1}{Recherchen}{0}{4}
 	\Task{2}{Evaluierung}{4}{3}
 	\Task{3}{Implementierung}{7}{6}
@@ -206,26 +201,22 @@ Also K-SVD might be interesting.
 	\Task{5}{Auswertung}{17}{5}
 	\Task{6}{Ausarbeitung}{20}{7}
 	\end{tikzpicture}
-	
-	
+
+
 
 
 
 
 \section{Risk Analysis}
 
-Computation effort might not be lower than the effort for regular Matrix vector Product. 
-\newline\textbf{Likelihood:} Risk is hard to determine upfront as it depends on how fast the $a_i$ decrease and on how sparse the $u_i$ and $v_i$ are. 
-\newline\textbf{Mitigation:} Derive the cost and the allowed cost in an early stage of the thesis, consider Transformation in other structure.
+Computation effort might not be lower than the effort for regular matrix vector product.
+\newline\textbf{Likelihood:} Risk is hard to determine upfront as it depends on how many fast the approximation converges.
+\newline\textbf{Mitigation:} Test practical examples at an early stage of the thesis and.
 
-Unable to find an appropriate algorithm 
-\newline\textbf{Likelihood:} Quite likely as it is a very underdetermined problem with many parameters 
+Unable to find an appropriate algorithm
+\newline\textbf{Likelihood:} Quite likely as it is a very underdetermined problem with many parameters
 \newline\textbf{Mitigation:} use more computation-time, reduction of degrees of freedom by requiring some artificial condition (e.g. set the structure of the submatrices)
 
-Performance will not be good 
-\newline\textbf{Likelihood:} unlikely as other student work with different structures have shown that they perform quite well.
-But it is unclear if it will outperform the cropped SVD
-\newline\textbf{Mitigation:} difficult as it is very inherent to structure, also unlikely that it will be possible to give a definite answer that it is impossible, if the efforts fail.
 
 \printbibliography
 
