@@ -57,14 +57,13 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 \section*{Motivation}
 
 As the matrices for fully connected layers get larger the evaluation of the neuronal nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
-Therefore different approaches to reduce the computational cost are being explored.
+Therefore different matrix representations to reduce the computational cost are being explored.
 
-A possible representation are Sequentially Semiseperable Matrices. These have a certain underling structure.
+A possible representation are sequentially semiseperable matrices. These have a certain underling structure.
 The structure of the sequentially semiseperabel matrix is often informed by a underlying physical system or the construction of the matrix.
-The matrices in Neuronal Networks do not necessarily have the same underling structure.
-Even if the Matrix is close the to a Sequentially Semiseperable Matrix the structural Parameters might not be know.
-
-To increase the number of Matrices that can be represented we also allow combinations of Sequentially Semiseperable Matrices.
+The matrices in neuronal networks do not necessarily have the same underling structure.
+Even if the matrix is close the to a sequentially semiseperable matrix the structural parameters might not be know.
+To increase the number of matrices that can be represented we also allow combinations of sequentially semiseperable matrices.
 
 To represent the matrices, possible algorithms to derive the representation are investigated and tested.
 %To represent the matrices, an algorithm to derive the representation is needed.
@@ -84,7 +83,7 @@ To represent the matrices, possible algorithms to derive the representation are 
 
 \begin{itemize}
 
-	\item\textbf{Matrix approximation with reduced cost} Find a Matrix approximation. This requires a formal definition, as well as a reference implementation.
+	\item\textbf{Matrix approximation with reduced cost} Find a matrix approximation. This requires a formal definition, as well as a reference implementation.
 	\item\textbf{Algorithm to construct said approximation} Development of an algorithm to calculate the approximation. Also implement an reference implementation
 	\item\textbf{Theoretical description of description} Compile the theoretical properties that can be derived.
 	\item\textbf{Evaluate approximation in practical examples} Evaluate the performance on weight matrices from pretrained models form Pytorch. This includes the behaviour of the approximation algorithm, the computational cost as well as the performance of the neuronal net
@@ -102,14 +101,12 @@ These assumptions and properties are underlying the idea:
 	\item To get the optimal trade of between accuracy and cost it should be possible to adapt the accuracy of the approximation by changing hyper parameters of the approximation.
 \end{itemize}
 
-State-Space representation have many hyperparameters like input and output dimensions, these have to be chosen. By setting the input and output dimensions representation we fix an segmentation of the representable matrices.
+State-Space representation have many hyperparameters like input and output dimensions, these have to be chosen. By setting the input and output dimensions we fix an segmentation of the representable matrices.
 
 The matrices in a neuronal net might not have an underling structure that can be represented.
-Therefore it might be interesting if the Matrices in an neural net can be better described with combinations of different representations.
+Therefore it might be interesting if the matrices in an neural net can be better described with combinations of different representations.
 This might be the sum of state-space representations. These might have the same or different input and output dimensions.
-
 It might be also interesting to use permutations of the input and output to obtain segments with low rank.
-
 A similar representation with products of SSS Representations with non matching output and input dimensions might also be possible, but is harder to describe.
 
 \subsubsection*{Segmentation}
@@ -118,54 +115,56 @@ Or coming up with a an algorithm to segment a matrix.
 
 \subsubsection*{Computational cost}
 The computational cost of evaluation a matrix vector product is related to the number of parameters.
-For the SSS structure the number of multiplications is equal to the number of nonzero entries in the A,B,C and D matrices. These depend on the dimensions of the input and output and on the number of states.
+For the SSS structure the number of multiplications is equal to the number of entries in the $A$,$B$,$C$ and $D$ matrices. These depend on the dimensions of the input and output and on the number of states.
 
 \subsubsection*{Properties}
 The properties of the representations should be tested in terms of computational cost, storage requirements and performance in neuronal nets.
 The computational stability of the resulting algorithm might be tested numerically. This might be for further interest if the evaluation is done on an 32-bit architecture.
 
 \section*{Some Results}
+In the following some results are summed up:
 
 \subsection*{Addition of Systems}
-One Idea was that the sum of two systems with different input and output dimensions might be able to represent a wider class of matrices.
+One idea was that the sum of two systems with different input and output dimensions might be able to represent a wider class of matrices.
 It is questionable that this class is far bigger as the relation 
-
 \begin{equation}
-	\rank(A) \leq \rank(H_1) + \rank(H_2) 
+	\rank(A) \leq \rank(H_a) + \rank(H_b) 
 \end{equation}
 holds true for all sub matrices that do not contain $D$-matrices.
 There might be some benefits in the close vicinity to the diagonal but it is unclear if this is relevant.
 
-TODO: question: decompose same dims into towo systems -> parallel computational cost?
+On possible idea would be decomposing a system in two parallel systems.
+This could be done by state transforms. But it is unclear if state transforms that lead to the needed zeros in $A$.
+
 
 \subsection*{Changes to size of the input and output dimensions}
 I already programmed code to change the size of the inputs and outputs. The code also preserves minimality.
 In some cases this results in a increasing/decreasing state dimensions. This depends on the parts of $D$ that are included or excluded. 
-This does not depend on the rest of the matrix (Similar to the shift invariance principal).
+This does not depend on the rest of the matrix (Similar to the shift invariance principle).
 This might be different for cases where an later approximation is done.
 
 \section{Some Questions that came up}
 
 \subsection*{Approximation}
-An approximation of an system can be done using the hankel rank approximation. It is not clear how to represent an general Matrix using an aproximated system. 
-TODO: read about hankel rank approximation.
-If the implementation is balanced and the states are ordered with respect to the according $\sigma$s the state dimension can be reduced by simply dropping columns and rows from the matrices.   
+An approximation of an system can be done using the hankel rank approximation. 
+How does this relate to the matrix approximations for different norms and use cases?
+%If the implementation is balanced and the states are ordered with respect to the according $\sigma$s the state dimension can be reduced by simply dropping columns and rows from the matrices.
 
 \subsection*{Importance of $D$}
-As there is no restriction of the $D$-Matrix it is quite versatile.
-It might be possible to permute them in a way that reveals a compatible structure.
+As there is no restriction of the $D$-Matrix, it is quite versatile.
+Is it possible to permute rows and columns in a way that makes use of this property?
 
 \section{Further Ideas:}
 
 \subsection*{Segmentation of Matrix}
-Derive an first informed guess on the segmentation based on a model of the expected hankerrank. This might first include a model with constant input and output dimensions. 
+Derive an first informed guess on the segmentation based on a model of the expected hankelrank. This might first include a model with constant input and output dimensions. 
 %Maybe later different dimenstions
 After this move boundaries if this gives an computational advantage.
 
 \subsection*{Derive Permuataions}
-Use algorithm from todo to get a sparse + low rank representation.
+Use algorithm from \cite{ulfarsson_sparse_2015} or different algorithm to get a sparse + low rank representation.
 Then group the sparse elements and move them into the $D$ matrices.
-This also results in a segmentation (the order is still not determined)
+This also results in a segmentation.
 And the represent the permuted matrix using a system 
 
 
@@ -222,15 +221,15 @@ And the represent the permuted matrix using a system
 
 
 	\begin{tikzpicture}
-	\GanttHeader{2021-11-21}{2022-05-29}{\textwidth}
+	\GanttHeader{2021-11-21}{2022-06-30}{\textwidth}
 
 
 	\Task{1}{Recherchen}{0}{4}
-	\Task{2}{Evaluierung}{4}{3}
-	\Task{3}{Implementierung}{7}{6}
-	\Task{4}{Analyse}{11}{6}
-	\Task{5}{Auswertung}{17}{5}
-	\Task{6}{Ausarbeitung}{20}{7}
+	\Task{2}{Evaluierung}{4}{5}
+	\Task{3}{Implementierung}{8}{9}
+	\Task{4}{Analyse}{14}{8}
+	\Task{5}{Auswertung}{20}{6}
+	\Task{6}{Ausarbeitung}{24}{8}
 	\end{tikzpicture}
 
 
