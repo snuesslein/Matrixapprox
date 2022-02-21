@@ -41,7 +41,7 @@
 \begin{document}
 
 % Bibliographic information about the thesis, please change accordingly!
-\title{Titel of the thesis}
+\title{Combining Matrix Representations for Structured Approximation of Neural Network Weight Matrices}
 \author{Stephan Nüßlein}
 \license{CC-BY}
 \supervisor{Matthias Kissel}
@@ -58,7 +58,7 @@ Maximum 1(!) page, contains spoilers.
 
 \tableofcontents
 
-
+60-80 pages total
 
 % Please compile this example document including the bibliography
 % database. Check the resulting document and the references for 
@@ -85,19 +85,61 @@ Description structure
 
 \chapter{Literature Review}
 \section{Neuronal Nets}
-Properties of dense matrices
-Approxiamtions of dense Layer matricies
+
+
+Special matrix structures are been used or explored for the use in neural nets.
+Here different matrices structures are used to improve the performance. 
+One widely known example are Convolutional neural networks.
+The convolutions can be understood as a mutltiplication with a circulant matrix. 
+Instead of doing a matrix vector products the underlying structure is used to replace the multiplications with convolutions.
+
+One might analogously try to use the structure of a matrix to represent it with a different representation that has benefits.
+
+There are generally two approaches:
+In one case the structure is predetermined and the parameters of the structure are trained by a regular training process like in...:
+
+Or the neural net is trained without predetermined matrix structures and the matrices are later approximated with structured matrices. There are also approaches where the approximation is done during the training procedure \cite{dettmers_sparse_2019}.
+
+One widely known approach to reduce the complexity of neural nets is pruning. 
+This is equivalent making the matrices in a neural net sparse.
+A approach on removing parameters form a trained net based on the hessian was proposed in \cite{hassibi_optimal_1993}.
+It is also possible to obtain sparse matrices while training.
+In \cite{dettmers_sparse_2019} a pruning step is done during the training after every epoch.
+A different approach is to obtain sparse matrices is including a regularization term.
+In \cite{louizos_learning_2018,wen_learning_2016} this is done using a LASSO regularization.
+
+==Circulant matrices==
+
+
+The structure of Hirarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
+
+Recent work also use low rank and sparse decomposition. 
+In \cite{yu_compressing_2017} matrices in deep Models are represented as a sum of Low rank and sparse matrices.
+The computation of the decomposition is based on existing algorithms, that provides an algorithm to calculate the decomposition.
+To avoid an accumulation of the error due to the compression of multiple layers the decomposition are not done independently.
+This is archived by defining the objective function as the difference between the outputs of the approximation for an collection of approximated input vectors and an the corresponding output vectors.
+
+A different matrix structure explored in neural nets are butterfly factorization. 
+These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}.
+In \cite{li_butterfly-net_2020} the structure of the butterfly factorization are combined with CNNs. These can be used to efficiently represent Fourier kernels.
+A extension of butterfly factorization are kaleidoscope matrices (K-matrices) \cite{dao_kaleidoscope_2020}.
+K-Matrices are product of factors of the shape $B_aB_b^\top$, where $B_a$ and $B_b$ are butterfly matrices. These can be used to represent a wide class of structured matrices.
+The patterns in the factors are fixed. Therefore the parameters can be learned using gradient descent.
+k-matrices can also be used to represent linear hand crafted structures like reprocessing steps. %example fft 
+
+
+Properties of dense matrices\\
+Approxiamtions of dense Layer matricies\\
 Other approaces (Low Rank+ Sparse... etc..)
 
 \section{Matrix structures}
 \subsection{Matrix structures}
 In the following certain matrix structures are presented.
 These have in common that the rank of sub-matrices are important.
-In Semiseperable matrices the rank of the lower and upper triangular part are important.
-Hierarchical and sequentially semiseparable matrices are concerned with the rank of subblocks of matrices.  
+Here semiseperable, Hierarchical and Sequentially semiseparable matrices are presented.
 
 \subsection{Semiseperable matricies}
-Semiseperable Matrices are not consistently defined in the literature. The following is uses the definitions described in \cite{vandebril_bibliography_2005,}.
+Semiseperable Matrices are not consistently defined in the literature. The following is uses the definitions described in \cite{vandebril_bibliography_2005,vandebril_matrix_2007}.
 An important differentiation are generator representable semiseparable matrices and semiseparable matries.
 \paragraph{Generator Representable Semiseparable Matrix}
 A matrix $S$ is a generator representable semiseparable matrix if the lower and upper triangular parts of $S$ are taken from rank 1 matrices.
@@ -108,20 +150,18 @@ This can be expressed as
 \end{align}
 Where $\triu$ is the upper triangular matrix and $\tril$ is the lower triangular matrix. The vectors $p,q,u$ and $v$ are called the generators.
 It is important to note here that the diagonal of $S$ is both included in the lower and upper triangular matrix.
-A extension of this matrix class are the semiseparable plus diagonal matrices.  
-
 
 \paragraph{Semiseparable Matrix}
-In a Semiseperable matrix every subblock selected from the lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the upper triangular part.
+In a semiseperable matrix every subblock selected from the lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the upper triangular part.
 This can be formalized as 
 \begin{align}
 	\rank(S_{i:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
 	\rank(S_{1:i,i:n}) &\leq 1 & \forall_i &\in\{i,\dots,n\}
 \end{align}
-
+A extension of this matrix class are the semiseparable plus diagonal matrices.
 
 \paragraph{Quasiseparable Matrix}
-The quasiseparable matrices are similar to the Semiseperable matries. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ have rank 1. 
+The quasiseparable matrices are similar to the semiseperable matries. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ have rank 1. 
 This can be formalized as 
 \begin{align}
 \rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
@@ -129,13 +169,11 @@ This can be formalized as
 \end{align}
 
 
-
-If the matrices are invertible the semiseperable matrices are related to tridiagobal matrices.
-The inverses of a generator representable semiseparable matrix is a invertible irreducible tridiagonal matrix and vice versa. 
+If these matrices are invertible the semiseperable matrices are related to tridiagobal matrices.
+The inverses of a generator representable semiseparable matrix is a irreducible tridiagonal matrix and vice versa. 
 The inverse of a semiseparable matrix is a tridiagonal matrix and vice versa.
 If a invertible quasiseparable is inverted, the inverse is again a quasiseparable matrix.
-
-A quasiseperable Matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All the marked submatrices have the property that their rank is 1.
+A quasiseperable matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All the marked submatrices have the property that their rank is 1.
 \begin{figure}
 	\centering
 	\input{diagrams/semiseperable}
@@ -153,19 +191,19 @@ A matrix $S$ is a generator representable semiseparable matrix of semiseparabili
 A similar definition for semiseparable matrices of semiseparability rank $r$ is given in \cite{vandebril_bibliography_2005}.
 For this class of matrices and some slight alterations there are algorithms for the efficient calculation of different operations.
 
-\subsection{Hirarchical Matrices}
+\subsection{Hirarchical Matrices}\label{subsec:H-mat}
 The Hirarchical matrices are an approach to approximate Large Matrices. These were mainly introduced in \cite{grasedyck_theorie_2001,hackbusch_hierarchische_2009}.
 The H-Matrices where developed for the solution of PDEs.
 The computational cost of matrix operations is polynomial. Even for a quadratic complexity the computational cost prohibits the use of large matrices for certain applications.
 
 It PDEs are solved numerically, they have to be discreticed in order to obtain an approxiamted solution.
 As the diescretizaon already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
-This can be done by partitioning the Matrix in segments. These blocks are represented by low Rank matrices. It the rank is smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
-For some small partitioned it might also be adeventagious to store the full blockmatrix.
+This can be done by partitioning the Matrix in segments. These blocks are represented by low rank matrices. It the rank is far smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
+For some small blockmatrices it might also be adeventagious to store the full blockmatrix.
 To make this representation possible the size of the blockmatrices might have to be reduced.
 This is done by dividing blocks that cannot be represented using a low rank representation.
 To decide if a block has to be devided a admissabillity condition is introduced.
-This is a way to predict the representability of a sumatrix.
+This is a way to predict the representability of a blockmatrix.
 For discretizations of PDEs this admissibility condition is usually based on the geometrical diameter and distance of the involved sets.
 For other applications different admissibility conditions have to be derived.
 
@@ -173,7 +211,7 @@ For other applications different admissibility conditions have to be derived.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{diagrams/Struktur_H-matrix}
-	\caption{Illustration of a $H$-Matrix and block cluster tree}
+	\caption{Illustration of a $H$-Matrix and block cluster tree TODO: ggf Tikz-en}
 	\label{fig:strukturh-matrix}
 \end{figure}
 
@@ -182,9 +220,9 @@ The need for efficient operations also constraints the possible sizes of the Blo
 The partition is done in a hierarchical fashion and the matrices are represented in a Block-Tree. 
 If a block is not admissible, the block is divided in smaller block matrices.
 If matrices are already small and still not admissible the matrices are stored directly.
-Such a Tree is illustrated in Figure\,\ref*{fig:strukturh-matrix}.
+Such a tree is illustrated in Figure\,\ref*{fig:strukturh-matrix}.
 In this case each non admissible block is divided in four subblocks. 
-If the a block is admissible, it is stored as a low rank representations.
+If a block is admissible, it is stored as a low rank representations.
 These are illustrated as the white rectangles.
 The filled rectangles illustrate the blocks that are stored directly.
 The Hierarchical matrices make it possible to compute different matrix operations efficiently.
@@ -192,11 +230,11 @@ The Hierarchical matrices make it possible to compute different matrix operation
 
 \subsection{Sequentially semiseperable}
 Sequentially semiseperable matrices were introduced in \cite{dewilde_time-varying_1998}.
-As the Sequentially semiseperable maticies will be used in this thesis a introduction will be given in chapter\ref{chap:background}. 
+As the Sequentially semiseperable maticies will be used in this thesis a introduction will be given in chapter\,\ref{chap:background}. 
 There it will be explained form the standpoint of time varying systems.
 Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
 
-The Sequentially semiseperable matrices have the properties that submatrices have a low rank.
+The sequentially semiseperable matrices have the properties that submatrices have a low rank.
 This is similar to semiseperable matrices. 
 Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part.
 The sequentially semiseperable matrices are divided into blocks.
@@ -210,16 +248,18 @@ This is illustrated in Figure\,\ref{fig:sequentiallysep}.
 	\label{fig:sequentiallysep}
 \end{figure}
 
-This segmentation in blocks makes similar to the Hirarchical Matrices that also have a segmentation.
-Unlike semiseperable matrices the Sequentially semiseperable matrices do not have to be quadratic. 
+This segmentation in blocks makes similar to the hirarchical Matrices that also have a segmentation.
+Unlike semiseperable matrices the sequentially semiseperable matrices do not have to be quadratic. 
 
 \chapter{Background/Introduction}\label{chap:background}
 
-Sequentially Semiseperable Matrices can be considered as descriptions of time varying systems.
+Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
 
 Details on SSS systems
+
 Hankel Operator, Reachability, Observability
 Minimality
+
 SSS as matrix factorization
 
 
