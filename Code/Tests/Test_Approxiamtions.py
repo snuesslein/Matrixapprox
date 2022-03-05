@@ -27,7 +27,7 @@ import tvsclib.math as math
 from time import gmtime, strftime
 
 def calc_approximations(model_class: VisionModel, label_filepath: str, \
-    N = 10,stages=40):
+    N = 10,stages=20):
 
     required_indices = get_required_indices(label_filepath)
     model = model_class(required_indices)
@@ -64,14 +64,21 @@ def calc_approximations(model_class: VisionModel, label_filepath: str, \
     max([np.max(approx.sigmas_anticausal[i]) for i in range(len(approx.sigmas_anticausal))]),
     max([np.max(approx.sigmas_causal[i]) for i in range(len(approx.sigmas_anticausal))]))
 
-    norms_f = np.zeros(N)
-    norms_h = np.zeros(N)
+    epsilons= np.zeros(N+1)
+    norms_f = np.zeros(N+1)
+    norms_h = np.zeros(N+1)
+    costs   = np.zeros(N+1)
 
-    info = "Model:"+str(type(model))
+    info = "Model:"+str(model_class.__name__)
 
-    for i,alpha in enumerate(np.linspace(0,1,N)):
-        approx_system=approx.get_approxiamtion(alpha*sigma_max)
-        matrix_approx = approx_system.to_matrix()
+    for i,alpha in enumerate(np.hstack((np.array([-1]),np.linspace(0,1,N)))):
+        if alpha <0:
+            matrix_approx=output_mat
+            cost = output_mat.size
+        else:
+            approx_system=approx.get_approxiamtion(alpha*sigma_max)
+            matrix_approx = approx_system.to_matrix()
+            cost = approx_system.cost()
 
         epsilon = alpha*sigma_max
 
@@ -80,14 +87,17 @@ def calc_approximations(model_class: VisionModel, label_filepath: str, \
 
         print("-------------------------")
         print("alpha =    "+str(alpha))
+        print("cost =     "+str(cost))
         print("||A||_F =  "+str(norm_f))
         print("||A||_H =  "+str(norm_h))
 
         #store it in vectors
         norms_f[i] = norm_f
         norms_h[i] = norm_h
+        costs[i] = cost
+        epsilons[i]=epsilon
 
-    return {'norms_f':norms_f,'norms_h':norms_h,'dims_in':dims_in,'dims_out':dims_out,'info':info}
+    return {'costs':costs,'epsilons':epsilons,'norms_f':norms_f,'norms_h':norms_h,'dims_in':dims_in,'dims_out':dims_out,'info':info}
 
 if __name__ == "__main__":
     #feature_filepath = "/home/ga87sar/lrz-nashome/Imagenet"+"/features/AlexNet_animal_features.p"

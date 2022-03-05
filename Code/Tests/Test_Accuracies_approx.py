@@ -51,7 +51,7 @@ def print_accuracies(y,y_pred):
 
 
 def calc_accuracy(feature_filepath: str, model_class: VisionModel, label_filepath: str, \
-    N = 10,stages=40):
+    N = 10,stages=20):
 
     required_indices = get_required_indices(label_filepath)
     model = model_class(required_indices)
@@ -96,23 +96,28 @@ def calc_accuracy(feature_filepath: str, model_class: VisionModel, label_filepat
     max([np.max(approx.sigmas_anticausal[i]) for i in range(len(approx.sigmas_anticausal))]),
     max([np.max(approx.sigmas_causal[i]) for i in range(len(approx.sigmas_anticausal))]))
 
+    epsilons= np.zeros(N+1)
     norms_f = np.zeros(N+1)
     norms_h = np.zeros(N+1)
     accuracies = np.zeros(N+1)
+    costs   = np.zeros(N+1)
 
-    info = "Model:"+str(type(model))
+    info = "Model:"+str(model_class.__name__)
 
     for i,alpha in enumerate(np.hstack((np.array([-1]),np.linspace(0,1,N)))):
         if alpha <0:
             matrix_approx=output_mat
+            cost = output_mat.size
         else:
             approx_system=approx.get_approxiamtion(alpha*sigma_max)
             matrix_approx = approx_system.to_matrix()
+            cost = approx_system.cost()
 
         epsilon = alpha*sigma_max
 
         norm_f = np.linalg.norm(output_mat-matrix_approx)
         norm_h = math.hankelnorm(output_mat-matrix_approx,dims_in,dims_out)
+
         #run the model for the approximated matrix
         y_approx= model.features_and_optim_mat_to_prediction_with_argmax(torch.tensor(X), torch.tensor(matrix_approx.astype(np.float32))).cpu().detach().numpy()
         #accuracy = np.count_nonzero(y_approx==y)/len(y)
@@ -123,6 +128,7 @@ def calc_accuracy(feature_filepath: str, model_class: VisionModel, label_filepat
 
         print("-------------------------")
         print("alpha =    "+str(alpha))
+        print("cost =     "+str(cost))
         print("||A||_F =  "+str(norm_f))
         print("||A||_H =  "+str(norm_h))
         print("Accuracy = "+str(accuracy))
@@ -131,8 +137,10 @@ def calc_accuracy(feature_filepath: str, model_class: VisionModel, label_filepat
         norms_f[i] = norm_f
         norms_h[i] = norm_h
         accuracies[i] = accuracy
+        costs[i] = cost
+        epsilons[i]=epsilon
 
-    return {'norms_f':norms_f,'norms_h':norms_h,'accuracies':accuracies,'dims_in':dims_in,'dims_out':dims_out,'info':info}
+    return {'costs':costs,'epsilons':epsilons,'norms_f':norms_f,'norms_h':norms_h,'accuracies':accuracies,'dims_in':dims_in,'dims_out':dims_out,'info':info}
 
 if __name__ == "__main__":
     storage_filepath = "/home/ga87sar/lrz-nashome/"
