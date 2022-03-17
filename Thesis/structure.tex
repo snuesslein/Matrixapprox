@@ -1,47 +1,140 @@
 
+\documentclass[12pt]{article}
+\renewcommand{\familydefault}{\sfdefault}
+
+\newcounter{chap}
+\newcounter{sec}
+\newcounter{subsec}
+
+\setcounter{chap}{1}
+\setcounter{sec}{1}
+\setcounter{subsec}{1}
+
+\newcommand{\chapter}[1]{{\vspace{2em} \textbf{\Large \thechap{} #1}}\newline\vspace{2em} \stepcounter{chap} \setcounter{sec}{1} \setcounter{subsec}{1}}
+\renewcommand{\section}[1]{\vspace{0.5em} \textbf{\thechap.\thesec{} #1}\newline\vspace{1em} \stepcounter{sec} \setcounter{subsec}{1}}
+\renewcommand{\subsection}[1]{\textbf{\thechap.\thesec.\thesubsec{} #1} \stepcounter{subsec}}
+
+
+
+\begin{document}
+\setlength{\parindent}{0em}
+\chapter{Abstract}
+
+\begin{itemize}
+	\item neural nets
+	\item reduce cost of neural nets using structured matrix
+	\item how to use Sequentially semisperable matrices in this context
+	\item choose number of stages and tuning segmentation
+	\item some sentence on results
+\end{itemize}
+
 
 
 \chapter{Introduction} 3p
-Motivation Why
-
-What others are dooing
-
-What has been done here
-
-
-Description structure
 
 
 \chapter{Literature Review}
+
 \section{Neuronal Nets}
-Properties of dense matrices
-Approxiamtions of dense Layer matricies
-Other approaces (Low Rank+ Sparse... etc..)
+
 
 \section{Matrix structures}
-Matrix structures
-Semiseperable matricies
-Hirarchical Matrices
-Sequentially semiseperable
+eventually move it to Background
 
 
-\chapter{Background/Introduction}
-Details on SSS systems
-Hankel Operator, Reachability, Observability
-Minimality
+\chapter{Background/Introduction}\label{chap:background}
+\begin{itemize}
+	\item Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
+	\item Illustrate system.
+	
+	\item Details on SSS systems
+	
+	\item Hankel Operator, Reachability, Observability Minimality
+	\item Describe causal and anticausal part
+	
+	\item SSS as matrix factorization
+\end{itemize}
+
 
 
 \chapter{Methods} 15p
 
+\section{Approximation of Matrices}
+
+\subsection{Approximation algorithm}
+\begin{itemize}
+	\item Discuss Approximation of a general system based on cutting the singular values of the Hankel matrix.
+	
+	\item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
+	\item Define ordered realization as extention of the ballanced realization
+	
+	\item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
+	
+	\item Describe the overall approximation algorithm.
+\end{itemize}
+
+\subsection{Cost of computation}
+\begin{itemize}
+	\item Short section on the computational cost and number of parameters.
+	
+	\item Define it with and without additions.
+	
+	\item Might also go in the Background, but I think it would be a bit to much and I did not find a detailed discussion in the literature. 
+\end{itemize}
+
+\subsection{Number of stages}
+\begin{itemize}
+	\item Describe continuous surrogate problem for the cost depending on the number of parameters. 
+	\item Discuss educated guesses for the number of stages.
+\end{itemize}
+
+\section{Changing of Segmentation}
+\begin{itemize}
+	\item Describe algorithm of moving boundaries.
+	\item First for causal system, then for mixed system.
+	
+	\item Describe splitting and combining states.
+	
+	\item Pseudocode for the causal systems
+	
+	\item Move all the proves of minimality to the appendix for brevity.
+	\item Describe calculation of $\sigma$s
+\end{itemize}
+\section{Permutations}
+if time allows add some notes on permutations here
+
+
 \chapter{Experiment Setups}
-4pages
+4pages, probably more 2 pages
+\begin{itemize}
+	\item Some general notes on matrix representation.
+	
+	\item How define loss, images to features etc. 
+	\item How measure accuracy
+\end{itemize}
 
 \chapter{Experiments}
 10pages
-Test it on different structures
+
+\section{Tests of general approxiamtion}
+\begin{itemize}
+	\item Test different approaches to represent matrices.
+	\item Have a look at the representation error in different norms for different algorithms
+\end{itemize}
+
+\section{Tests in neural Nets}
+\begin{itemize}
+	\item Test the different approaces in neural nets.
+\end{itemize}
 
 \chapter{Discussion}
 4-5 4pages
 
 \chapter{Conclusion}
 1-2 pages
+
+\end{document}
+
+
+
+

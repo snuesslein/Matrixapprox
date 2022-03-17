@@ -21,12 +21,13 @@
 \documentclass[doctype=mastersthesis,BCOR=15mm,biblatex]{ldvbook}%lang=ngerman
 
 
+
 \usepackage{pgfplots}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 \usetikzlibrary{matrix}
 
-
+\usepackage{todonotes}
 
 
 % Look for citation sources in the database "diplomarbeit.bib"
@@ -52,8 +53,13 @@
 
 \chapter*{Abstract}
 
-A summary of the research question and the important findings.
-Maximum 1(!) page, contains spoilers.
+\begin{itemize}
+	\item neural nets
+	\item reduce cost of neural nets using structured matrix
+	\item how to use Sequentially semisperable matrices in this context
+	\item choose number of stages and tuning segmentation
+	\item some sentence on results
+\end{itemize}
 
 
 \tableofcontents
@@ -84,62 +90,66 @@ Description structure
 
 
 \chapter{Literature Review}
-\section{Neuronal Nets}
 
 
-Special matrix structures are been used or explored for the use in neural nets.
-Here different matrices structures are used to improve the performance. 
-One widely known example are Convolutional neural networks.
+\section{Neural Nets}
+%Special matrix structures are been explored for the use in neural nets.
+%Here different matrices structures are used to improve the performance. 
+In this section different approaches to used matrix structures in neural nets to reduce the computational are shortly introduced.
+One widely known example are Convolutional neural networks (CNN).
 The convolutions can be understood as a mutltiplication with a circulant matrix. 
-Instead of doing a matrix vector products the underlying structure is used to replace the multiplications with convolutions.
-
-One might analogously try to use the structure of a matrix to represent it with a different representation that has benefits.
-
-There are generally two approaches:
-In one case the structure is predetermined and the parameters of the structure are trained by a regular training process like in...:
-
-Or the neural net is trained without predetermined matrix structures and the matrices are later approximated with structured matrices. There are also approaches where the approximation is done during the training procedure \cite{dettmers_sparse_2019}.
+Instead of using matrix vector products the underlying structure is used to replace the multiplications with convolutions.
+One might analogously try to use the structure of a matrix to represent it with a different representation that has a reduced computational cost.
+There are generally two approaches to obtain such a representation:
+In one case the structure is predetermined and the parameters of the structure are trained by a regular training process.
+Or the neural net is trained without a predetermined matrix structures and the matrices are later approximated with structured matrices. There are also approaches where the approximation is done during the training procedure. 
 
 One widely known approach to reduce the complexity of neural nets is pruning. 
-This is equivalent making the matrices in a neural net sparse.
-A approach on removing parameters form a trained net based on the hessian was proposed in \cite{hassibi_optimal_1993}.
+These are processes that set elements in neural net matrices to 0 to reduce the computational cost \cite{blalock_what_2020}.
+A approach to remove parameters form a trained net based on the hessian was proposed in \cite{hassibi_optimal_1993}.
 It is also possible to obtain sparse matrices while training.
 In \cite{dettmers_sparse_2019} a pruning step is done during the training after every epoch.
 A different approach is to obtain sparse matrices is including a regularization term.
 In \cite{louizos_learning_2018,wen_learning_2016} this is done using a LASSO regularization.
 
-==Circulant matrices==
-
-
-The structure of Hirarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
-
+Low Rank approximations for filters in convolutional layers were proposed in \cite{rigamonti_learning_2013}. Existing filters are approximated using low rank filters in \cite{jaderberg_speeding_2014}. 
+In \cite{ioannou_training_2016} the low rank filters are learned directly and are later combined.
 Recent work also use low rank and sparse decomposition. 
-In \cite{yu_compressing_2017} matrices in deep Models are represented as a sum of Low rank and sparse matrices.
-The computation of the decomposition is based on existing algorithms, that provides an algorithm to calculate the decomposition.
+In \cite{yu_compressing_2017} matrices in deep models are represented as a sum of low rank and sparse matrices.
+The computation of the decomposition is based on an algorithm form \cite{zhou_greedy_2013}.
 To avoid an accumulation of the error due to the compression of multiple layers the decomposition are not done independently.
 This is archived by defining the objective function as the difference between the outputs of the approximation for an collection of approximated input vectors and an the corresponding output vectors.
 
+The structure of Hirarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
+In \cite{fan_multiscale_2019} $\mathcal{H}$-Matrices where used to represent solutions of partial differential equations. The structure of the neural net was designed in a way that makes use of the different scales in the system.
+Related tensor decomposition methods were used in \cite{wu_hybrid_2020} to represent weight matrices and convolutional kernels.
+In \cite{ithapu_decoding_2017} hierarchical factorization of covariance matrices is used to explore relationships between classes.
+
 A different matrix structure explored in neural nets are butterfly factorization. 
-These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}.
-In \cite{li_butterfly-net_2020} the structure of the butterfly factorization are combined with CNNs. These can be used to efficiently represent Fourier kernels.
+These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}. These were used to represent dense layers in \cite{ailon_sparse_2021}.
+In \cite{li_butterfly-net_2020} the structure of the butterfly factorization is combined with CNNs. These can be used to efficiently represent Fourier kernels.
 A extension of butterfly factorization are kaleidoscope matrices (K-matrices) \cite{dao_kaleidoscope_2020}.
 K-Matrices are product of factors of the shape $B_aB_b^\top$, where $B_a$ and $B_b$ are butterfly matrices. These can be used to represent a wide class of structured matrices.
 The patterns in the factors are fixed. Therefore the parameters can be learned using gradient descent.
-k-matrices can also be used to represent linear hand crafted structures like reprocessing steps. %example fft 
+K-matrices can also be used to represent linear hand crafted structures like reprocessing steps. %example fft 
+
+\todo[inline]{
+Properties of dense matrices
+Approxiamtions of dense Layer matricies}
 
 
-Properties of dense matrices\\
-Approxiamtions of dense Layer matricies\\
-Other approaces (Low Rank+ Sparse... etc..)
 
 \section{Matrix structures}
+\todo[inline]{eventually move this section to Background}
+
 \subsection{Matrix structures}
 In the following certain matrix structures are presented.
 These have in common that the rank of sub-matrices are important.
 Here semiseperable, Hierarchical and Sequentially semiseparable matrices are presented.
 
 \subsection{Semiseperable matricies}
-Semiseperable Matrices are not consistently defined in the literature. The following is uses the definitions described in \cite{vandebril_bibliography_2005,vandebril_matrix_2007}.
+Semiseperable matrices are not consistently defined in the literature. 
+In this thesis the definitions described in \cite{vandebril_bibliography_2005,vandebril_matrix_2007} is used.
 An important differentiation are generator representable semiseparable matrices and semiseparable matries.
 \paragraph{Generator Representable Semiseparable Matrix}
 A matrix $S$ is a generator representable semiseparable matrix if the lower and upper triangular parts of $S$ are taken from rank 1 matrices.
@@ -177,7 +187,7 @@ A quasiseperable matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All 
 \begin{figure}
 	\centering
 	\input{diagrams/semiseperable}
-	\caption{Illustration of a semiseperable matrix}
+	\caption{Illustration of a quasiseperable matrix}
 	\label{fig:quasiseperable}
 \end{figure}
 
@@ -192,13 +202,13 @@ A similar definition for semiseparable matrices of semiseparability rank $r$ is 
 For this class of matrices and some slight alterations there are algorithms for the efficient calculation of different operations.
 
 \subsection{Hirarchical Matrices}\label{subsec:H-mat}
-The Hirarchical matrices are an approach to approximate Large Matrices. These were mainly introduced in \cite{grasedyck_theorie_2001,hackbusch_hierarchische_2009}.
-The H-Matrices where developed for the solution of PDEs.
+The Hirarchical matrices are an approach to approximate large matrices. These were mainly introduced in \cite{grasedyck_theorie_2001,hackbusch_hierarchische_2009}.
+The $\mathcal{H}$-Matrices where developed for the solution of PDEs.
 The computational cost of matrix operations is polynomial. Even for a quadratic complexity the computational cost prohibits the use of large matrices for certain applications.
 
 It PDEs are solved numerically, they have to be discreticed in order to obtain an approxiamted solution.
 As the diescretizaon already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
-This can be done by partitioning the Matrix in segments. These blocks are represented by low rank matrices. It the rank is far smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
+This can be done by partitioning the matrix in segments. These blocks are represented by low rank matrices. It the rank is far smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
 For some small blockmatrices it might also be adeventagious to store the full blockmatrix.
 To make this representation possible the size of the blockmatrices might have to be reduced.
 This is done by dividing blocks that cannot be represented using a low rank representation.
@@ -216,11 +226,11 @@ For other applications different admissibility conditions have to be derived.
 \end{figure}
 
 
-The need for efficient operations also constraints the possible sizes of the Blocks as these should be compatible.
-The partition is done in a hierarchical fashion and the matrices are represented in a Block-Tree. 
+The need for efficient operations also constraints the possible sizes of the blocks as these should be compatible.
+The partition is done in a hierarchical fashion and the matrices are represented in a block-tree. 
 If a block is not admissible, the block is divided in smaller block matrices.
 If matrices are already small and still not admissible the matrices are stored directly.
-Such a tree is illustrated in Figure\,\ref*{fig:strukturh-matrix}.
+Such a tree is illustrated in Figure\,\ref{fig:strukturh-matrix}.
 In this case each non admissible block is divided in four subblocks. 
 If a block is admissible, it is stored as a low rank representations.
 These are illustrated as the white rectangles.
@@ -252,26 +262,84 @@ This segmentation in blocks makes similar to the hirarchical Matrices that also 
 Unlike semiseperable matrices the sequentially semiseperable matrices do not have to be quadratic. 
 
 \chapter{Background/Introduction}\label{chap:background}
+\begin{itemize}
+	\item Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
+	\item Illustrate system.
+	
+	\item Details on SSS systems
+	
+	\item Hankel Operator, Reachability, Observability Minimality
+	\item Describe causal and anticausal part
+	
+	\item SSS as matrix factorization
+\end{itemize}
 
-Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
-
-Details on SSS systems
-
-Hankel Operator, Reachability, Observability
-Minimality
-
-SSS as matrix factorization
 
 
 \chapter{Methods} 15p
 
-\chapter{Experiment Setups}
-4pages
+\section{Approximation of Matrices}
+\subsection{Approximation algorithm}
+\begin{itemize}
+\item Discuss Approximation of a general system based on cutting the singular values of the Hankel matrix.
 
+\item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
+\item Define ordered realization as extention of the ballanced realization
+
+\item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
+
+\item Describe the overall approximation algorithm.
+\end{itemize}
+\subsection{Cost of computation}
+\begin{itemize}
+\item Short section on the computational cost and number of parameters.
+
+\item Define it with and without additions.
+
+\item Might also go in the Background, but I think it would be a bit to much and I did not find a detailed discussion in the literature. 
+\end{itemize}
+\subsection{Number of stages}
+\begin{itemize}
+\item Describe continuous surrogate problem for the cost depending on the number of parameters. 
+\item Discuss educated guesses for the number of stages.
+\end{itemize}
+
+\section{Changing of Segmentation}
+\begin{itemize}
+\item Describe algorithm of moving boundaries.
+\item First for causal system, then for mixed system.
+
+\item Describe splitting and combining states.
+
+\item Pseudocode for the causal systems
+
+\item Move all the proves of minimality to the appendix for brevity.
+\item Describe calculation of $\sigma$s
+\end{itemize}
+\section{Permutations}
+if time allows add some notes on permutations here
+
+
+\chapter{Experiment Setups}
+4pages -> probably more 2 pages
+\begin{itemize}
+\item Some general notes on matrix representation.
+
+\item How define loss, images to features etc. 
+\item How measure accuracy
+\end{itemize}
 \chapter{Experiments}
 10pages
-Test it on different structures
 
+\section{Tests of general approxiamtion}
+\begin{itemize}
+\item Test different approaches to represent matrices.
+\item Have a look at the representation error in different norms for different algorithms
+\end{itemize}
+\section{Tests in neural Nets}
+\begin{itemize}
+\item Test the different approaces in neural nets.
+\end{itemize}
 \chapter{Discussion}
 4-5 4pages
 
