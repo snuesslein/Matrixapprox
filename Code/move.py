@@ -309,12 +309,12 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
     sigmas_anticausal.reverse()
     return sigmas_causal,sigmas_anticausal
 
-def move(system,m,cost,n_in = 1,n_out=1):
+def move(system,N,cost,m_in = 1,m_out=1):
     """
 
     parameters:
 
-    m: number of iterations
+    N: number of iterations
     cost: function that calculates a cost term for the sigmas
 
     """
@@ -326,19 +326,27 @@ def move(system,m,cost,n_in = 1,n_out=1):
 
     sys_move =MixedSystem(causal_system=sys_move_causal,anticausal_system=sys_move_anticausal)
 
-    input_dims=np.zeros((len(sys_move.causal_system.stages),m+1))
-    output_dims=np.zeros((len(sys_move.causal_system.stages),m+1))
+    input_dims=np.zeros((len(sys_move.causal_system.stages),N+1))
+    output_dims=np.zeros((len(sys_move.causal_system.stages),N+1))
     input_dims[:,0] = sys_move.dims_in
     output_dims[:,0] = sys_move.dims_out
-    for m in range(m):
+    for n in range(N):
+        if type(m_in)==int:
+            m_in_ = m_in
+        else:
+            m_in_ = m_in[n]
+        if type(m_out)==int:
+            m_out_ = m_out
+        else:
+            m_out_ = m_out[n]
         sigmas_causal,sigmas_anticausal=transform_ud(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=n_out)
+                                                 sys_move.anticausal_system.stages,cost,m=m_out_)
 
         sigmas_causal,sigmas_anticausal=transform_rl(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=n_in)
+                                                 sys_move.anticausal_system.stages,cost,m=m_in_)
 
-        input_dims[:,m+1] = sys_move.dims_in
-        output_dims[:,m+1] = sys_move.dims_out
+        input_dims[:,n+1] = sys_move.dims_in
+        output_dims[:,n+1] = sys_move.dims_out
 
     return sys_move,input_dims,output_dims
 
