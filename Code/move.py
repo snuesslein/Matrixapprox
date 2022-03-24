@@ -1,6 +1,8 @@
 from tvsclib.strict_system import StrictSystem
 from tvsclib.stage import Stage
 from tvsclib.mixed_system import MixedSystem
+from tvsclib.approximation import Approximation
+
 import numpy as np
 import scipy.linalg as linalg
 
@@ -8,11 +10,19 @@ from tvsclib.transformations.output_normal import OutputNormal
 from tvsclib.transformations.input_normal import InputNormal
 from tvsclib.transformations.reduction import Reduction
 import tvsclib.utils as utils
+import tvsclib.math as math
 
-def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15):
+def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15,
+                sigmas_causal=None,sigmas_anticausal=None,cost_global=False):
     k = len(stages_causal)
-    sigmas_causal = []
-    sigmas_anticausal = []
+    if sigmas_causal is None:
+        sigmas_causal = [np.array([np.nan])]*(k-1)
+    else:
+        sigmas_causal=sigmas_causal.copy()
+    if sigmas_anticausal is None:
+        sigmas_anticausal = [np.array([np.nan])]*(k-1)
+    else:
+        sigmas_anticausal=sigmas_anticausal.copy()
     for i in range(1,len(stages_causal)):#loop over inices of causal states
 
         #move left:
@@ -20,7 +30,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s_l,Vt= np.linalg.svd(np.hstack([stages_causal[i-1].A_matrix,stages_causal[i-1].B_matrix[:,:-m]]),full_matrices=False)
         n = np.count_nonzero(s_l>epsilon)
         Us=U[:,:n]*s_l[:n]
-
+        s_l = s_l[:n]
 
         stages_l = [
             Stage(Vt[:n,:stages_causal[i-1].A_matrix.shape[1]],Vt[:n,stages_causal[i-1].A_matrix.shape[1]:],\
@@ -34,6 +44,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s,Vt= np.linalg.svd(np.hstack([stages_causal[i-1].A_matrix,stages_causal[i-1].B_matrix]),full_matrices=False)
         n = np.count_nonzero(s>epsilon)
         Us=U[:,:n]*s[:n]
+        s = s[:n]
 
         stages_n=[
             Stage(Vt[:n,:stages_causal[i-1].A_matrix.shape[1]],Vt[:n,stages_causal[i-1].A_matrix.shape[1]:],\
@@ -54,6 +65,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                                           [stages_n[1].C_matrix,d]]),full_matrices=False)
         n = np.count_nonzero(s_r>epsilon)
         Us=U[:,:n]*s_r[:n]
+        s_r = s_r[:n]
         stages_r=[
              #Here the A and B are more complicated as we have to stack them
             Stage(Vt[:n,:]@(np.vstack([stages_n[0].A_matrix,np.zeros((m,stages_n[0].A_matrix.shape[1]))])),
@@ -79,7 +91,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                                            [d,stages_anticausal[i-1].C_matrix]]),full_matrices=False)
         n = np.count_nonzero(s_al>epsilon)
         sVt=s_al[:n].reshape(-1,1)*Vt[:n,:]
-
+        s_al = s_al[:n]
         stages_anti_l=[
             Stage(U[:stages_anticausal[i-1].A_matrix.shape[0],:n],stages_anticausal[i-1].B_matrix[:,:-m],\
                   U[stages_anticausal[i-1].A_matrix.shape[0]:,:n],stages_anticausal[i-1].D_matrix[:,:-m]),
@@ -96,7 +108,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s_a,Vt= np.linalg.svd(np.vstack([stages_anticausal[i-1].A_matrix,stages_anticausal[i-1].C_matrix]),full_matrices=False)
         n = np.count_nonzero(s_a>epsilon)
         sVt=s_a[:n].reshape(-1,1)*Vt[:n,:]
-
+        s_a = s_a[:n]
         stages_anti_n=[
             Stage(U[:stages_anticausal[i-1].A_matrix.shape[0],:n],stages_anticausal[i-1].B_matrix,\
                   U[stages_anticausal[i-1].A_matrix.shape[0]:,:n],stages_anticausal[i-1].D_matrix),
@@ -111,7 +123,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s_ar,Vt= np.linalg.svd(np.hstack([stages_anti_n[1].A_matrix,stages_anti_n[1].B_matrix[:,m:]]),full_matrices=False)
         n = np.count_nonzero(s_ar>epsilon)
         sVt=s_ar[:n].reshape(-1,1)*Vt[:n,:]
-
+        s_ar=s_ar[:n]
         stages_anti_r = [
             Stage(stages_anti_n[0].A_matrix@U[:,:n],np.hstack((stages_anti_n[0].B_matrix,stages_anti_n[0].A_matrix@b)),\
                   stages_anti_n[0].C_matrix@U[:,:n],np.hstack((np.zeros((stages_anti_n[0].D_matrix.shape[0],m)),stages_anti_n[0].D_matrix))),
@@ -122,14 +134,24 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
 
         dims_in = [stage.D_matrix.shape[1] for stage in stages_causal]
         dims_out = [stage.D_matrix.shape[0] for stage in stages_causal]
-        d_in = np.sum(dims_in[:i])
-        d_out = np.sum(dims_out[i:])
+        if cost_global:
+            #create a vector to modify the output dims
+            move_l = np.zeros_like(dims_in)
+            move_l[i-1] = move_l[i-1]-m
+            move_l[i] = move_l[i]+m
+            costs = np.array([cost(sigmas_causal,sigmas_anticausal,dims_in,dims_out),\
+                            cost(sigmas_causal[:i-1]+[s_l]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_al]+sigmas_anticausal[i:],dims_in+move_l,dims_out),\
+                            cost(sigmas_causal[:i-1]+[s_r]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_ar]+sigmas_anticausal[i:],dims_in-move_l,dims_out)])
 
-        d_in_a = np.sum(dims_in[i:])
-        d_out_a = np.sum(dims_out[:i])
-        costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
-                          cost(s_l,(d_out,d_in-1),s_al,(d_out_a,d_in_a+1)),\
-                          cost(s_r,(d_out,d_in+1),s_ar,(d_out_a,d_in_a-1))])
+        else:
+            d_in = np.sum(dims_in[:i])
+            d_out = np.sum(dims_out[i:])
+
+            d_in_a = np.sum(dims_in[i:])
+            d_out_a = np.sum(dims_out[:i])
+            costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
+                            cost(s_l,(d_out,d_in-1),s_al,(d_out_a,d_in_a+1)),\
+                            cost(s_r,(d_out,d_in+1),s_ar,(d_out_a,d_in_a-1))])
         #print("costs_lnr:",costs)
         if dir_preset==-1:
             direction = np.argmin(costs)
@@ -142,36 +164,43 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
             stages_causal[i]= stages_l[1]
             stages_anticausal[i-1]= stages_anti_l[0]
             stages_anticausal[i]= stages_anti_l[1]
-            sigmas_causal.append(s_l)
-            sigmas_anticausal.append(s_al)
+            sigmas_causal[i-1]=s_l
+            sigmas_anticausal[i-1]=s_al
         if direction == 0:
             stages_causal[i-1]= stages_n[0]
             stages_causal[i]= stages_n[1]
             stages_anticausal[i-1]= stages_anti_n[0]
             stages_anticausal[i]= stages_anti_n[1]
-            sigmas_causal.append(s)
-            sigmas_anticausal.append(s_a)
+            sigmas_causal[i-1]=s
+            sigmas_anticausal[i-1]=s_a
         if direction == 2:
             stages_causal[i-1]= stages_r[0]
             stages_causal[i]= stages_r[1]
             stages_anticausal[i-1]= stages_anti_r[0]
             stages_anticausal[i]= stages_anti_r[1]
-            sigmas_causal.append(s_r)
-            sigmas_anticausal.append(s_ar)
+            sigmas_causal[i-1]=s_r
+            sigmas_anticausal[i-1]=s_ar
     return sigmas_causal,sigmas_anticausal
 
-def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15):
+def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15,
+            sigmas_causal=None,sigmas_anticausal=None,cost_global=False):
     k = len(stages_causal)
-    sigmas_causal = []
-    sigmas_anticausal = []
-    for i in range(k-1, 0,-1):
+    if sigmas_causal is None:
+        sigmas_causal = [np.array([np.nan])]*(k-1)
+    else:
+        sigmas_causal=sigmas_causal.copy()
+    if sigmas_anticausal is None:
+        sigmas_anticausal = [np.array([np.nan])]*(k-1)
+    else:
+        sigmas_anticausal=sigmas_anticausal.copy()
 
+    for i in range(k-1, 0,-1):
         #move down:
         c = stages_causal[i].C_matrix[:m,:]
         U,s_d,Vt= np.linalg.svd(np.vstack([stages_causal[i].A_matrix,stages_causal[i].C_matrix[m:,:]]),full_matrices=False)
         n = np.count_nonzero(s_d>epsilon)
         sVt=s_d[:n].reshape(-1,1)*Vt[:n,:]
-
+        s_d = s_d[:n]
         stages_d = [
             Stage(sVt@stages_causal[i-1].A_matrix,sVt@stages_causal[i-1].B_matrix,\
                 np.vstack([stages_causal[i-1].C_matrix,c@stages_causal[i-1].A_matrix]),
@@ -186,7 +215,7 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s,Vt= np.linalg.svd(np.vstack([stages_causal[i].A_matrix,stages_causal[i].C_matrix]),full_matrices=False)
         n = np.count_nonzero(s>epsilon)
         sVt=s[:n].reshape(-1,1)*Vt[:n,:]
-
+        s = s[:n]
         stages_n=[
             Stage(sVt@stages_causal[i-1].A_matrix,sVt@stages_causal[i-1].B_matrix,\
                 stages_causal[i-1].C_matrix,stages_causal[i-1].D_matrix),
@@ -205,6 +234,7 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                                           [stages_n[0].A_matrix,stages_n[0].B_matrix]]),full_matrices=False)
         n = np.count_nonzero(s_u>epsilon)
         sVt=s_u[:n].reshape(-1,1)*Vt[:n,:]
+        s_u = s_u[:n]
         stages_u=[
            Stage(sVt[:,:stages_n[0].A_matrix.shape[1]],sVt[:,stages_n[0].A_matrix.shape[1]:],\
                  stages_n[0].C_matrix[:-m,:],stages_n[0].D_matrix[:-m,:]),
@@ -227,6 +257,7 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                                            [c,d]]),full_matrices=False)
         n = np.count_nonzero(s_ad>epsilon)
         Us=U[:,:n]*s_ad[:n]
+        s_ad = s_ad[:n]
         stages_anti_d=[
              #Here the A and B are more complicated as we have to stack them
             Stage((np.hstack([stages_anticausal[i-1].A_matrix,np.zeros((stages_anticausal[i-1].A_matrix.shape[0],m))]))@Us,
@@ -243,6 +274,7 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s_a,Vt= np.linalg.svd(np.hstack([stages_anticausal[i].A_matrix,stages_anticausal[i].B_matrix]),full_matrices=False)
         n = np.count_nonzero(s_a>epsilon)
         Us=U[:,:n]*s_a[:n]
+        s_a = s_a[:n]
 
         stages_anti_n=[
             Stage(stages_anticausal[i-1].A_matrix@Us,stages_anticausal[i-1].B_matrix,\
@@ -257,6 +289,7 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         U,s_au,Vt= np.linalg.svd(np.vstack([stages_anti_n[0].A_matrix,stages_anti_n[0].C_matrix[:-m,:]]),full_matrices=False)
         n = np.count_nonzero(s_au>epsilon)
         Us=U[:,:n]*s_au[:n]
+        s_au =s_au[:n]
 
         stages_anti_u = [
             #D is here 0, instead we have d_add at the causal system. Insted we could use stages_anti_n[0].C_matrix@b
@@ -269,14 +302,23 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
 
         dims_in = [stage.D_matrix.shape[1] for stage in stages_causal]
         dims_out = [stage.D_matrix.shape[0] for stage in stages_causal]
-        d_in = np.sum(dims_in[:i])
-        d_out = np.sum(dims_out[i:])
+        if cost_global:
+            #create a vector to modify the output dims
+            move_d = np.zeros_like(dims_out)
+            move_d[i-1] = move_d[i-1]+m
+            move_d[i] = move_d[i]-m
+            costs = np.array([cost(sigmas_causal,sigmas_anticausal,dims_in,dims_out),\
+                            cost(sigmas_causal[:i-1]+[s_d]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_ad]+sigmas_anticausal[i:],dims_in,dims_out+move_d),\
+                            cost(sigmas_causal[:i-1]+[s_u]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_au]+sigmas_anticausal[i:],dims_in,dims_out-move_d)])
+        else:
+            d_in = np.sum(dims_in[:i])
+            d_out = np.sum(dims_out[i:])
 
-        d_in_a = np.sum(dims_in[i:])
-        d_out_a = np.sum(dims_out[:i])
-        costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
-                          cost(s_d,(d_out-1,d_in),s_ad,(d_out_a+1,d_in_a)),\
-                          cost(s_u,(d_out+1,d_in),s_au,(d_out_a-1,d_in_a))])
+            d_in_a = np.sum(dims_in[i:])
+            d_out_a = np.sum(dims_out[:i])
+            costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
+                            cost(s_d,(d_out-1,d_in),s_ad,(d_out_a+1,d_in_a)),\
+                            cost(s_u,(d_out+1,d_in),s_au,(d_out_a-1,d_in_a))])
         #print("costs_dnu:",costs)
         if dir_preset==-1:
             direction = np.argmin(costs)
@@ -289,27 +331,25 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
             stages_causal[i]= stages_d[1]
             stages_anticausal[i-1]= stages_anti_d[0]
             stages_anticausal[i]= stages_anti_d[1]
-            sigmas_causal.append(s_d)
-            sigmas_anticausal.append(s_ad)
+            sigmas_causal[i-1]=s_d
+            sigmas_anticausal[i-1]=s_ad
         if direction == 0:
             stages_causal[i-1]= stages_n[0]
             stages_causal[i]= stages_n[1]
             stages_anticausal[i-1]= stages_anti_n[0]
             stages_anticausal[i]= stages_anti_n[1]
-            sigmas_causal.append(s)
-            sigmas_anticausal.append(s_a)
+            sigmas_causal[i-1]=s
+            sigmas_anticausal[i-1]=s_a
         if direction == 2:
             stages_causal[i-1]= stages_u[0]
             stages_causal[i]= stages_u[1]
             stages_anticausal[i-1]= stages_anti_u[0]
             stages_anticausal[i]= stages_anti_u[1]
-            sigmas_causal.append(s_u)
-            sigmas_anticausal.append(s_au)
-    sigmas_causal.reverse()
-    sigmas_anticausal.reverse()
+            sigmas_causal[i-1]=s_u
+            sigmas_anticausal[i-1]=s_au
     return sigmas_causal,sigmas_anticausal
 
-def move(system,N,cost,m_in = 1,m_out=1):
+def move(system,N,cost,m_in = 1,m_out=1,cost_global= False):
     """
 
     parameters:
@@ -318,13 +358,17 @@ def move(system,N,cost,m_in = 1,m_out=1):
     cost: function that calculates a cost term for the sigmas
 
     """
-    sys_move_causal = system.causal_system.copy()
-    sys_move_anticausal = system.anticausal_system.copy()
 
-    sys_move_causal = InputNormal().apply(sys_move_causal)
-    sys_move_anticausal = OutputNormal().apply(sys_move_anticausal)
+    """prepare system:
+    get an input normal causal system
+    get an output normal anticausal system and caculate the epsilons
+    """
 
-    sys_move =MixedSystem(causal_system=sys_move_causal,anticausal_system=sys_move_anticausal)
+    approx =Approximation(system)
+    sys_move = approx.get_approxiamtion(1e-15)
+
+    sigmas_causal = approx.sigmas_causal
+    sigmas_anticausal = approx.sigmas_anticausal
 
     input_dims=np.zeros((len(sys_move.causal_system.stages),N+1))
     output_dims=np.zeros((len(sys_move.causal_system.stages),N+1))
@@ -340,67 +384,104 @@ def move(system,N,cost,m_in = 1,m_out=1):
         else:
             m_out_ = m_out[n]
         sigmas_causal,sigmas_anticausal=transform_ud(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=m_out_)
+                                                 sys_move.anticausal_system.stages,cost,m=m_out_,cost_global= cost_global,
+                                                 sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal)
 
         sigmas_causal,sigmas_anticausal=transform_rl(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=m_in_)
+                                                 sys_move.anticausal_system.stages,cost,m=m_in_,cost_global= cost_global,
+                                                 sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal)
 
         input_dims[:,n+1] = sys_move.dims_in
         output_dims[:,n+1] = sys_move.dims_out
+        print("Dims_in: ",sys_move.dims_in)
+        print("Dims_out:",sys_move.dims_out)
 
     return sys_move,input_dims,output_dims
 
 
 def test_moves(system,m,epsilon=1e-15):
-    sys_move_causal = system.causal_system.copy()
-    sys_move_anticausal = system.anticausal_system.copy()
+    approx =Approximation(system)
+    sys_move = approx.get_approxiamtion(1e-15)
 
-    sys_move_causal = InputNormal().apply(sys_move_causal)
-    sys_move_anticausal = OutputNormal().apply(sys_move_anticausal)
+    assert sys_move.causal_system.is_input_normal(),"Causal system is not input normal"
+    assert sys_move.anticausal_system.is_output_normal(),"Anticausal system is not input normal"
 
-    sys_move =MixedSystem(causal_system=sys_move_causal,anticausal_system=sys_move_anticausal)
+    sigmas_causal_ref = approx.sigmas_causal
+    sigmas_anticausal_ref = approx.sigmas_anticausal
+
+    #check if the inputs of the cost are corect. for this we comare the sigmas
+    mat = sys_move.to_matrix()
+    def cost_test(sigmas_causal_c,sigmas_anticausal_c,dims_in,dims_out):
+        print("Dims:",dims_in,dims_out)
+        (sigmas_causal_refer,sigmas_anticausal_refer) = math.extract_sigmas(mat, dims_in,dims_out)
+        for i in range(len(sigmas_causal_refer)):
+            sig_causal = np.zeros_like(sigmas_causal_refer[i])
+            sig_anticausal = np.zeros_like(sigmas_anticausal_refer[i])
+            sig_causal[:len(sigmas_causal_c[i])]=sigmas_causal_c[i]
+            sig_anticausal[:len(sigmas_anticausal_c[i])]=sigmas_anticausal_c[i]
+            assert np.allclose(sig_causal,sigmas_causal_refer[i]),"Causal sigmas do not match"+str(i)
+            assert np.allclose(sig_anticausal,sigmas_anticausal_refer[i]),"Anticausal sigmas do not match"+str(i)
+            #print("compare_sigmas",sig_causal,sigmas_causal_refer[i])
+            #print("compare_sigmas_anti",sig_anticausal,sigmas_anticausal_refer[i])
+
+        #print(sigmas_causal)
+        #print(sigmas_anticausal)
+        #print(np.abs(sig_causal_ref-sig_causal))
+        #print(np.abs(sig_anticausal_ref-sig_anticausal))
+        return 0
 
     input_dims = sys_move.dims_in
     output_dims = sys_move.dims_out
-    cost = lambda x,y,z,a: 1
+
     print("testing move d")
     sys_move_d = sys_move.copy()
     sigmas_causal,sigmas_anticausal=transform_ud(sys_move_d.causal_system.stages,
-                                                 sys_move_d.anticausal_system.stages,cost,m=m,dir_preset=1,epsilon=epsilon)
+                                                 sys_move_d.anticausal_system.stages,cost_test,m=m,dir_preset=1,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_d)
     print(np.max(np.abs(sys_move.to_matrix()-sys_move_d.to_matrix())))
 
     print("testing move u")
     sys_move_u = sys_move.copy()
     sigmas_causal,sigmas_anticausal=transform_ud(sys_move_u.causal_system.stages,
-                                                 sys_move_u.anticausal_system.stages,cost,m=m,dir_preset=2,epsilon=epsilon)
+                                                 sys_move_u.anticausal_system.stages,cost_test,m=m,dir_preset=2,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_u)
     print(np.max(np.abs(sys_move.to_matrix()-sys_move_u.to_matrix())))
 
     print("testing move none")
     sys_move_n = sys_move.copy()
     sigmas_causal,sigmas_anticausal=transform_ud(sys_move_n.causal_system.stages,
-                                                 sys_move_n.anticausal_system.stages,cost,m=m,dir_preset=0,epsilon=epsilon)
+                                                 sys_move_n.anticausal_system.stages,cost_test,m=m,dir_preset=0,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_n)
     print(np.max(np.abs(sys_move.to_matrix()-sys_move_n.to_matrix())))
+
+    print("compare_sigmas")
+    for i in range(len(sigmas_causal)):
+        print(np.max(np.abs(sigmas_causal[i]-sigmas_causal_ref[i])))
+        print(np.max(np.abs(sigmas_anticausal[i]-sigmas_anticausal_ref[i])))
 
     print("testing_move l")
     sys_move_l = sys_move_n.copy()
     sigmas_causal,sigmas_anticausal=transform_rl(sys_move_l.causal_system.stages,
-                                                 sys_move_l.anticausal_system.stages,cost,m=m,dir_preset=1,epsilon=epsilon)
+                                                 sys_move_l.anticausal_system.stages,cost_test,m=m,dir_preset=1,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_l)
     print(np.max(np.abs(sys_move_n.to_matrix()-sys_move_l.to_matrix())))
 
     print("testing_move r")
     sys_move_r = sys_move_n.copy()
     sigmas_causal,sigmas_anticausal=transform_rl(sys_move_r.causal_system.stages,
-                                                 sys_move_r.anticausal_system.stages,cost,m=m,dir_preset=2,epsilon=epsilon)
+                                                 sys_move_r.anticausal_system.stages,cost_test,m=m,dir_preset=2,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_r)
     print(np.max(np.abs(sys_move_n.to_matrix()-sys_move_r.to_matrix())))
 
     print("testing_move nn")
     sys_move_nn = sys_move_n.copy()
     sigmas_causal,sigmas_anticausal=transform_rl(sys_move_nn.causal_system.stages,
-                                                 sys_move_nn.anticausal_system.stages,cost,m=m,dir_preset=0,epsilon=epsilon)
+                                                 sys_move_nn.anticausal_system.stages,cost_test,m=m,dir_preset=0,epsilon=epsilon,cost_global=True,
+                                                 sigmas_causal=sigmas_causal_ref,sigmas_anticausal=sigmas_anticausal_ref)
     utils.check_dims(sys_move_nn)
     print(np.max(np.abs(sys_move_n.to_matrix()-sys_move_nn.to_matrix())))
