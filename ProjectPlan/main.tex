@@ -56,13 +56,13 @@ doi=false,isbn=false,url=false,eprint=false]{biblatex}
 
 \section*{Motivation}
 
-As the matrices for fully connected layers get larger the evaluation of the neuronal nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
+As the matrices for fully connected layers get larger the evaluation of the neural nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
 Therefore different matrix representations to reduce the computational cost are being explored.
 
-A possible representation are sequentially semiseperable matrices. These have a certain underling structure.
-The structure of the sequentially semiseperabel matrix is often informed by a underlying physical system or the construction of the matrix.
-The matrices in neuronal networks do not necessarily have the same underling structure.
-Even if the matrix is close the to a sequentially semiseperable matrix the structural parameters might not be know.
+A possible representation are sequentially semiseperable matrices. These have a certain underlying structure.
+The structure of the sequentially semiseperabel matrix is often determined by a underlying physical system or the construction of the matrix.
+The matrices in neural networks do not necessarily have the same underlying structure.
+Even if the matrix is close to a sequentially semiseperable matrix the structural parameters might not be know.
 To increase the number of matrices that can be represented we also allow combinations of sequentially semiseperable matrices.
 
 To represent the matrices, possible algorithms to derive the representation are investigated and tested.
@@ -84,9 +84,9 @@ To represent the matrices, possible algorithms to derive the representation are 
 \begin{itemize}
 
 	\item\textbf{Matrix approximation with reduced cost} Find a matrix approximation. This requires a formal definition, as well as a reference implementation.
-	\item\textbf{Algorithm to construct said approximation} Development of an algorithm to calculate the approximation. Also implement an reference implementation
-	\item\textbf{Theoretical description of description} Compile the theoretical properties that can be derived.
-	\item\textbf{Evaluate approximation in practical examples} Evaluate the performance on weight matrices from pretrained models form Pytorch. This includes the behaviour of the approximation algorithm, the computational cost as well as the performance of the neuronal net
+	\item\textbf{Algorithm to construct said approximation} Development of an algorithm to calculate the approximation. Also implement a reference implementation
+	\item\textbf{Theoretical description} Compile the theoretical properties that can be derived.
+	\item\textbf{Evaluate approximation in practical examples} Evaluate the performance on weight matrices from pretrained models form Pytorch. This includes the behavior of the approximation algorithm, the computational cost as well as the performance of the neural net
 \end{itemize}
 
 
@@ -103,7 +103,7 @@ These assumptions and properties are underlying the idea:
 
 State-Space representation have many hyperparameters like input and output dimensions, these have to be chosen. By setting the input and output dimensions we fix an segmentation of the representable matrices.
 
-The matrices in a neuronal net might not have an underling structure that can be represented.
+The matrices in a neural net might not have an underlying structure that can be represented.
 Therefore it might be interesting if the matrices in an neural net can be better described with combinations of different representations.
 This might be the sum of state-space representations. These might have the same or different input and output dimensions.
 It might be also interesting to use permutations of the input and output to obtain segments with low rank.
@@ -115,10 +115,10 @@ Or coming up with a an algorithm to segment a matrix.
 
 \subsubsection*{Computational cost}
 The computational cost of evaluation a matrix vector product is related to the number of parameters.
-For the SSS structure the number of multiplications is equal to the number of entries in the $A$,$B$,$C$ and $D$ matrices. These depend on the dimensions of the input and output and on the number of states.
+For the state space representation the number of multiplications is equal to the number of entries in the $A$,$B$,$C$ and $D$ matrices. These depend on the dimensions of the input and output and on the number of states.
 
 \subsubsection*{Properties}
-The properties of the representations should be tested in terms of computational cost, storage requirements and performance in neuronal nets.
+The properties of the representations should be tested in terms of computational cost, storage requirements and performance in neural nets.
 The computational stability of the resulting algorithm might be tested numerically. This might be for further interest if the evaluation is done on an 32-bit architecture.
 
 \section*{Some Results}
@@ -130,11 +130,11 @@ It is questionable that this class is far bigger as the relation
 \begin{equation}
 	\rank(A) \leq \rank(H_a) + \rank(H_b) 
 \end{equation}
-holds true for all sub matrices that do not contain $D$-matrices.
+holds true for all submatrices that do not contain $D$-matrices.
 There might be some benefits in the close vicinity to the diagonal but it is unclear if this is relevant.
 
-On possible idea would be decomposing a system in two parallel systems.
-This could be done by state transforms. But it is unclear if state transforms that lead to the needed zeros in $A$.
+A possible idea would be decomposing a system in two parallel systems.
+This could be done by state transforms. But it is unclear if state transformations that lead to the needed zeros in $A$.
 
 
 \subsection*{Changes to size of the input and output dimensions}
@@ -161,11 +161,11 @@ Derive an first informed guess on the segmentation based on a model of the expec
 %Maybe later different dimenstions
 After this move boundaries if this gives an computational advantage.
 
-\subsection*{Derive Permuataions}
+\subsection*{Derive Permutations}
 Use algorithm from \cite{ulfarsson_sparse_2015} or different algorithm to get a sparse + low rank representation.
 Then group the sparse elements and move them into the $D$ matrices.
 This also results in a segmentation.
-And the represent the permuted matrix using a system 
+And then represent the permuted matrix using a system. 
 
 
 %\subsubsection*{Calculation of Representation}
@@ -184,36 +184,36 @@ And the represent the permuted matrix using a system
 \section{Workpackages}
 
 \begin{itemize}
-	\item \textbf{Recherche:}
+	\item \textbf{Literature review:}
 	\begin{itemize}
 			\item \textbf{Existing Decompositions:} Low Rank+Sparse, Multiscale Low rank \cite{chandrasekaran_sparse_2009,ong_beyond_2016,yu_compressing_2017}
 			\item \textbf{Sparsity:} Appropriate Sparsity Measures \cite{ulfarsson_sparse_2015,parekh_improved_2017}
 			\item \textbf{Existing Algorithms:} Look into the structure of related algorithms
 		\end{itemize}
-	\item \textbf{Evaluierung:} Analyse der bisherigen Recherce
+	\item \textbf{Evaluation:} 
 		\begin{itemize}
-			\item \textbf{Auswahl:} choose appropriate assumptions
-			\item \textbf{Theoretical considerations:} Try the theoretical questiosn outlined above.
+			\item \textbf{Selection:} Choose appropriate assumptions
+			\item \textbf{Theoretical considerations:} Try the theoretical questions outlined above.
 		\end{itemize}
-	\item \textbf{Implementierung:} Implement Algorithm
+	\item \textbf{Implementation:} 
 		\begin{itemize}
 			\item \textbf{Implement Algorithm(s):} Based on previous exploration implement tests and algorithms to construct the representation.
-			\item \textbf{Generate Tests:} Generate Testsdata and pipeline to test them, including meta-analysis (speed of convergence...)
+			\item \textbf{Generate Tests:} Generate testdata and pipeline to test them, including meta-analysis (speed of convergence...)
 		\end{itemize}
-	\item \textbf{Analyse:} Entwurf und Durchführung praxisnaher Tests
+	\item \textbf{Analysis:} 
 		\begin{itemize}
 			\item \textbf{Setup Test}
-			\item \textbf{Evaluation I:} Evaluation on tailor-made examples: Combiantion of Sequentially Semiseperable Matricies %(I think we need more than $\min(n,m)$ rank sub matrices until the standard SVD not be able to recover the structure?, but even then it might be interesting, as we can reduce the computations)
+			\item \textbf{Evaluation I:} Evaluation on tailor-made examples: Combination of Sequentially Semiseperable Matricies %(I think we need more than $\min(n,m)$ rank sub matrices until the standard SVD not be able to recover the structure?, but even then it might be interesting, as we can reduce the computations)
 			\item \textbf{Evaluation II:} Random matrices with different parameters
 			\item \textbf{Evaluation III:} Evaluation on AI matrices
 		\end{itemize}
-	\item \textbf{Auswertung und Diskussion:} Ergebnisse zusammentragen und vergleichen
+	\item \textbf{Evaluation and discussion:} 
 		\begin{itemize}
-			\item \textbf{Revisiting the Theory:} Explanations for experienced behavior?
-			\item \textbf{Description of Performance:} Beschreibung der durchgeführten Tests und Visualisierung der Ergebnisse
-			\item \textbf{Diskussion:} Auswertung der Ergebnisse und kritische Betrachtung des Nutzens für das Gesamtsystem
+			\item \textbf{Revisiting the theory:} Explanations for experienced behavior?
+			\item \textbf{Description of performance:} Describe the tests and visualize the results.
+			\item \textbf{Discussion:} Evaluate the results and put it into context.
 		\end{itemize}
-	\item \textbf{Ausarbeitung:} Abschließende schriftliche Darstellung der durchgeführten Arbeiten
+	\item \textbf{Presentation of results:} Write down the research and compile it to a thesis. 
 \end{itemize}
 
 \section{Time Table}
