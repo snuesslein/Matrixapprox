@@ -1,0 +1,58 @@
+﻿
+\tikzset{
+    shape example/.style={
+        color=black!30,
+        draw,
+        fill=yellow!30,
+    }
+}
+
+\tikzset{
+    style_system/.style={
+        color=black!80,
+        draw,
+        fill=white,
+    }
+}
+
+\tikzstyle{line_box} =[line width=1pt]
+\tikzstyle{signal} = [very thick,black]
+
+    \begin{tikzpicture}
+
+\draw [help lines] grid (7,7);
+        \node[shape example, box, name=s] at (3,3) {};
+        \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
+            \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+    \end{tikzpicture}
+
+
+    \begin{tikzpicture}
+\def\boxsize{15mm}
+
+\draw [help lines] grid (7,7);
+        \node[shape example, system, name=s] at (3,3) {};
+        \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
+            \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+    \end{tikzpicture}
+
+    \begin{tikzpicture}
+
+
+\draw [help lines] grid (7,7);
+        \node[shape example, system, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
+        \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
+            \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+    \end{tikzpicture}
+
+    \begin{tikzpicture}
+
+
+\draw [help lines] grid (7,7);
+        \node[style_system, system, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
+\node[style_system, system, name=s,A=$A_{n+1}$,B=$B_{n+1}$,C=$C_{n+1}$,D=$D_{n+1}$] at (7,3) {};
+
+    \end{tikzpicture}
+
+\end{document}
+

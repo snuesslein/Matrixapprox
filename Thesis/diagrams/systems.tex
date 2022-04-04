@@ -1,0 +1,63 @@
+
+
+\def\boxsize{15mm}
+\def\rel_i{0.65}
+\tikzstyle{signal} = [very thick]
+\tikzstyle{line_box} =[line width=1pt]
+
+\tikzset{A/.initial=$A_{}$}
+\tikzset{B/.initial=$B_{}$}
+\tikzset{C/.initial=$C_{}$}
+\tikzset{D/.initial=$D_{}$}
+
+
+\makeatletter
+\pgfdeclareshape{box}{%
+	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
+	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
+	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
+	\anchor{west}{\pgf@x=-\boxsize \pgf@y=0cm}
+	\anchor{north}{\pgf@x=0cm \pgf@y=\boxsize}
+
+
+	\backgroundpath{
+		\filldraw[line_box](-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
+    }
+}
+\makeatother
+
+\makeatletter
+\pgfdeclareshape{system}{%
+	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
+	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
+	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
+	\anchor{west}{\pgf@x=-\boxsize \pgf@y=0cm}
+	\anchor{north}{\pgf@x=0cm \pgf@y=\boxsize}
+
+
+	\backgroundpath{
+		\filldraw[line_box](-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
+
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.7 with {\arrow{>}}}}] 
+					(-\boxsize,0) -- (\boxsize,0);
+		\filldraw[draw=none,opacity=0.7](-5pt,-5pt)rectangle(5pt,5pt);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.3 with {\arrow{>}}}}] 
+					(0,\boxsize) -- (0,-\boxsize);
+		
+
+
+
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}] 
+					(-\rel_i*\boxsize,0) -- (0,-\rel_i*\boxsize);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}] 
+					(0,\rel_i*\boxsize) -- (\rel_i*\boxsize,0);
+
+\pgfsetcolor{black}
+		\pgftext[right,x=-1em,y=0.45*\boxsize] {\pgfkeysvalueof{/tikz/A}}
+		\pgftext[top,x=0.45*\boxsize,y=-1.3em] {\pgfkeysvalueof{/tikz/D}}
+		\pgftext[left,bottom,x=0.35*\boxsize,y=0.35*\boxsize] {\pgfkeysvalueof{/tikz/C}}
+		\pgftext[right,top,x=-0.35*\boxsize,y=-0.4*\boxsize] {\pgfkeysvalueof{/tikz/B}}
+
+    }
+}
+\makeatother
