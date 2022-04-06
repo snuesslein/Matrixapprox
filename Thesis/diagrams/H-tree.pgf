@@ -1,0 +1,135 @@
+﻿\begin{tikzpicture}[line width=1.2 pt]
+
+\def\scale{30mm}
+\def\offsetlr{0.3,-0.3}
+\tikzset{
+pics/lowrank/.style = {
+background code = { 
+		\fill[fill=blue!30] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.2,-0.4*#1);
+		\fill[fill=blue!30] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.2); 
+}
+}
+}
+
+\tikzset{
+pics/segmentation/.style = {
+background code = { 
+\node (-r) at (0,0) [draw,minimum width=#1,minimum height=#1] {};
+		\node (-a) at (-0.25*#1,0.25*#1) [draw,minimum width=0.5*#1,minimum height=0.5*#1] {};
+		\node (-c) at (0.25*#1,-0.25*#1) [draw,minimum width=0.5*#1,minimum height=0.5*#1] {};
+		\node (-b) at (0.25*#1,0.25*#1) [draw,minimum width=0.5*#1,minimum height=0.5*#1] {};
+		\node (-d) at (-0.25*#1,-0.25*#1) [draw,minimum width=0.5*#1,minimum height=0.5*#1] {};
+}
+}
+}
+
+\tikzset{
+pics/box/.style = {
+background code = { 
+		\node (-r) at (0,0) [draw,minimum width=#1,minimum height=#1] {};
+		\fill (0.5*#1,0.5*#1) rectangle (-0.5*#1,-0.5*#1);
+		\draw (0.5*#1,0.5*#1) rectangle (-0.5*#1,-0.5*#1);
+}
+}
+}
+
+
+
+\def\xsec{7.5}
+\pic(top) at (-1.25,0) {segmentation=\scale};
+
+
+\pic(s_a)             at (4,3) {segmentation=0.5*\scale};
+\pic(s_b)[fill=white] at (2.5,1.1) {box=0.5*\scale};
+\pic(s_c)             at (4,-4/3) {segmentation=0.5*\scale};
+\pic(s_d)[fill=white] at (2.5,-3.5) {box=0.5*\scale};
+
+\pic at (s_b-r.north west){lowrank=0.9*\scale};
+\pic at (s_d-r.north west){lowrank=0.9*\scale};
+
+\pic(t_aa)[fill=red] at (\xsec,4.5) {box=0.3*\scale};
+\pic(t_ab)[fill=white] at (\xsec,3.5) {box=0.3*\scale};
+\pic(t_ac)[fill=red] at (\xsec,2.5) {box=0.3*\scale};
+\pic(t_ad)[fill=white] at (\xsec,1.5) {box=0.3*\scale};
+
+\pic at (t_ab-r.north west){lowrank=0.4*\scale};
+\pic at (t_ad-r.north west){lowrank=0.4*\scale};
+
+\pic(t_ca)[fill=red] at (\xsec,0) {box=0.3*\scale};
+\pic(t_cb)[fill=white] at (\xsec,-1) {box=0.3*\scale};
+\pic(t_cc)[fill=red] at (\xsec,-2) {box=0.3*\scale};
+\pic(t_cd)[fill=white] at (\xsec,-3) {box=0.3*\scale};
+
+\pic at (t_cb-r.north west){lowrank=0.4*\scale};
+\pic at (t_cd-r.north west){lowrank=0.4*\scale};
+
+
+\draw[->] (top-a) to [out=90,in=180] (s_a-r);
+\draw[->] (top-b) to [out=0,in=180](s_b-r);
+\draw[->] (top-c) to [out=0,in=180](s_c-r);
+\draw[->] (top-d) to [out=-90,in=180](s_d-r);
+
+\draw[->] (s_a-a) to [out=90,in=180] (t_aa-r);
+\draw[->] (s_a-b) to [out=0,in=180] (t_ab-r);
+\draw[->] (s_a-c) to [out=0,in=180] (t_ac-r);
+\draw[->] (s_a-d) to [out=-90,in=180] (t_ad-r);
+
+\draw[->] (s_c-a) to [out=90,in=180] (t_ca-r);
+\draw[->] (s_c-b) to [out=0,in=180] (t_cb-r);
+\draw[->] (s_c-c) to [out=0,in=180] (t_cc-r);
+\draw[->] (s_c-d) to [out=-90,in=180] (t_cd-r);
+
+
+%\draw [help lines] grid (7,7);
+%\pic at (3,3) {lowrank=10mm};
+
+
+% \matrix (m)[matrix of math nodes,color=white]
+% {
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% };
+% 
+% \def\offset{0.27mm}
+% \def\offdia{0.2mm}
+% \def\lw{0.19mm}
+% \def\lwblk{0.3mm}
+% 
+% \draw[color=black ,line width=\lwblk] (m-1-1.north west)rectangle (m-4-4.south east);
+% \draw[color=black ,line width=\lwblk,fill=red] (m-1-1.north west)rectangle (m-2-2.south east);
+% \draw[color=black ,line width=\lwblk,fill=red] (m-3-3.north west)rectangle (m-4-4.south east);
+% 
+% \draw[color=black ,line width=\lwblk] (m-5-5.north west)rectangle (m-8-8.south east);
+% \draw[color=black ,line width=\lwblk,fill=red] (m-5-5.north west)rectangle (m-6-6.south east);
+% \draw[color=black ,line width=\lwblk,fill=red] (m-7-7.north west)rectangle (m-8-8.south east);
+% 
+% \draw[color=black ,line width=\lwblk] (m-1-5.north west)rectangle (m-4-8.south east);
+% \draw[color=black ,line width=\lwblk] (m-5-1.north west)rectangle (m-8-4.south east);
+% 
+% 
+% \pic at (m-3-1.center) {lowrank=12mm};
+% \pic at (m-1-3.center) {lowrank=12mm};
+% \pic at (m-5-1.center) {lowrank=34mm};
+% \pic at (m-1-5.center) {lowrank=34mm};
+% \pic at (m-7-5.center) {lowrank=12mm};
+% \pic at (m-5-7.center) {lowrank=12mm};
+% 
+% % \matrix (m)[matrix of math nodes,left delimiter=(,right delimiter=)]
+% % {
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % * &*&*&*&*&*&*&*\\
+% % };
+
+\end{tikzpicture}

@@ -1,0 +1,68 @@
+﻿\begin{tikzpicture}
+
+
+\def\offsetlr{-0.05,0.04}
+\tikzset{
+pics/lowrank/.style = {
+background code = { 
+		\fill[fill=blue!30] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.1,-0.4*#1);
+		\fill[fill=blue!30] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.1); 
+}
+}
+}
+
+
+
+%\draw [help lines] grid (7,7);
+%\pic at (3,3) {lowrank=10mm};
+
+
+\matrix (m)[matrix of math nodes,color=white]
+{
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+* &*&*&*&*&*&*&*\\
+};
+
+\def\offset{0.27mm}
+\def\offdia{0.2mm}
+\def\lw{0.19mm}
+\def\lwblk{0.3mm}
+
+\draw[color=black ,line width=\lwblk] (m-1-1.north west)rectangle (m-4-4.south east);
+\draw[color=black ,line width=\lwblk,fill=red] (m-1-1.north west)rectangle (m-2-2.south east);
+\draw[color=black ,line width=\lwblk,fill=red] (m-3-3.north west)rectangle (m-4-4.south east);
+
+\draw[color=black ,line width=\lwblk] (m-5-5.north west)rectangle (m-8-8.south east);
+\draw[color=black ,line width=\lwblk,fill=red] (m-5-5.north west)rectangle (m-6-6.south east);
+\draw[color=black ,line width=\lwblk,fill=red] (m-7-7.north west)rectangle (m-8-8.south east);
+
+\draw[color=black ,line width=\lwblk] (m-1-5.north west)rectangle (m-4-8.south east);
+\draw[color=black ,line width=\lwblk] (m-5-1.north west)rectangle (m-8-4.south east);
+
+
+\pic at (m-3-1.center) {lowrank=12mm};
+\pic at (m-1-3.center) {lowrank=12mm};
+\pic at (m-5-1.center) {lowrank=34mm};
+\pic at (m-1-5.center) {lowrank=34mm};
+\pic at (m-7-5.center) {lowrank=12mm};
+\pic at (m-5-7.center) {lowrank=12mm};
+
+% \matrix (m)[matrix of math nodes,left delimiter=(,right delimiter=)]
+% {
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% * &*&*&*&*&*&*&*\\
+% };
+
+\end{tikzpicture}
