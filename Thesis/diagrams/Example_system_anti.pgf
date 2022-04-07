@@ -3,14 +3,14 @@
 
 	\matrix (m1) [row sep=5.mm, column sep=13mm]
 	{
-		&		\node[coordinate]  (xin) {}; & \\[0.8cm,between origins]
+		&		\node[coordinate]  (xout) {}; & \\[0.8cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]                  (u_1) {$u_1$};          &
-		\node[style_stage, stage, name=sys_1,A=$A_{1}$,B=$B_{1}$,C=$C_{1}$,D=$D_{1}$] {};&
+		\node[style_stage, stageanti, name=sys_1,A=$A_{1}$,B=$B_{1}$,C=$C_{1}$,D=$D_{1}$] {};&
 		\node[]                  (y_1) {$y_1$};          \\
 		%--------------------------------------------------------------------
 		\node[]                  (u_2) {$u_2$};          &
-		\node[style_stage, stage, name=sys_2,A=$A_{2}$,B=$B_{2}$,C=$C_{2}$,D=$D_{2}$] {};&
+		\node[style_stage, stageanti, name=sys_2,A=$A_{2}$,B=$B_{2}$,C=$C_{2}$,D=$D_{2}$] {};&
 		\node[]                  (y_2) {$y_2$};          \\[1.2cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]  (dots_u) {}; &
@@ -18,21 +18,22 @@
 		\node[]  (dots_y) {}; \\[0.9cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]                  (u_k) {$u_n$};          &
-		\node[style_stage, stage, name=sys_k,A=$A_{n}$,B=$B_{n}$,C=$C_{n}$,D=$D_{n}$] {};&
+		\node[style_stage, stageanti, name=sys_k,A=$A_{n}$,B=$B_{n}$,C=$C_{n}$,D=$D_{n}$] {};&
 		\node[]                  (y_k) {$y_n$};          \\[0.8cm,between origins]
 		%--------------------------------------------------------------------
-		 &		\node[coordinate]  (xout) {}; & \\
+		 &		\node[coordinate]  (xin) {}; & \\
 	};
 
 
 	\foreach \i in {1,2,k}
 		{
-		  \draw[signalflow] (u_\i) -- (sys_\i.u);
-	  	\draw[signalflow] (sys_\i.y) -- (y_\i);
+    \draw[signalflow] (u_\i)     -- (sys_\i.u);
+    \draw[signalflow] (sys_\i.y) -- (y_\i); 
 		}
-	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_1$} (sys_1.xin);
-	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$x_2$} (sys_2.xin);
-	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor=west]   {$x_3$} ($(dots_x.north)+(0,-0.1)$);
-	\draw[signalflow] ($(dots_x.south)+(0,-0.0)$) -- node[near start,anchor=west] {$x_k$}(sys_k.xin);
-	\draw[signalflow] (sys_k.xout)               -- node[near end,anchor = west] {$x_{n+1}$} (xout);
+
+	\draw[signalflow] (sys_1.xout)               -- node[anchor = west] {$x_0$}             (xout);
+	\draw[signalflow] (sys_2.xout)               -- node[anchor=west] {$x_1$}               (sys_1.xin);
+	\draw[signalflow] ($(dots_x.north)+(0,-0.1)$) -- node[near start,anchor=west] {$x_2$}    (sys_2.xin);
+	\draw[signalflow] (sys_k.xout)               -- node[near end,anchor=west] {$x_{k-1}$}  ($(dots_x.south)+(0,-0.0)$);
+	\draw[signalflow] (xin)                      -- node[near start,anchor = west] {$x_{n}$}(sys_k.xin);
 \end{tikzpicture}

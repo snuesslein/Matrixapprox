@@ -1,0 +1,174 @@
+\documentclass[inputenc=utf8,fontsize=10pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{Stephan Nüßlein}
+\title{Time Varying Systems in Tikz}
+
+\usepackage{pgfplots}
+\usepackage{tikz}
+\input{systems.tex}
+\begin{document}
+	\maketitle
+	
+\section*{Introduction}
+
+This manual explains how too draw time varying systems in Tikz.
+Therefore we use custom defined shapes that are available in a seperate tex file.
+
+First we describe the usage with the parameters.
+After this we give examples.
+
+\section*{Usage}
+
+To load the shape we have to include these commands in the preamble.
+\begin{verbatim}
+	\usepackage{pgfplots}
+	\usepackage{tikz}
+	\input{systems.tex}
+\end{verbatim}
+
+Afterwards we can draw systems in tikz pictures.
+
+The file provides three shapes that can be used:
+\begin{itemize}
+	\item \verb|stage| A stage of a causal system
+	\item \verb|stageanti| A stage of a anticausal system
+	\item \verb|stagebox| The border of the stage
+\end{itemize}
+
+\begin{tikzpicture}
+\tikzset{
+   shape example/.style={fill=yellow!30,}
+}
+\draw [help lines] grid (14,4);
+\node(stage) [shape example, stage,A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\node(stageanti) [shape example, stageanti,A=$A$,B=$B$,C=$C$,D=$D$] at (7,2) {};
+\node(stagebox) [shape example, stagebox] at (11,2) {};
+\node[below of=stage,yshift=-0.5cm] {\texttt{stage}};
+\node[below of=stageanti,yshift=-0.5cm] {\texttt{stageanti}};
+\node[below of=stagebox,yshift=-0.5cm] {\texttt{stageabox}};
+\end{tikzpicture}
+This graphic can be created using the following code.
+Note here that the labels can be set using the keys 
+\verb|[A=|$\bullet$
+\verb|,B=|$\bullet$\verb|,C=|$\bullet$\verb|,D=|$\bullet$\verb|]|.
+\begin{verbatim}
+\begin{tikzpicture}
+\tikzset{
+shape example/.style={fill=yellow!30,}
+}
+\draw [help lines] grid (14,4);
+\node(stage) [shape example, stage,A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\node(stageanti) [shape example, stageanti,A=$A$,B=$B$,C=$C$,D=$D$] at (7,2) {};
+\node(stagebox) [shape example, stagebox] at (11,2) {};
+\node[below of=stage,yshift=-0.5cm] {\texttt{stage}};
+\node[below of=stageanti,yshift=-0.5cm] {\texttt{stageanti}};
+\node[below of=stagebox,yshift=-0.5cm] {\texttt{stageabox}};
+\end{tikzpicture}
+\end{verbatim}
+
+If we want to connect the systems we can use the following anchors:
+All shapes have the standard anchors \texttt{north, west, center, east} and \texttt{south}.
+The shapes \texttt{stage} and \texttt{stageanti} have the additional anchors 
+\texttt{u,y,xin} and \texttt{xout}.
+
+\begin{tikzpicture}
+\tikzset{
+	shape example/.style={fill=yellow!30,}
+}
+\draw [help lines] grid (14,4);
+\node(stage) [shape example, stage,A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\foreach \anchor/\placement in {xin/above, u/left, y/right, xout/below}
+\draw[shift=(stage.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+
+\node(stageanti) [shape example, stageanti,A=$A$,B=$B$,C=$C$,D=$D$] at (7,2) {};
+\foreach \anchor/\placement in {xout/above, u/left, y/right, xin/below}
+\draw[shift=(stageanti.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+
+\node(stagebox) [shape example, stagebox] at (11,2) {};
+\foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
+\draw[shift=(stagebox.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
+\end{tikzpicture}
+
+To make the lines for the signal consistent, the shapes use the style \texttt{signal}.
+If this style is changed a different line style can be used.
+
+The file also provides a style \texttt{signalflow}. This style is based on \texttt{signal} and automatically adds an arrow in the middle of the line.
+
+\begin{tikzpicture}
+\tikzstyle{signal} = [very thick]
+\node(stage) [style_stage,stage,A=$A$,B=$B$,C=$C$,D=$D$] at (0,0) {};
+\node(u) [left of=stage,xshift=-1.5cm] {$u$};
+\draw[signalflow] (u) -- (stage.u);
+\end{tikzpicture}
+
+\begin{verbatim}
+\tikzstyle{signal} = [very thick]
+\node(stage) [style_stage,stage,A=$A$,B=$B$,C=$C$,D=$D$] at (0,0) {};
+\node(u) [left of=stage,xshift=-1.5cm] {$u$};
+\draw[signalflow] (u) -- (stage.u);
+\end{verbatim}
+
+We can also customize the stage.
+The standard style for a system is \verb|style_stage|. This sets the standard parameters like fillcolor, line width etc.
+There are also some custom parameters:
+\begin{itemize}
+	\item \verb|boxsize| sets the size of the box. Parameter is half the width/height of box 
+	\item \verb|fontmatrices| sets the size of a \texttt{A}, \texttt{B}, \texttt{C} and \texttt{D}
+\end{itemize}
+
+
+
+\begin{tikzpicture}
+\node(stage) [style_stage, stage, boxsize=15mm,fontmatrices = \huge,  A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\end{tikzpicture}
+\begin{verbatim}
+\begin{tikzpicture}
+\node(stage) [style_stage, stage, boxsize=15mm,fontmatrices = \huge,  
+    A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\end{tikzpicture}
+\end{verbatim}
+
+
+\section*{Examples}
+
+
+
+\section*{Appendix}
+Code to illustrate anchors:
+\begin{verbatim}
+\begin{tikzpicture}
+\tikzset{
+shape example/.style={fill=yellow!30,}
+}
+\draw [help lines] grid (14,4);
+\node(stage) [shape example, stage,A=$A$,B=$B$,C=$C$,D=$D$] at (3,2) {};
+\foreach \anchor/\placement in {xin/above, u/left, y/right, xout/below}
+\draw[shift=(stage.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement]
+   {\scriptsize\texttt{(s.\anchor)}};
+
+\node(stageanti) [shape example, stageanti,A=$A$,B=$B$,C=$C$,D=$D$] at (7,2) {};
+\foreach \anchor/\placement in {xout/above, u/left, y/right, xin/below}
+\draw[shift=(stageanti.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement]
+   {\scriptsize\texttt{(s.\anchor)}};
+
+\node(stagebox) [shape example, stagebox] at (11,2) {};
+\foreach \anchor/\placement in {north/above, west/left, center/above, 
+   east/right, south/below}
+\draw[shift=(stagebox.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement]
+   {\scriptsize\texttt{(s.\anchor)}};
+\end{tikzpicture}
+\end{verbatim}
+
+
+
+
+\end{document}

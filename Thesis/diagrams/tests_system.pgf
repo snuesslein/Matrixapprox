@@ -8,7 +8,7 @@
 }
 
 \tikzset{
-    style_system/.style={
+    style_stage/.style={
         color=black!80,
         draw,
         fill=white,
@@ -21,7 +21,7 @@
     \begin{tikzpicture}
 
 \draw [help lines] grid (7,7);
-        \node[shape example, box, name=s] at (3,3) {};
+        \node[shape example, stagebox, name=s] at (3,3) {};
         \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
             \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
     \end{tikzpicture}
@@ -31,7 +31,7 @@
 \def\boxsize{15mm}
 
 \draw [help lines] grid (7,7);
-        \node[shape example, system, name=s] at (3,3) {};
+        \node[shape example, stage, name=s] at (3,3) {};
         \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
             \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
     \end{tikzpicture}
@@ -40,19 +40,34 @@
 
 
 \draw [help lines] grid (7,7);
-        \node[shape example, system, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
+        \node[shape example, stage, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
         \foreach \anchor/\placement in {north/above, west/left, center/above, east/right, south/below}
             \draw[shift=(s.\anchor)] plot[mark=x] coordinates{(0,0)} node[\placement] {\scriptsize\texttt{(s.\anchor)}};
     \end{tikzpicture}
 
-    \begin{tikzpicture}
+    \begin{tikzpicture}[font=\huge]
 
 
 \draw [help lines] grid (7,7);
-        \node[style_system, system, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
-\node[style_system, system, name=s,A=$A_{n+1}$,B=$B_{n+1}$,C=$C_{n+1}$,D=$D_{n+1}$] at (7,3) {};
+        \node[style_stage, stage, name=s,A=$A_1$,B=$B_1$,C=$C_1$,D=$D_1$] at (3,3) {};
+\tikzset{fontmatrices}
+
+\node[style_stage, stage, name=s,A=$A_{n+1}$,B=$B_{n+1}$,C=$C_{n+1}$,D=$D_{n+1}$] at (7,3) {};
+
+\pgfkeys{/tikz/font=\tiny}
+
 
     \end{tikzpicture}
+\\
+\begin{tikzpicture}
+\draw [help lines] grid (14,6);
+\node(stage) [shape example, stage] at (3,3) {};
+\node(stageanti) [shape example, stageanti] at (7,3) {};
+\node(stagebox) [shape example, stagebox] at (11,3) {};
+\node[below of=stage,yshift=-0.5cm] {\texttt{stage}};
+\node[below of=stageanti,yshift=-0.5cm] {\texttt{stageanti}};
+\node[below of=stagebox,yshift=-0.5cm] {\texttt{stageabox}};
+\end{tikzpicture}
 
 \end{document}
 

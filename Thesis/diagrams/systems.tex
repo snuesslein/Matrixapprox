@@ -1,9 +1,16 @@
+\usetikzlibrary{calc}
+\usetikzlibrary{matrix}
+\usetikzlibrary{ decorations.markings}
+\usetikzlibrary {decorations.shapes}
+
+
 
 \tikzset{
-	style_system/.style={
+	style_stage/.style={
 		color=black!80,
 		draw,
 		fill=white,
+		line width=1pt,
 	}
 }
 
@@ -14,9 +21,9 @@
 
 
 \tikzstyle{signal} = [very thick]
-\tikzstyle{line_box} =[line width=1pt]
 
-\tikzset{signalflow/.style={very thick,
+
+\tikzset{signalflow/.style={signal,
 		decoration={markings,mark=at position 0.5 with {\arrow{>}}},postaction={decorate}}}
 
 \tikzset{A/.initial=$A_{}$}
@@ -25,11 +32,11 @@
 \tikzset{D/.initial=$D_{}$}
 
 \def\boxsize{\pgfkeysvalueof{/tikz/boxsize}}
-\def\rel_i{0.65}
-
+\def\rel_i_stage{0.65}
+\def\shadesize{2pt}
 
 \makeatletter
-\pgfdeclareshape{box}{%
+\pgfdeclareshape{stagebox}{%
 	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
 	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
@@ -38,46 +45,46 @@
 
 
 	\backgroundpath{
-		\filldraw[line_box](-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
+		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
     }
 }
 \makeatother
 
 \makeatletter
-\pgfdeclareshape{system}{%
+\pgfdeclareshape{stage}{%
 	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
 	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
 	\anchor{west}{\pgf@x=-\boxsize \pgf@y=0cm}
 	\anchor{north}{\pgf@x=0cm \pgf@y=\boxsize}
-	
-	\anchor{x_out}{\pgf@x=0cm \pgf@y=-\boxsize}
+
+	\anchor{xout}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{y}{\pgf@x=\boxsize \pgf@y=0cm}
 	\anchor{u}{\pgf@x=-\boxsize \pgf@y=0cm}
-	\anchor{x_in}{\pgf@x=0cm \pgf@y=\boxsize}
+	\anchor{xin}{\pgf@x=0cm \pgf@y=\boxsize}
 
 
 	\backgroundpath{
-		\filldraw[line_box](-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
+		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
 
-		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.65 with {\arrow{>}}}}] 
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.65 with {\arrow{>}}}}]
 					(-\boxsize,0) -- (\boxsize,0);
-		\filldraw[draw=none,opacity=0.7](-5pt,-5pt)rectangle(5pt,5pt);
-		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.35 with {\arrow{>}}}}] 
+		\filldraw[draw=none,opacity=0.7](-\shadesize,-\shadesize)rectangle(\shadesize,\shadesize);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.35 with {\arrow{>}}}}]
 					(0,\boxsize) -- (0,-\boxsize);
-		
 
 
 
-		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}] 
-					(-\rel_i*\boxsize,0) -- (0,-\rel_i*\boxsize);
-		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}] 
-					(0,\rel_i*\boxsize) -- (\rel_i*\boxsize,0);
+
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
+					(-\rel_i_stage*\boxsize,0) -- (0,-\rel_i_stage*\boxsize);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
+					(0,\rel_i_stage*\boxsize) -- (\rel_i_stage*\boxsize,0);
 
 		\pgfsetcolor{black}
-		\pgftext[right,x=-0.5em,y=0.4*\boxsize] 
+		\pgftext[right,x=-0.5em,y=0.4*\boxsize]
 			{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/A}}
-		\pgftext[top,left,x=0.05*\boxsize,y=-0.5em] 
+		\pgftext[top,left,x=0.05*\boxsize,y=-0.5em]
 			{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/D}}
 		\pgftext[left,bottom,x=0.35*\boxsize,y=0.35*\boxsize]
 			{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/C}}
@@ -85,5 +92,51 @@
 			{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/B}}
 
     }
+}
+\makeatother
+
+
+\makeatletter
+\pgfdeclareshape{stageanti}{%
+	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
+	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
+	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
+	\anchor{west}{\pgf@x=-\boxsize \pgf@y=0cm}
+	\anchor{north}{\pgf@x=0cm \pgf@y=\boxsize}
+
+	\anchor{xin}{\pgf@x=0cm \pgf@y=-\boxsize}
+	\anchor{y}{\pgf@x=\boxsize \pgf@y=0cm}
+	\anchor{u}{\pgf@x=-\boxsize \pgf@y=0cm}
+	\anchor{xout}{\pgf@x=0cm \pgf@y=\boxsize}
+
+
+	\backgroundpath{
+		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
+
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.65 with {\arrow{>}}}}]
+		(-\boxsize,0) -- (\boxsize,0);
+		\filldraw[draw=none,opacity=0.7](-\shadesize,-\shadesize)rectangle(\shadesize,\shadesize);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.35 with {\arrow{>}}}}]
+		(0,-\boxsize) -- (0,\boxsize);
+
+
+
+
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
+		(-\rel_i_stage*\boxsize,0) -- (0,\rel_i_stage*\boxsize);
+		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
+		(0,-\rel_i_stage*\boxsize) -- (\rel_i_stage*\boxsize,0);
+
+		\pgfsetcolor{black}
+		\pgftext[right,x=-0.4em,y=-0.4*\boxsize]
+		{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/A}}
+		\pgftext[bottom,left,x=0.05*\boxsize,y=0.35em]
+		{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/D}}
+		\pgftext[left,top,x=0.35*\boxsize,y=-0.35*\boxsize]
+		{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/C}}
+		\pgftext[right,bottom,x=-0.35*\boxsize-0.1em,y=0.4*\boxsize+0.1em]
+		{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/B}}
+
+	}
 }
 \makeatother
