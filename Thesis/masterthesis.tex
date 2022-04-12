@@ -50,6 +50,8 @@
 %define symbols
 \newcommand{\R}{\mathcal{R}} %Reachabilityy matrix
 \newcommand{\Ob}{\mathcal{O}} %Observability operator 
+\newcommand{\eye}{I} %identity matrix
+\newcommand{\bigO}{O}
 
 \begin{document}
 
@@ -101,10 +103,76 @@ increasing cost
 
 Order of matrix vector product, makes larger systems expensive
 
-Matrix structures with reduced order. Different representations.
+\todo{why ML interesting}
 
-Description of structure of thesis
+As the matrices for fully connected layers get larger the evaluation of the neural nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
 
+
+The linear layers in neural nets can be represented with matrices.
+Usually full matrices are used.
+When evaluation the neural nets one has to compute the matrix vector product.
+For a full unstructured matrix this is of order $O(n^2)$. 
+Whereas the cost for calculating the nonlinear part is usually linear in the number of neurons the cost for the calculation of the liner layers is quadratic in the number of neurons.
+This means that a larger number of neurons the cost of the linear layer inccears 
+\todo{reword}
+
+
+There are also matrix structures where the cost of the matrix vector product is of lower order.
+These have been developed to help solving PDEs like $\mathcal{H}$-Matrices, arise in different circumstances like semiseperabel matrices, %Vander Bib
+
+or are description of time varying systems like sequentially semiseperable matrices.
+All of them can not only be represented as a matrix but also have a different representation.
+It is possible to use these representations to construct algorithms that can compute the matrix vector product.
+One example of this are circulant matrices. 
+These describe time invariant systems and therefore convolutions \todo{check and reword}
+Using the DFT matrices, circulant matrices can be transformed into diagonal matrices.
+This allows us to obtain a faster algorithm for the product $y=Tu$ by suing the Fast Fourier Trandform(FFT):
+We can first compute the FFT of the input, then multiply the vector element-wise with a weight vector. Finally we use the inverse FFT to obtian the result $y$.
+Instead of of the order $\bigO(n^2)$ we now have $\bigO(n\log(n))$.
+This result is used in widely used in Convolutional Neural Networks (CNN).
+Instead of using a matrix vector products the underlying structure is utilized and convolutions are used.
+
+One might analogously try to use other structures to represent weight matrices:
+A possible representation are sequentially semiseperable matrices. 
+These matrices represent the input output behaviour of
+Time varing systems.
+These systems consist of  subsystems, so called stages that can change over time.
+%Every stage can be described using four small matrices.\todo{reword}
+Therefore we can also use this state space representation of the system to describe the matrix.
+It is also possible to to calculate the matrix-vector product using algorithms based on this representation.
+%The number of inputs and outputs of a system also create a segmentation of the system.
+The definition of the Sequentially semiseperable matrix also results in the fact that these matrices have a underlying segmentation.
+This segmentation is often determined by a known system ot an underlying physical system and therefore known. 
+The matrices in neural networks do not necessarily have the same underlying structure.
+Even if the matrix is close to a sequentially semiseperable matrix the structural parameters are usually not know.
+To represent the matrices, one need algorithms to derive these structural parameters.
+%This can be split in different sub problems.
+%Firs the number of stages is not known.
+There are existing algorithms to calculate the state space representation for a known segmentation.
+After guessing the structural parameters we use these algorithms to create a system.
+After this we refine the parameters by an algorithm that can change the structural parameters of a system.
+As the weight matrices usually are not sequentuilly semiseperable we also need to approximate the system, if we want to reduce the computational cost.
+This will also be incorporated in the algorithm.
+
+In section different approaches to use structured matrices in neural nets are collected.
+In section related matrix structures will be presented.
+After this the Sequentually semiseperable matrices that will be used in this thesis will be explained in more detail in chapter
+In chapter <methods> the methods to create a state space representation for a matrix with unknown structural parameters will be presented.
+%the sequentially semeiseperabel structure will be used to approximate matrices. 
+%For these matrices it the structural parameters are not known a prior.
+In section <approx> an algorithm for the approximation of a system with a different system is explored.
+%In section we give an algorithm, for the approximation of systems.
+Based on this choose the structural parameters are chosen.
+In section <> an approach to determine the number of stages for a system will be presented
+We still have to determine the input and output dimensions.
+%An Algorithm to adapt the input and output dimentiosn of a system will be explained.
+This is done by starting with an initial guess and then refine the structure by adapt the input and output dimensions.
+In section <> an algorithm to change these dimensions is given.
+Additionally this section presents strategies how to use these algorithms in cases where the final structure has to be determined.
+In chapter the algorithms will be tested.
+Section contains the results for test cases and in section the algorithm are used to approxiamte weight matrices.
+
+´
 
 \chapter{Literature Review}
 \todo[inline]{Some test}
@@ -113,7 +181,7 @@ Description of structure of thesis
 %Special matrix structures are been explored for the use in neural nets.
 %Here different matrices structures are used to improve the performance. 
 In this section different approaches that use structured matrices in neural nets are shortly introduced.
-\todo[inline]{eventually move this to introduction}
+\todo[inline]{moved to introduction delete/replace this}
 \textcolor{blue}{The linear layers in matrices can be represented with matrices.
 Usually full matrices are used. These do not have a particular structure.
 It is also possible to use structured matrices.
@@ -300,6 +368,12 @@ Unlike semiseperable matrices the sequentially semiseperable matrices do not hav
 
 
 Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
+\footnote{
+The naming and structure of the matrices is not consistent in the literature.
+Here we will use the notation used in \cite{tong_blind_2003}. 
+In \cite{dewilde_time-varying_1998} a similar notation is used, but the transfer operator is transposed.
+In other works like \cite{rice_efficient_2010,chandrasekaran_fast_2002} the causal and anticausal parts are considered jointly
+}
 These systems can be described using the formulas
 \begin{subequations}
 	\begin{align}
@@ -360,7 +434,7 @@ When we stack the input vectors to a one vector $u = [u_1^\top, \dots ,u_k^\top]
 \begin{equation}\label{eq:System_mat_vec}
 	y = Tu,
 \end{equation}
-where the matrix $T$ describes the system.
+where the matrix $T$ is called the transfer operator.
 
 The matrix $T$ for a causal system with four stages is
 \begin{equation}\label{eq:T_causal}
@@ -387,7 +461,7 @@ When adding the systems,  the $D$ matrices have to be added.
 As the use of two seperate $D$ does usually not have any benefits, the $D$ matrices for the anticausal system are usually set to 0 and therefore can be ignored.
 When representing matrices the first state $x_1$ and the last stage $x_{n+1}$ are usually set to zero dimensions.
 
-
+\paragraph{Hankel Operator and Minimality}
 When we are interested in properties of the system, we can study the relation between the inputs, the states and the outputs. 
 The reachability matrix $\R$ is the mapping from the inputs to the state. For a causal system the reachability matrix for state $x_k$ can be written as
 \begin{equation}
@@ -445,6 +519,7 @@ Usually the state dims are far smaller than the input and output dims.
 This allows us to factor the $H_k$ in a tall and a flat matrix. 
 This results in the factorization $H_k = \Ob_k\R_k$
 
+\paragraph{State Transforms}
 As this factorization is not unique, the state in also not uniquely defined. 
 The state can be transformed with an non-singular state transform matrix $S$ according to $\tilde{x} =Sx$.
 This gives a transformed 
@@ -455,16 +530,119 @@ There are are three particular types of factorization that are called canonical 
 An input-normal realization has the property that the columns of each $\Ob_k$ are orthormormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
 The balanced realization results form the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
 In a balanced realization $\Ob_k = U_k \Sigma^{1/2}$ and $\R_k = \Sigma^{1/2} V_k^\top$.
-These canonical form usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is hard to define numerically for systems where the $\sigma$s decay slowly. \todo[]{finite equivalent of compact operators} If minimality is required, it will be explicitly stated.
- 
+These canonical form usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is hard to define numerically for systems where the $\sigma$s decay slowly. \todo[]{finite equivalent of compact operators, search for word} If minimality is required, it will be explicitly stated.
 
-\todo[inline]{
-SSS as matrix factorization\\
-Facrtorization causal
-And mixed system
-}
+\paragraph{Matrix Factorization}
+The sequentially semisperabel matrices can also be considered as a matrix factorization.
+For a causal system,the matrix $T$ can be expressed as a product $T = T_n T_{n-1} \dots T_2 T_1$
+Where every $T_k$ represents a stage. The matrices $T_k$ is constructed according to 
 
+\begin{equation}
+\newcommand{\sddots}{\hspace{-6pt}\ddots}
+\newcommand{\n}{\hspace{-7pt}}
+	T_k =
+	\begin{bmatrix}
+	\begin{array}{c|cccccccc}
+	A_k&    &   & & B_k & & &\\
+	\hline
+	   &\eye&   &&     & & &\\[-8pt]
+	   & &\sddots&&    & & &\\[-6pt]
+	   & & &\n\eye&      & & &\\
+	C_k& & &    & D_k  & & &\\
+	   & & &    &      &\eye& &\\[-8pt]
+	   & & &    &      & &\sddots&\\[-6pt]
+	   & & &    &      & & &\n\eye 
+	\end{array}
+	\end{bmatrix} 
+\end{equation}
 
+For a system with 3 stages
+\begin{equation*}
+	T=
+	\left[\begin{matrix}A_{3} & 0 & 0 & B_{3}\\0 & 1 & 0 & 0\\0 & 0 & 1 & 0\\C_{3} & 0 & 0 & D_{3}\end{matrix}\right]
+\dots
+%	\left[\begin{matrix}A_{2} & 0 & B_{2} & 0\\0 & 1 & 0 & 0\\C_{2} & 0 & D_{2} & 0\\0 & 0 & 0 & 1\end{matrix}\right]
+	\left[\begin{matrix}A_{1} & B_{1} & 0 & 0\\C_{1} & D_{1} & 0 & 0\\0 & 0 & 1 & 0\\0 & 0 & 0 & 1\end{matrix}\right]
+	=
+	\left[\begin{matrix}A_{3} A_{2} A_{1} & A_{3} A_{2} B_{1} & A_{3} B_{2} & B_{3}\\C_{1} & D_{1} & 0 & 0\\C_{2} A_{1} & C_{2} B_{1} & D_{2} & 0\\C_{3} A_{2} A_{1} & C_{3} A_{2} B_{1} & C_{3} B_{2} & D_{3}\end{matrix}\right]
+\end{equation*}
+
+As $A_1$ has zero columns and $A_3$ has zero rows, the first block-column and the top block-row disappear and we get the familiars structure form Equation\,\ref{eq:T_causal}.
+
+An analogous factorization is possible for anticausal systems.
+Here the ordering is reversed an we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
+
+We can also represent mixed systems as factorization, if we use insert the factorizations for the causal part $T_{\text{causal}}$ and the anticausal parts $T_{\text{anticausal}}$ into
+\begin{equation}
+	T = 
+	\begin{bmatrix}
+	\eye &
+	\eye
+	\end{bmatrix}
+	\begin{bmatrix}
+	T_{\text{causal}}&\\
+	&T_{\text{anticausal}}
+	\end{bmatrix}	
+	\begin{bmatrix}
+	\eye\\
+	\eye
+	\end{bmatrix}
+\end{equation}
+Sequentially semiseperable matrices can be added, multiplied and inverted using algorithm that work on the ABCD description.
+It is also possible to calculate QR factorization \cite{chandrasekaran_fast_2002,tong_blind_2003} or URV factorization \cite{chandrasekaran_fast_2005}. 
+%Note on URV more papers in Dewilde,Diepold and van der Veen p315 
+There are also a couple of other algorithms that can be used for different purposes like sign iterations \cite{rice_efficient_2010}.
+
+\paragraph{Approxiamtions}
+It is also possible, to reduce the number of states by approximation a system $T$ with a system $\tilde{T}$.
+If the system $T$ is minimal, this is not trivial, as the a reduction of the number of states also result in a reduction of the Hankelrank.
+In \cite{dewilde_time-varying_1998} this is done using the Hankel norm
+\begin{equation}
+	\|T\|_H = \sup_{i}\|T_i\|.
+\end{equation}
+This norm is the supremeum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
+An algorithm is given for the hankel rank approxiamtion that computes a $\tilde{T}$.
+The approximated system satisfies the condition
+\begin{equation}
+	\| \Gamma^{-1}(T-\tilde{T})\|_H \leq 1.
+\end{equation}
+Where $\Gamma$ is a diagonal and hermition operator. 
+If we set $\Gamma = \eye\gamma$ we obtain the simplified condition
+\begin{equation}
+	\|T-\tilde{T}\|_H \leq \gamma.
+\end{equation}
+
+A second approach is balanced truncation is described.
+Here the state dimensions $x_k$ are reduced to a new dimension $\tilde{n}_k$.
+The idea is to partition the matrices of a balanced realization for every state according to
+\begin{align}
+	A_k &=\begin{bmatrix}
+	A_{k[11]} & A_{k[12]} \\
+	A_{k[21]} & A_{k[22]} \\
+	\end{bmatrix}
+	&
+	B_k &= \begin{bmatrix}
+	B_{k[1]} \\ B_{k[2]}
+	\end{bmatrix} 
+	\\
+	C &= \begin{bmatrix}
+	C_{k[1]} & C_{k[2]}
+	\end{bmatrix}& 
+	D_k&=D_k.
+\end{align}
+The dimensions are determined by the new state dimensions $\tilde{x}$.
+The approximated system $\tilde{T}$ is then set to
+\begin{align}
+	\tilde{A}_k &= A_{k[11]}  & \tilde{B}_k &= B_{k[1]}\\
+	\tilde{C}_k &=C_{k[1]}      & \tilde{D}_k &= D_k.
+\end{align}
+This is equivalent to removing the tailing states.
+Because the realization is balanced every state in the original system corresponds to a $\sigma$ of the according Hankel matrix.
+Therefore we can cut the smaller singular values.
+Equivalently we can construct an approximation when a system is identified using the SVD by truncating the $\sigma$s.  
+\todo[inline]{Proof?}
+In an error bound given in \cite{sandberg_balanced_2004}.
+\todo[inline]{find an easily understandable derivation or similar}
 
 
 \chapter{Methods} 15p
@@ -472,7 +650,7 @@ And mixed system
 \section{Matrix Approximations}
 \subsection{Algorithm}
 \begin{itemize}
-\item Discuss Approximation of a general system based on cutting the singular values of the Hankel matrix.
+
 
 \item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
 \item Define ordered realization as extention of the ballanced realization
@@ -544,7 +722,7 @@ Tests:
 
 
 
-
+\the\textwidth
 
 
 

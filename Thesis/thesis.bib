@@ -1,4 +1,6 @@
-
+%=====================================================================================================================
+%matrix structures
+%=====================================================================================================================
 @article{vandebril_bibliography_2005,
 	title = {A bibliography on semiseparable matrices*},
 	volume = {42},
@@ -68,8 +70,150 @@
 	file = {Full Text PDF:/home/stephan/snap/zotero-snap/common/Zotero/storage/ZSF9ZQA2/Dewilde und Veen - 1998 - Time-Varying Systems and Computations.pdf:application/pdf},
 }
 
+%=====================================================================================================================
+%Sequentially semiseperable
+%=====================================================================================================================
+
+@article{chandrasekaran_fast_2005,
+	title = {Some Fast Algorithms for Sequentially Semiseparable Representations},
+	volume = {27},
+	issn = {0895-4798},
+	url = {https://epubs.siam.org/doi/abs/10.1137/S0895479802405884},
+	doi = {10.1137/S0895479802405884},
+	abstract = {An extended sequentially semiseparable ({SSS}) representation derived from time-varying system theory is used to capture, on the one hand, the low-rank of the off-diagonal blocks of a matrix for the purposes of efficient computations and, on the other, to provide for sufficient descriptive richness to allow for backward stability in the computations. We present (i) a fast algorithm (linear in the number of equations) to solve least squares problems in which the coefficient matrix is in {SSS} form, (ii) a fast algorithm to find the {SSS} form of X such that \${AX}=B\$, where A and B are in {SSS} form, and (iii) a fast model reduction technique to improve the {SSS} form.},
+	pages = {341--364},
+	number = {2},
+	journaltitle = {{SIAM} Journal on Matrix Analysis and Applications},
+	shortjournal = {{SIAM} J. Matrix Anal. Appl.},
+	author = {Chandrasekaran, S. and Dewilde, P. and Gu, M. and Pals, T. and Sun, X. and van der Veen, A. J. and White, D.},
+	urldate = {2022-03-05},
+	date = {2005-01},
+	note = {Publisher: Society for Industrial and Applied Mathematics},
+	keywords = {65F30, 65F05, 65F20, backward stability, fast direct solver, fast multipole method, integral equations, method of moments, Moore--Penrose inverses, scattering theory, semiseparable matrices, spectral methods, time-varying systems},
+	file = {Chandrasekaran et al. - 2005 - Some Fast Algorithms for Sequentially Semiseparabl.pdf:/home/stephan/snap/zotero-snap/common/Zotero/storage/FL2T83XW/Chandrasekaran et al. - 2005 - Some Fast Algorithms for Sequentially Semiseparabl.pdf:application/pdf},
+}
+
+@article{qiu_efficient_2015,
+	title = {Efficient preconditioners for {PDE}-constrained optimization problems with a multi-level sequentially semi-separable matrix structure},
+	volume = {44},
+	pages = {3},
+	number = {367},
+	journaltitle = {Electronic Transactions on Numerical Analysis},
+	author = {Qiu, Yue and Van Gijzen, Martin B and Van Wingerden, Jan-Willem and Verhaegen, Michel and Vuik, Cornelis},
+	date = {2015},
+	note = {Publisher: Institute of Computational Mathematics},
+	file = {PDE_Cons_Opt.pdf:/home/stephan/snap/zotero-snap/common/Zotero/storage/UFM5AD7D/PDE_Cons_Opt.pdf:application/pdf;Qiu et al. - 2015 - Efficient preconditioners for PDE-constrained opti.pdf:/home/stephan/snap/zotero-snap/common/Zotero/storage/ZPERZ9WY/Qiu et al. - 2015 - Efficient preconditioners for PDE-constrained opti.pdf:application/pdf},
+}
+
+@thesis{rice_efficient_2010,
+	title = {Efficient Algorithms for Distributed Control: A Structured Matrix Approach},
+	url = {https://repository.tudelft.nl/islandora/object/uuid%3A50460cc9-2aba-4db5-b602-5373bb0bc609},
+	shorttitle = {Efficient Algorithms for Distributed Control},
+	abstract = {Distributed systems are all around us, and they are fascinating, and have an enormous potential to improve our lives, if their complexity can be properly harnessed. All scientists and engineers are aware of the great potential of this subject, since we witness fantastic distributed control systems every day, in the flocks of birds in the sky and fish in the sea. However, the collective behavior of millions of dynamically-coupled heterogeneous subsystems is hard to analyze and control for computational reasons. Our approach to the problems of analysis and control of distributed systems is to exploit the matrix structure of array-interconnected systems in fast iterative algorithms. Since these algorithms preserve the original matrix structure of the system, the resulting centrally optimal controller realizations have the same structure, which can conveniently be ‘redistributed’ into a set of subcontrollers linked in the same interconnection topology as the original system. For P interconnected subsystems, traditional analysis and control synthesis methods are O(P 3 ) computational complexity, but for N heterogeneous subsystems on a line, the above method is only O(N ) complexity. If the system is homogeneous with only heterogeneous boundary conditions, the complexity can be reduced to O(1), independent of the size of the homogeneous section. These results also extend to multiple spatial dimensions: for heterogeneous or homogeneous subsystems on an N ×M 2-D cartesian grid, the complexity is reduced to O(M N ) or O(1) complexity respectively, as compared to O(M 3 N 3 ) complexity of traditional techniques, an impressive improvement for very large systems N, M \&gt; 1000. Furthermore, due to the special form of the structured matrix arithmetic, the computations can actually be performed in a distributed way, on a distributed processor and memory system, with only linear complexity communication and memory requirements. Using these efficient structured techniques, one can perform stability and H2 and H? analysis to an arbitrary degree of accuracy, and sub-optimally upper-bound the structured singular value for robustness analysis. For synthesis, controllers with H2 and H? performance arbitrarily close to optimal are possible, and D-K iterations can be performed for robust design. Structure preserving model order reduction, and even system identification are also possible. It is also possible to apply this approach to analysis and synthesis of controllers for linear parameter varying({LPV}) systems, and of repetitive controllers for trials with many time steps, T ,in only O(T ) complexity which would otherwise be O(T 3 ).},
+	institution = {Technische Universiteit Delft},
+	type = {phdthesis},
+	author = {Rice, J. K.},
+	urldate = {2022-03-05},
+	date = {2010},
+	langid = {english},
+	file = {Full Text PDF:/home/stephan/snap/zotero-snap/common/Zotero/storage/AZ7AY7DS/Rice - 2010 - Efficient Algorithms for Distributed Control A St.pdf:application/pdf;Snapshot:/home/stephan/snap/zotero-snap/common/Zotero/storage/INIANNV2/uuid50460cc9-2aba-4db5-b602-5373bb0bc609.html:text/html},
+}
+
+@inproceedings{rice_structure_2009,
+	title = {Structure preserving model order reduction of heterogeneous 1-D distributed systems},
+	doi = {10.1109/ACC.2009.5159801},
+	abstract = {We consider the problem of model order reduction for spatially-varying interconnected systems distributed in one spatial dimension. The sequentially semi-separable matrix structure of such systems can be exploited to allow efficient structure preserving model order reduction using the matrix sign function. Iterative algorithms are provided for fast computation, which is demonstrated on an example.},
+	eventtitle = {2009 American Control Conference},
+	pages = {4109--4114},
+	booktitle = {2009 American Control Conference},
+	author = {Rice, Justin K. and Verhaegen, Michel},
+	date = {2009-06},
+	note = {{ISSN}: 2378-5861},
+	keywords = {Iterative algorithms, Matrix decomposition, Control systems, Distributed computing, Distributed control, Interconnected systems, Linear matrix inequalities, Optimal control, Riccati equations, Stability},
+	file = {IEEE Xplore Abstract Record:/home/stephan/snap/zotero-snap/common/Zotero/storage/A2FR9HKS/5159801.html:text/html},
+}
+
+@inproceedings{rice_distributed_2008,
+	title = {Distributed control: A sequentially semi-separable approach},
+	doi = {10.1109/CDC.2008.4738590},
+	shorttitle = {Distributed control},
+	abstract = {We consider the problem of designing controllers for spatially-varying interconnected systems distributed in one spatial dimension. The matrix structure of such systems can be exploited to allow fast analysis and design of centralized controllers with simple distributed implementations. Iterative algorithms are provided for stability analysis, H2 analysis, and sub-optimal controller synthesis. For practical implementation of the algorithms, approximations can be used, and the computational efficiency and accuracy of the algorithms incorporating these approximations are demonstrated on an example.},
+	eventtitle = {2008 47th {IEEE} Conference on Decision and Control},
+	pages = {2913--2919},
+	booktitle = {2008 47th {IEEE} Conference on Decision and Control},
+	author = {Rice, Justin K. and Verhaegen, Michel},
+	date = {2008-12},
+	note = {{ISSN}: 0191-2216},
+	keywords = {Iterative algorithms, Control systems, Distributed control, Interconnected systems, Optimal control, Riccati equations, Computational efficiency, Control system synthesis, Hydrogen, Iterative methods},
+	file = {IEEE Xplore Full Text PDF:/home/stephan/snap/zotero-snap/common/Zotero/storage/YCZ2QXS2/Rice und Verhaegen - 2008 - Distributed control A sequentially semi-separable.pdf:application/pdf},
+}
+
+@inproceedings{rice_structure_2009-1,
+	title = {Structure preserving model order reduction of heterogeneous 1-D distributed systems},
+	doi = {10.1109/ACC.2009.5159801},
+	abstract = {We consider the problem of model order reduction for spatially-varying interconnected systems distributed in one spatial dimension. The sequentially semi-separable matrix structure of such systems can be exploited to allow efficient structure preserving model order reduction using the matrix sign function. Iterative algorithms are provided for fast computation, which is demonstrated on an example.},
+	eventtitle = {2009 American Control Conference},
+	pages = {4109--4114},
+	booktitle = {2009 American Control Conference},
+	author = {Rice, Justin K. and Verhaegen, Michel},
+	date = {2009-06},
+	note = {{ISSN}: 2378-5861},
+	keywords = {Iterative algorithms, Matrix decomposition, Control systems, Distributed computing, Distributed control, Interconnected systems, Linear matrix inequalities, Optimal control, Riccati equations, Stability},
+	file = {IEEE Xplore Full Text PDF:/home/stephan/snap/zotero-snap/common/Zotero/storage/Z5NWQ2YJ/Rice und Verhaegen - 2009 - Structure preserving model order reduction of hete.pdf:application/pdf},
+}
+
+@article{sandberg_balanced_2004,
+	title = {Balanced truncation of linear time-varying systems},
+	volume = {49},
+	issn = {1558-2523},
+	doi = {10.1109/TAC.2003.822862},
+	abstract = {In this paper, balanced truncation of linear time-varying systems is studied in discrete and continuous time. Based on relatively basic calculations with time-varying Lyapunov equations/inequalities we are able to derive both upper and lower error bounds for the truncated models. These results generalize well-known time-invariant formulas. The case of time-varying state dimension is considered. Input-output stability of all truncated balanced realizations is also proven. The method is finally successfully applied to a high-order model.},
+	pages = {217--229},
+	number = {2},
+	journaltitle = {{IEEE} Transactions on Automatic Control},
+	author = {Sandberg, H. and Rantzer, A.},
+	date = {2004-02},
+	note = {Conference Name: {IEEE} Transactions on Automatic Control},
+	keywords = {Riccati equations, Asymptotic stability, Councils, Linear approximation, Linear systems, Nonlinear systems, Reduced order systems, Robust control, Sufficient conditions, Time varying systems},
+	file = {IEEE Xplore Abstract Record:/home/stephan/snap/zotero-snap/common/Zotero/storage/GLIGRZ36/1266776.html:text/html;Volltext:/home/stephan/snap/zotero-snap/common/Zotero/storage/G2QJMPI2/Sandberg und Rantzer - 2004 - Balanced truncation of linear time-varying systems.pdf:application/pdf},
+}
+
+@inproceedings{chandrasekaran_fast_2002,
+	location = {Berlin, Heidelberg},
+	title = {Fast Stable Solver for Sequentially Semi-separable Linear Systems of Equations},
+	isbn = {978-3-540-36265-4},
+	doi = {10.1007/3-540-36265-7_51},
+	abstract = {In this paper we will present a fast backward stable algorithm for the solution of certain structured matrices which can be either sparse or dense. It essentially combines the fast solution techniques for banded plus semi-separable linear systems of equations of Chandrasekaran and Gu [4] with similar techniques of Dewilde and van der Veen for time-varying systems [12].},
+	pages = {545--554},
+	booktitle = {High Performance Computing — {HiPC} 2002},
+	publisher = {Springer},
+	author = {Chandrasekaran, S. and Dewilde, P. and Gu, M. and Pals, T. and van der Veen, A. J.},
+	editor = {Sahni, Sartaj and Prasanna, Viktor K. and Shukla, Uday},
+	date = {2002},
+	langid = {english},
+	file = {Springer Full Text PDF:/home/stephan/snap/zotero-snap/common/Zotero/storage/GKX6QPZN/Chandrasekaran et al. - 2002 - Fast Stable Solver for Sequentially Semi-separable.pdf:application/pdf},
+}
+
+@article{tong_blind_2003,
+	title = {Blind decorrelating {RAKE} receivers for long-code {WCDMA}},
+	volume = {51},
+	issn = {1941-0476},
+	doi = {10.1109/TSP.2003.811230},
+	abstract = {The problem of blind and semiblind channel estimation and symbol detection is considered for long-code wideband code division multiple access ({CDMA}) systems, including systems with multirate and multicode transmissions. A decorrelating matched filter, implemented efficiently in state-space, eliminates multiaccess interference and produces a bank of vector processes. Each vector process spans a one-dimensional (1-D) subspace from which channel parameters and data symbols of one user are estimated jointly by least squares. A new identifiability condition is established, which suggests that channels unidentifiable, in short-code {CDMA} systems are almost surely identifiable when aperiodic spreading codes are used. The decorrelating matched filter is implemented efficiently based on time-varying state-space realizations that exploit the structure of sparsity of the code matrix. The mean square error of the estimated channel is compared to the Cramer-Rao bound, and a bit error rate ({BER}) expression for the proposed algorithm is presented.},
+	pages = {1642--1655},
+	number = {6},
+	journaltitle = {{IEEE} Transactions on Signal Processing},
+	author = {Tong, Lang and van der Veen, A.-J. and Dewilde, P. and Sung, Youngchul},
+	date = {2003-06},
+	note = {Conference Name: {IEEE} Transactions on Signal Processing},
+	keywords = {Bit error rate, Channel estimation, Decorrelation, Fading, Interference elimination, Least squares approximation, Matched filters, Multiaccess communication, Multipath channels, Wideband},
+	file = {Volltext:/home/stephan/snap/zotero-snap/common/Zotero/storage/IIMNMUNC/Tong et al. - 2003 - Blind decorrelating RAKE receivers for long-code W.pdf:application/pdf},
+}
 
 
+%=====================================================================================================================
+%Entries for literature review
+%=====================================================================================================================
 
 @inproceedings{yu_compressing_2017,
 	title = {On Compressing Deep Models by Low Rank and Sparse Decomposition},

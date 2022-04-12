@@ -4,46 +4,51 @@
 \usetikzlibrary {decorations.shapes}
 
 
-
+%Standard settings for the stage4s
 \tikzset{
 	style_stage/.style={
-		color=black!80,
+		color=black!80, %line color
 		draw,
 		fill=white,
 		line width=1pt,
 	}
 }
 
-
-
+%special parametres for stages
 \tikzset{fontmatrices/.initial=\small}
-\tikzset{boxsize/.initial=9mm}
+\tikzset{boxsize/.initial=9mm} %Note: width=height=2*boxsize
 
-
+%line style for the signals
 \tikzstyle{signal} = [very thick]
 
-
+%line style for drawing connections
 \tikzset{signalflow/.style={signal,
 		decoration={markings,mark=at position 0.5 with {\arrow{>}}},postaction={decorate}}}
 
+%set the standard parameters for A,B,C,D
 \tikzset{A/.initial=$A_{}$}
 \tikzset{B/.initial=$B_{}$}
 \tikzset{C/.initial=$C_{}$}
 \tikzset{D/.initial=$D_{}$}
 
-\def\boxsize{\pgfkeysvalueof{/tikz/boxsize}}
-\def\rel_i_stage{0.65}
+
+%Some internal definitions
+\def\rel_i_stage{0.65} %distance of the connections for B and C, is a fraction of boxsize
 \def\shadesize{2pt}
 
+%some shorthanfds for convenience
+\def\boxsize{\pgfkeysvalueof{/tikz/boxsize}}
+
 \makeatletter
-\pgfdeclareshape{stagebox}{%
+\pgfdeclareshape{stagebox}{
+	%anchors
 	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
 	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
 	\anchor{west}{\pgf@x=-\boxsize \pgf@y=0cm}
 	\anchor{north}{\pgf@x=0cm \pgf@y=\boxsize}
 
-
+	%draw
 	\backgroundpath{
 		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
     }
@@ -51,7 +56,8 @@
 \makeatother
 
 \makeatletter
-\pgfdeclareshape{stage}{%
+\pgfdeclareshape{stage}{
+	%anchors
 	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
 	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
@@ -63,24 +69,28 @@
 	\anchor{u}{\pgf@x=-\boxsize \pgf@y=0cm}
 	\anchor{xin}{\pgf@x=0cm \pgf@y=\boxsize}
 
-
+	%draw
 	\backgroundpath{
 		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
 
+		%connection A
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.65 with {\arrow{>}}}}]
 					(-\boxsize,0) -- (\boxsize,0);
+		%shade at the intersection
 		\filldraw[draw=none,opacity=0.7](-\shadesize,-\shadesize)rectangle(\shadesize,\shadesize);
+		%connection D
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.35 with {\arrow{>}}}}]
 					(0,\boxsize) -- (0,-\boxsize);
 
 
 
-
+		%connections for B and C
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
 					(-\rel_i_stage*\boxsize,0) -- (0,-\rel_i_stage*\boxsize);
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
 					(0,\rel_i_stage*\boxsize) -- (\rel_i_stage*\boxsize,0);
 
+		%Text for A,B,D,C
 		\pgfsetcolor{black}
 		\pgftext[right,x=-0.5em,y=0.4*\boxsize]
 			{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/A}}
@@ -97,7 +107,8 @@
 
 
 \makeatletter
-\pgfdeclareshape{stageanti}{%
+\pgfdeclareshape{stageanti}{
+	%anchors
 	\anchor{center}{\pgf@x=0cm \pgf@y=0cm}
 	\anchor{south}{\pgf@x=0cm \pgf@y=-\boxsize}
 	\anchor{east}{\pgf@x=\boxsize \pgf@y=0cm}
@@ -109,24 +120,28 @@
 	\anchor{u}{\pgf@x=-\boxsize \pgf@y=0cm}
 	\anchor{xout}{\pgf@x=0cm \pgf@y=\boxsize}
 
-
+	%draw
 	\backgroundpath{
 		\filldraw(-\boxsize,-\boxsize)rectangle(\boxsize,\boxsize);
 
+		%connection A
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.65 with {\arrow{>}}}}]
 		(-\boxsize,0) -- (\boxsize,0);
+		%shade at the intersection
 		\filldraw[draw=none,opacity=0.7](-\shadesize,-\shadesize)rectangle(\shadesize,\shadesize);
+		%connection D
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.35 with {\arrow{>}}}}]
 		(0,-\boxsize) -- (0,\boxsize);
 
 
 
-
+		%connections for B and C
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
 		(-\rel_i_stage*\boxsize,0) -- (0,\rel_i_stage*\boxsize);
 		\draw[signal][postaction = {decorate,decoration={markings,mark= at position 0.6 with {\arrow{>}}}}]
 		(0,-\rel_i_stage*\boxsize) -- (\rel_i_stage*\boxsize,0);
 
+		%Text for A,B,D,C
 		\pgfsetcolor{black}
 		\pgftext[right,x=-0.4em,y=-0.4*\boxsize]
 		{\pgfkeysvalueof{/tikz/fontmatrices} \pgfkeysvalueof{/tikz/A}}
