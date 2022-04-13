@@ -31,7 +31,8 @@
 
 \input{diagrams/systems.tex}
 
-
+\usepackage[boxed]{algorithm}
+\usepackage{algpseudocode}
 
 \usepackage{todonotes}
 \usepackage{subcaption}
@@ -45,6 +46,8 @@
 \DeclareMathOperator{\rank}{rank}
 \DeclareMathOperator{\triu}{triu}
 \DeclareMathOperator{\tril}{tril}
+\DeclareMathOperator{\diag}{diag}
+
 
 
 %define symbols
@@ -52,6 +55,7 @@
 \newcommand{\Ob}{\mathcal{O}} %Observability operator 
 \newcommand{\eye}{I} %identity matrix
 \newcommand{\bigO}{O}
+
 
 \begin{document}
 
@@ -596,12 +600,13 @@ There are also a couple of other algorithms that can be used for different purpo
 \paragraph{Approxiamtions}
 It is also possible, to reduce the number of states by approximation a system $T$ with a system $\tilde{T}$.
 If the system $T$ is minimal, this is not trivial, as the a reduction of the number of states also result in a reduction of the Hankelrank.
-In \cite{dewilde_time-varying_1998} this is done using the Hankel norm
+On approach is the Hankel-norm approximation.
+The Hankel Norm is defined as
 \begin{equation}
-	\|T\|_H = \sup_{i}\|T_i\|.
+	\|T\|_H = \sup_{i}\|H_i\|.
 \end{equation}
 This norm is the supremeum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
-An algorithm is given for the hankel rank approxiamtion that computes a $\tilde{T}$.
+In \cite{dewilde_time-varying_1998} an algorithm is given for the hankel rank approxiamtion that computes a $\tilde{T}$.
 The approximated system satisfies the condition
 \begin{equation}
 	\| \Gamma^{-1}(T-\tilde{T})\|_H \leq 1.
@@ -612,9 +617,42 @@ If we set $\Gamma = \eye\gamma$ we obtain the simplified condition
 	\|T-\tilde{T}\|_H \leq \gamma.
 \end{equation}
 
-A second approach is balanced truncation is described.
+A second approach is balanced truncation is described in . 
 Here the state dimensions $x_k$ are reduced to a new dimension $\tilde{n}_k$.
-The idea is to partition the matrices of a balanced realization for every state according to
+The idea is to remove stated that result in a small output $y$ or need a relatively big input $u$.
+We can calculate the norm of the output for a state $x$ using
+\begin{equation}
+	\|y\|_2^2 = u^\top u = x^\top \Ob^\top \Ob x
+	.
+\end{equation}
+The matrix $\Ob^\top \Ob$ is called the Observability gramian.
+analogously we can calculate the norm of the input required ti reach a certain state using
+\begin{equation}
+	\|u\|_2^2 = x^\top (\R\R^\top)^{-1} x
+	.
+\end{equation}
+Where the Reachability gramian $\R\R^\top$ is invertible if the system is reachable.
+The involved states can be changed using state transforms.
+The idea is now to obtain a state transform, for which both problems are equivalent. 
+This is the case for a balanced realization
+\begin{equation}
+	\Ob^\top \Ob = \Sigma^{1/2}U^\top U\Sigma^{1/2} = \Sigma = \Sigma^{1/2} V^\top V \Sigma^{1/2} = \R \R^\top 
+\end{equation}
+This results in a basis for the state with 
+\begin{equation}
+	\|y\|_2^2\big|_{x = e_l} = \|\Ob x\|_2^2\big|_{x = e_l} = \sigma_l
+\end{equation}
+and 
+\begin{equation}
+\|u\|_2^2\big|_{x = e_l} = \sigma_l^{-1}
+\end{equation}
+Where $e_l$ is the $l$-th standard basis vector.
+This allows us to only keep the states with $\|y\| > \epsilon^{1/2} \|x\|$ and $\|x\| > \epsilon^{1/2} \|u\| $ for some $\epsilon>0$ by cutting all dimensions $l$ for all $l$ with $\sigma_l < \epsilon$.
+\todo{reword}
+%that are
+% result in a large output and only need a small input to be reached. 
+
+To obtain the reduced system $\tilde{T}$ the matrices of a balanced realization for every state are partitioned according to
 \begin{align}
 	A_k &=\begin{bmatrix}
 	A_{k[11]} & A_{k[12]} \\
@@ -630,20 +668,22 @@ The idea is to partition the matrices of a balanced realization for every state 
 	\end{bmatrix}& 
 	D_k&=D_k.
 \end{align}
-The dimensions are determined by the new state dimensions $\tilde{x}$.
+The dimensions are determined by the new state dimensions.
 The approximated system $\tilde{T}$ is then set to
 \begin{align}
 	\tilde{A}_k &= A_{k[11]}  & \tilde{B}_k &= B_{k[1]}\\
 	\tilde{C}_k &=C_{k[1]}      & \tilde{D}_k &= D_k.
 \end{align}
-This is equivalent to removing the tailing states.
-Because the realization is balanced every state in the original system corresponds to a $\sigma$ of the according Hankel matrix.
-Therefore we can cut the smaller singular values.
-Equivalently we can construct an approximation when a system is identified using the SVD by truncating the $\sigma$s.  
-\todo[inline]{Proof?}
+%This is equivalent to removing the tailing states.
+%Because the realization is balanced every state in the original system corresponds to a $\sigma$ of the according Hankel matrix.
+This approach is equivalent to removing all $\sigma<\epsilon$s of the SVD of the Hankel operator.
+Therefore we can also construct an approximation when identifying a system using the SVD by truncating the SVD as described in \cite{shokoohi_identification_1987}.
+\todo[inline]{Check proof in paper}
 In an error bound given in \cite{sandberg_balanced_2004}.
 \todo[inline]{find an easily understandable derivation or similar}
 
+More details on general approximation.
+\cite{antoulas_approximation_2005} detailed discussion of approxiamtions.
 
 \chapter{Methods} 15p
 
@@ -658,6 +698,313 @@ In an error bound given in \cite{sandberg_balanced_2004}.
 \item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
 
 \item Describe the overall approximation algorithm.
+
+\paragraph{Extention balanced truncation to nonbalanced systems/Define ordered system}
+In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
+These have the property that $\Ob_k = U_k \Sigma_\Ob$ and $\R_k = \Sigma_\R V_k^\top$ where $\Sigma_\Ob = \Sigma_\R=\Sigma^{1/2}$.
+The balanced truncation is also possible for a wider class of realizations.
+
+In this thesis these Realizations will be called ordered.
+\begin{definition}[Ordered Realization]
+	A system is ordered if 
+	\begin{subequations}
+	\begin{align}
+		\Ob_k^\top \Ob_k &= \Sigma_ {\Ob k}^2 \label{eq:orderd_obs}\\ %\diag(\sigma_{\Ob k}^2)\\
+		\R_k \R_k^\top &= \Sigma_ {\R k}^2 \label{eq:orderd_reach}%\diag(\sigma_{\R k}^2)
+	\end{align}
+	\end{subequations}
+	where $\Sigma_{\Ob k}$ and $\Sigma_{\R k}$ are diagonal matrices
+	and the diagonal entries of $\Sigma_k =\Sigma_{\Ob k}\Sigma_{\R k}$ are non increasing (i.e. $\sigma_1 \leq \sigma_2 \leq \dots \leq \sigma_n$).
+	%Positiov sowieso, weil gram matrix
+	are fulfilled for every $k$.
+\end{definition}
+
+%As the SVD of the Hankel matrix does not change he have $\Sigma_\Ob\Sigma_\R=\Sigma$ as $H = \Ob\R = U_k \Sigma_\Ob \Sigma_\R V_k^\top = U_k \Sigma V_k^\top$.
+
+An ordered system can be transformed into a balanced system using the diagonal state transformations $S_k = \Sigma_k^{1/2}\Sigma_{\R k}^{-1}$ and the inverse $S_k^{-1} = \Sigma_{\Ob k}^{-1}\Sigma_k^{1/2}$.
+This gives the balanced system $\tilde{T}$
+\begin{align}
+	\tilde{A}_k &= S_{k+1} A_k S_k^{-1}   & \tilde{B} =& S_{k+1} B \\
+	\tilde{C}_k &= C_k S_k^{-1}   & \tilde{D} =& D 
+\end{align}
+\begin{proof}
+	By applying the state transform we can see that we get a balanced system
+	$\Ob_k S_k^{-1} = U_k \Sigma_\Ob \Sigma_{\Ob k}^{-1}\Sigma_k^{1/2} = U_k \Sigma_k^{1/2}$\\
+	$S_k \R_k = \Sigma_k^{1/2}\Sigma_{\R k}^{-1} \Sigma_{\R k} V_k^\top = \Sigma_k^{1/2} V_k^\top$
+\end{proof}
+
+A ordered system can be reduced using the same segmentation as used for the balanced truncation.
+This allows us to use algorithms that require input- or output normal forms, as systems can be both balanced and input normal if $\Sigma_{\R k}=\eye$ or balanced and output normal if $\Sigma_{\Ob k}=\eye$.
+
+\paragraph{Recusrsve factorization of $\Ob_k$ and  $\R_k$}
+The goal of this algorithm is to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H$, $\Ob_k$ or $\R_k$.
+The idea is that we can recursively factor the observability matrix according to
+\begin{equation}\label{eq:decomp_O}
+	\Ob_k = 
+	\begin{bmatrix}
+	C_k\\
+	\Ob_{k+1}A_k
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	\eye& 0 \\
+	0& \Ob_{k+1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_k\\
+	A_k
+	\end{bmatrix}
+\end{equation}
+And analogously the reachability matrix
+\begin{equation}\label{eq:decomp_R}
+	\R_k = 
+	\begin{bmatrix}
+	A_{k-1} \R_{k-1} & B_{k-1}
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	A_{k-1} & B_{k-1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	\R_{k-1} &0\\
+	0& \eye
+	\end{bmatrix}
+\end{equation}
+This allows us to create algorithms, that can convert realizations into input normal and output normal form.
+With an combination of both it is also possible to obtain the singular values.
+
+\paragraph{Make input normal and reachable}
+First we give an algorithm to transform the system into an reachable and input normal system.
+This means that we want to make all $R_k$ subunitary.
+As we do not want to calculate the reachability matrices directly we will employ the decomposition given in Equation\,\ref{eq:decomp_R}.
+If $\R_{k-1}^\top \R_{k-1}=\eye$ we can make $\R_{k}$ sub orthogonal by calculating the SVD of $[A_{k-1} B_{k-1}]$
+\begin{equation}
+\R_k = 
+\begin{bmatrix}
+A_{k-1} \R_{k-1} & B_{k-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+A_{k-1} & B_{k-1}
+\end{bmatrix}
+\begin{bmatrix}
+\R_{k-1} &0\\
+0& \eye
+\end{bmatrix}
+=U_k\Sigma _k
+\underbrace{V_k
+\begin{bmatrix}
+\R_{k-1} &0\\
+0& \eye
+\end{bmatrix}}_{\tilde{\R}_k}
+\end{equation}
+This gives the state transform $S_k = U_k\Sigma_k$. 
+The usage of the SVD also allows us to remove states that are not reachable by counting all nonzero elements in $\Sigma$ and reducing the SVD accordingly.
+The product with the inverse $S_k^{-1}$ is implicitly calculated by computing the SVD.
+Therefore the matrices $\tilde{A}_k$ and $\tilde{B}_k$ are set to $[\tilde{A}_k,\tilde{B}_k]=V_k^\top$.
+The matrices $A_{k}$ and $B_{k}$ have to be updated with the state transform $S_k$.
+
+The algorithm is formalized in Algorithm\,\ref{alg:inp_normal}
+
+\begin{algorithm}
+	\begin{algorithmic}
+	\For{$k\gets 1$ \textbf{to} $K-1$}
+		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$
+		\State $r \gets $ count$(\sigma>\text{tol}_i)$
+		\State $U \gets U[:,:r]$
+		\State $\sigma \gets \sigma[:r]$
+		\State $V^\top \gets V^\top[:r,:]$
+		\State $[A_k,B_k] \gets V^\top$
+		\State $A_{k+1}=A_{k+1}U\diag(\sigma)$
+		\State $C_{k+1}=C_{k+1}U\diag(\sigma)$
+	\EndFor
+	\end{algorithmic}
+\caption{Algorithm to convert to input normal system}\label{alg:inp_normal}
+\end{algorithm}
+
+This results in a input normal and reachable system.
+\begin{proof}
+	For input normality $\tilde{R}_k\tilde{R}_k^\top = \eye$ has to be true for all $k \in [1,\dots,K-1]$
+	From $\tilde{\R}_{k-1}\tilde{\R}_{k-1}^\top = \eye$ follows that $\tilde{\R}_k\tilde{\R}_k^\top = \eye$ as
+	\begin{equation}\label{eq:induction_reach}
+	\tilde{R}_k\tilde{\R}_k^\top
+	=
+	V_k^\top\begin{bmatrix}\tilde{\R}_{k-1} &0\\
+		0& \eye \end{bmatrix}
+	\begin{bmatrix}\tilde{\R}_{k-1}^\top &0\\
+		0& \eye \end{bmatrix} V_k
+	= 
+	V_k^\top\begin{bmatrix}\eye &0\\
+	0& \eye \end{bmatrix} V_k
+	=
+	\eye
+	\end{equation}
+	As $x_1$ zero dimensional $R_1$ vanishes and Equation\,\ref{eq:induction_reach} is also true for $k=1$.
+	Reachability directly follows form $\R_k\R_k^\top = \eye$.
+\end{proof}
+
+
+
+
+\paragraph{Make output normal}
+The algorithm to transform the system into an observable and output normal system is analogous.
+Here all $\Ob_k$ have to be subunitary.
+Here the decomposition given in Equation\,\ref{eq:decomp_O} is used to avoid a computation of $\Ob_k$.
+If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ we can make $\Ob_{k}$ sub orthogonal by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
+
+\begin{equation}
+	\Ob_{k}
+	=
+	\begin{bmatrix}
+	\eye& 0 \\
+	0& \Ob_{k+1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_k\\
+	A_k
+	\end{bmatrix}
+	=
+	\underbrace{
+	\begin{bmatrix}
+	\eye& 0 \\
+	0& \Ob_{k+1}
+	\end{bmatrix}
+	U_k}_{\tilde{\Ob}_k}
+	\Sigma_k V_k^\top
+\end{equation}
+This results in the state transform $S_k = \Sigma_k V_k^\top$.
+Here the SVD is also in a reduced form, that results in a removal of all non observable states.
+The state transform with $S_k^{-1}$ is done implicitly by the SVD.
+The matrices $A_{k-1}$ and $C_{k-1}$ are updated with the state transform $S_k$
+
+This gives the Algorithm\,\ref{alg:out_normal}
+\begin{algorithm}
+	\begin{algorithmic}
+	\For{$k\gets K$ \textbf{downto} $2$}
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} C_k\\A_k \end{bmatrix}\right)$
+		\State $r \gets $ count$(\sigma>\text{tol}_o)$
+		\State $U \gets U[:,:r]$
+		\State $\sigma \gets \sigma[:r]$
+		\State $V^\top \gets V^\top[:r,:]$
+		\State $\begin{bmatrix} C_k\\A_k \end{bmatrix} \gets U$
+		\State $A_{k-1}=\diag(\sigma)V^\top A_{k+1}$
+		\State $B_{k-1}=\diag(\sigma)V^\top C_{k+1}$
+	\EndFor
+	\end{algorithmic}
+	\caption{Algorithm to convert to output normal system}\label{alg:out_normal}
+\end{algorithm}
+This results in a output normal and observable system.
+\begin{proof}
+	For output normality $\tilde{\Ob}_k^\top\tilde{\Ob}_k = \eye$ has to be true for all $k \in [1,\dots,K-1]$
+	From $\tilde{\Ob}_{k+1}^\top\tilde{\Ob}_{k+1} = \eye$ follows that $\tilde{\Ob}_k^\top\tilde{\Ob}_k = \eye$ as
+	\begin{equation}\label{eq:induction_obs}
+		\tilde{\Ob}_k^\top\tilde{\Ob}_k
+		=
+		U_k^\top
+		\begin{bmatrix} \eye& 0 \\
+			0& \Ob_{k+1}^\top \end{bmatrix}
+		\begin{bmatrix} \eye& 0 \\
+		0& \Ob_{k+1} \end{bmatrix}
+		U_k
+		=
+		U_k^\top
+		\begin{bmatrix} \eye& 0 \\
+		0& \eye \end{bmatrix}
+		U_k
+		=
+		\eye
+	\end{equation}
+	As $x_{K+1}$ zero dimensional $\Ob_{k+1}$ vanishes and Equation\,\ref{eq:induction_obs} is also true for $K$.
+	Reachability directly follows form $\Ob_k\Ob_k^\top = \eye$.
+\end{proof}
+
+
+\paragraph{Obtain sigmas}
+By converting an input normal system to an output normal system it is possible to calculate the singlaur values of $H$
+This uses the factorization and the recursion relation in Equation\,\ref{eq:decomp_O}
+to get
+ \begin{equation}
+ H = \Ob_k \R_k = 
+ \begin{bmatrix}
+ \eye& 0 \\
+ 0& \Ob_{k+1}
+ \end{bmatrix}
+ \begin{bmatrix}
+ C_k\\
+ A_k
+ \end{bmatrix}
+ \R_k
+ \end{equation}.
+As the algorithm started with an input normal system $\R_k\R_k^\top = \eye$ is still fulfilled.
+And due to the fact the algorithm has transformed the states $x_i$ for $i>k$ to output normal form $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ is already fulfilled.
+When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in an SVD decomposition of $H$
+ \begin{equation}
+ H = 
+ \underbrace{
+ 	\begin{bmatrix}
+ 	\eye& 0 \\
+ 	0& \Ob_{k+1}
+ 	\end{bmatrix}
+ 	U_k}_{U_k} 
+ \Sigma_k 
+ \underbrace{\vphantom{\begin{matrix} 0 \\0\end{matrix}}
+ 	V_k^\top
+ 	\R_k}_{\breve{V}_k^\top}
+ =\breve{U}_k\Sigma_k \breve{V}_k^\top
+ \end{equation}
+
+ \begin{proof}
+ 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is a singluar value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
+ 	If $\Ob_{k+1}$, $R_k$, $U_k$ and $V$ are orthogonal the proof directly follows. For the sub unitary case we have 
+ 	$
+ 	\breve{V}_k^\top \breve{V}_k
+ 	=
+ 	V_k^\top
+ 	\R_k
+ 	\R_k^\top
+ 	V_k
+ 	=
+ 	V_k^\top
+ 	\eye
+ 	V_k
+ 	=
+ 	\eye
+ 	$
+ 	and
+ 	$
+ 	U_k^\top U_k
+ 	=
+ 	\eye 
+ 	$
+ 	has been proven in Equation\,\ref{eq:induction_obs}
+ \end{proof}
+
+The resulting system is ordered.
+\begin{proof}
+	The condition in Equation\,\ref{eq:orderd_obs} directly follows form the output normality $\tilde{\Ob}_k^\top \tilde{\Ob}_k = \eye$.
+	The condition in Equation\,\ref{eq:orderd_reach} follows form the input normality of the intermediate system by
+	\begin{equation}
+		\tilde{\R}_k \tilde{\R}_k^\top 
+		=
+		\Sigma_k V_k \R_k \R_k^\top V_k^\top \Sigma_k 
+		= \Sigma_k^2
+	\end{equation}
+	As $\Sigma_k$ is result form an SVD, the singular values are in decreasing order. 
+\end{proof}
+Therefore the system can be approximated using balanced truncation.
+
+This algorithm is also a fast way to reduce the system to a minimal system.
+The tolerance for the first transformation$\text{tol}_i$ is usually set to a value close to the machine precision to avoid errors due to the removed states.
+The tolerance for the second transformation $\text{tol}_o$ is then set to the wanted $\epsilon$.
+ 
+It is also possible to first convert the system to an output normal system and calculate the SVD when converting it to an input normal system.
+The proof for this and the algorithms for the anticausal case are omitted for brevity.
+
+ 
+ 
+ 
+\todo[inline]{is it clear if the ordering makes a difference, slo difference between immediately cutting or cutting later?}
+
 \end{itemize}
 \subsection{Cost of computation}
 \begin{itemize}
