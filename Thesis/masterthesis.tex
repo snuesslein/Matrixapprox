@@ -47,6 +47,7 @@
 \DeclareMathOperator{\triu}{triu}
 \DeclareMathOperator{\tril}{tril}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\range}{range}
 
 
 
@@ -55,6 +56,9 @@
 \newcommand{\Ob}{\mathcal{O}} %Observability operator 
 \newcommand{\eye}{I} %identity matrix
 \newcommand{\bigO}{O}
+
+
+\newcommand{\m}{\triangledown}
 
 
 \begin{document}
@@ -93,7 +97,7 @@
 
 
 
-
+\todo[inline]{Make th usage of the state transforms consistent}
 
 
 \chapter{Introduction} 3p
@@ -737,7 +741,7 @@ A ordered system can be reduced using the same segmentation as used for the bala
 This allows us to use algorithms that require input- or output normal forms, as systems can be both balanced and input normal if $\Sigma_{\R k}=\eye$ or balanced and output normal if $\Sigma_{\Ob k}=\eye$.
 
 \paragraph{Recusrsve factorization of $\Ob_k$ and  $\R_k$}
-The goal of this algorithm is to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H$, $\Ob_k$ or $\R_k$.
+The goal of this section is to construct an algorithm to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H$, $\Ob_k$ or $\R_k$.
 The idea is that we can recursively factor the observability matrix according to
 \begin{equation}\label{eq:decomp_O}
 	\Ob_k = 
@@ -772,6 +776,11 @@ And analogously the reachability matrix
 \end{equation}
 This allows us to create algorithms, that can convert realizations into input normal and output normal form.
 With an combination of both it is also possible to obtain the singular values.
+This is similar to the idea used in square root algorithms for the computation of normal forms.
+
+\todo[inline]{More details on the fact that we do not require mininality and unlike QR based algorithms we can make sure that we do not create spurious observable states....
+May bee some proof based on the original rank of $\Ob_{k}$ and $\R_k$.
+Also note that a Rank revealing QR-algorithm would also work}
 
 \paragraph{Make input normal and reachable}
 First we give an algorithm to transform the system into an reachable and input normal system.
@@ -806,7 +815,7 @@ The matrices $A_{k}$ and $B_{k}$ have to be updated with the state transform $S_
 
 The algorithm is formalized in Algorithm\,\ref{alg:inp_normal}
 
-\begin{algorithm}
+\begin{algorithm}[htb]
 	\begin{algorithmic}
 	\For{$k\gets 1$ \textbf{to} $K-1$}
 		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$
@@ -878,7 +887,7 @@ The state transform with $S_k^{-1}$ is done implicitly by the SVD.
 The matrices $A_{k-1}$ and $C_{k-1}$ are updated with the state transform $S_k$
 
 This gives the Algorithm\,\ref{alg:out_normal}
-\begin{algorithm}
+\begin{algorithm}[htb]
 	\begin{algorithmic}
 	\For{$k\gets K$ \textbf{downto} $2$}
 		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} C_k\\A_k \end{bmatrix}\right)$
@@ -1000,7 +1009,7 @@ The tolerance for the second transformation $\text{tol}_o$ is then set to the wa
 It is also possible to first convert the system to an output normal system and calculate the SVD when converting it to an input normal system.
 The proof for this and the algorithms for the anticausal case are omitted for brevity.
 
- 
+\todo[inline]{Some notes on cumputational cost}
  
  
 \todo[inline]{is it clear if the ordering makes a difference, slo difference between immediately cutting or cutting later?}
@@ -1032,6 +1041,245 @@ The proof for this and the algorithms for the anticausal case are omitted for br
 \item Move all the proves of minimality to the appendix for brevity.
 \item Describe calculation of $\sigma$s
 \end{itemize}
+\subsection{Moving Boundaries}
+In this section an algorithm to move the boundaries of a causal system is introduced.
+When the boundaries are moved, this might result in the fact that some connections will be dropped.
+For an mixed system these connections can be moved to the anticausal system.
+
+
+The algorithms can be constructed in a way such that they preserve minimality.
+In Subsection\,\ref{subsec:move_sig} the algorithm are going to be extended in a way that makes it possible to calculate the singular values.
+\paragraph{move left}
+First the bounds are moved left.
+This means that the last element of the input $u_k$ is removed and inserted as a new first element in $u_{k+1}$. 
+The moved input is designated as $u_\m$
+This is illustrated in Figure\,\ref{fig:move_left}.
+\begin{figure}[htb]
+	\centering
+	\input{diagrams/Moves/Move_left.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_left_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_left_b}
+	\end{subfigure}
+	\caption{Illustration of the movement of boundary}
+	\label{fig:move_left}
+\end{figure}
+The vector $b$ is the last column of $B_k$ and describes the mapping from $u_\m$ to $x_{k+1}$. The vector $d$ is the last column of $D_k$ and describes the mapping from $u_\m$ to $y_{k}$.
+These are removed form the matrices and we get $\breve{B}_k$ and $\tilde{D}$
+We can see that the connection $d$ in the original system cannot by realized with an causal system as this would mean a mapping from $\tilde{u}_{k+1}$ to $y_k$ in the transformed system.
+The mapping form the input $u_\m$ to the output $y_{k+1}$ can be directly incorporated by adding a the vector $A_{k+1}b$ to $D_{k+1}$ as a new column.
+Analogously the mapping to the state $x_{k+1}$ can be incorporated by attaching the vector $Ab$ to $B_{k+1}$.
+As the last column of $\R_{k+1}$ is removed, this might result in a non reachable system.
+This is the case if the matrix $[A_b \breve{B}_k]$ no longer has full rank.
+This can be checked using the SVD. 
+If the last $\sigma$ is equal to $0$ the state has to be removed. 
+This can be done using a state transform based on the reduced SVD. 
+The matrices $[\tilde{A}_b \tilde{B}_k]$ are set to $\diag{sigma} V^\top$ and 
+the following stages are transformed according to $\tilde{A}_{k+1} = A_{k+1}U$ and $\tilde{C}_{k+1} = C_{k+1} U$.
+ 
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+		\State $b \gets B_k[:,-1]$
+		\State $D_k \gets D_k[:,:-2]$
+		\State $B_k \gets B_k[:,:-2]$
+		\State $D_{k+1} \gets [C_{k+1}b,D_{k+1}]$
+		\State $B_{k+1} \gets [A_{k+1}b,B_{k+1}]$
+		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$ 
+		\If{$\sigma[-1] < \text{tol}$}
+			\State $U \gets U[:,:-2]$
+			\State $\sigma \gets \sigma[:-2]$
+			\State $V \gets V[:-2,:]$
+			\State$[A_k,B_k] \gets \diag(\sigma) V^\top$
+			\State$A_{k+1} \gets A_{k+1}U$
+			\State$C_{k+1} \gets C_{k+1}U$
+		\EndIf
+	\end{algorithmic}
+	\caption{Algorithm to move a boundary between $u_k$ and $u_{k+1}$ to the left}\label{alg:move_left}
+\end{algorithm}
+
+\paragraph{Move down}
+A similar strategy can be used to move a boundary down.
+That means removing the first output $y_\m$ form $y_{k+1}$ and adding it to $y_k$.
+This is illustrated in Figure\,\ref{fig:move_left}.
+The vector $c^\top$ describes the mapping form $x_k$ to $y_\m$.
+This is also the first row of $C_{k+1}$.
+When moving the bound the first row of $C_{k+1}$ and from $D_{k+1}$ are removed.
+To attach the output $y_\m$ to the output vector $y_k$ the vector $c^\top B_k$ is added as last row to $D_k$ and the vector $c^\top A_k$is added as last row to $B_k$.
+As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
+This is the case if the kernel of $\Ob_{k+1}$ is not zero subspace.
+This can be checked with the SVD of $[A_{k+1}^\top,C_{k+1}^\top]^\top$.
+If the last singular values is equal to zero the state has to be reduced.
+This is done by using the reduced matrix $V$ as state transform.
+Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
+An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
+
+
+
+\begin{figure}[htb]
+	\centering
+	\input{diagrams/Moves/Move_down.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_down_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_down_b}
+	\end{subfigure}
+	\caption{Illustration of the movement of boundary}
+	\label{fig:move_down}
+\end{figure}
+
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+		\State $c^\top \gets C_{k+1}[1,:]$
+		\State $D_{k+1} \gets D_{k+1}[2:,]$
+		\State $C_{k+1} \gets C_{k+1}[2:,:]$
+		\State $D_k \gets \begin{bmatrix} D_k\\c^\top B_k	\end{bmatrix}$
+		\State $C_k \gets \begin{bmatrix} C_k\\c^\top A_k	\end{bmatrix}$
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix}\right)$ 
+		\If{$\sigma[-1] < \text{tol}$}
+		\State $U \gets U[:,:-2]$
+		\State $\sigma \gets \sigma[:-2]$
+		\State $V \gets V[:-2,:]$
+		\State$\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix} \gets U\diag(\sigma)$
+		\State$A_{k} \gets V^\top A_{k}$
+		\State$C_{k} \gets V^\top C_{k}$
+		\EndIf
+	\end{algorithmic}
+	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
+\end{algorithm}
+
+\paragraph{Move right}
+It is also possible to reverse these changes.
+When moving the boundary right the input $x_\m$ is removed form the input $u_{k+1}$ and attacehd to the input vector $u_k$.
+For this the first row of $D_{k+1}$ is removed and stored in the vector $d$. Analogously the first row of $B_{k+1}$ is removed and stored in the vector $b$.
+The input $u_\m$ is attached to the end of the state vector $x_{k+1}$.
+The vector $b$ is attached to the end of $A_{k+1}$ and $d$ is attached to $C_{k+1}$.
+This is illustrated in Figure\,\ref{fig:move_left}.
+This trivial algorithm results in a new Observability matrix $\tilde{\Ob}_{k+1}$ that has one additional column.
+\begin{equation}
+	\tilde{\Ob}_{k+1}
+	=
+	\begin{bmatrix}
+	\eye & 0\\ 0 &\Ob_{k+2}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_{k+1} & d\\
+	A_{k+1} & b
+	\end{bmatrix}
+\end{equation}
+If the last row is not linearly independent, the system is no longer observable as $\Ob_{k+1}$ does not have full column rank.
+This can be checked using
+\begin{equation}
+	\begin{bmatrix}
+	d\\b
+	\end{bmatrix}
+	\in
+	\range\left(
+	\begin{bmatrix}
+	C_{k+1}\\A_{k+1}
+	\end{bmatrix}\right).
+\end{equation}
+If the vector is in the range then there exits a state $m$ with the property that
+\begin{equation}
+	\begin{bmatrix}
+	d\\b
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	C_{k+1}\\A_{k+1}
+	\end{bmatrix}
+	m
+\end{equation}
+This also means that there is no new state dimension required.
+In this case the vector $m$ is appended to the matrix $B_{k}$.
+
+Additionally it is possible to attach the vector $d_\text{new}$ to $D_k$.
+\begin{figure}[htb]
+	\centering
+	\input{diagrams/Moves/Move_right.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_right_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_right_b}
+	\end{subfigure}
+	\caption{Illustration of the movement of boundary}
+	\label{fig:move_right}
+\end{figure}
+
+\todo[inline]{convert to pseudocode}
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+%		def move_right(sys,v,d_new=None):
+%		#function to move a boundary left 
+%		#v is the index to the left of the boundary
+%		
+%		#first collumn from B and D
+%		b = sys.stages[v+1].B_matrix[:,0].reshape((-1,1))
+%		d = sys.stages[v+1].D_matrix[:,0].reshape((-1,1))
+%		
+%		sys.stages[v+1].B_matrix=sys.stages[v+1].B_matrix[:,1:]
+%		sys.stages[v+1].D_matrix=sys.stages[v+1].D_matrix[:,1:]
+%		
+%		#check if [d;b] in range(C_v+1;Av+1)
+%		U,s,Vt= np.linalg.svd(np.vstack((sys.stages[v+1].C_matrix,sys.stages[v+1].A_matrix)),full_matrices=True)
+%		eps = 1e-13
+%		r = np.count_nonzero(s>=eps)
+%		a = U.T@np.vstack((d,b))
+%		print("r="+str(r))
+%		display(a)
+%		if np.any(np.abs(a[r:])>eps):
+%		#not in range -> add a ned dimention to the state
+%		sys.stages[v].B_matrix = np.block([
+%		[sys.stages[v].B_matrix,np.zeros((sys.stages[v].B_matrix.shape[0],1))],
+%		[np.zeros((1, sys.stages[v].B_matrix.shape[1])), 1     ]
+%		])
+%		sys.stages[v].A_matrix = np.vstack((sys.stages[v].A_matrix,np.zeros((1,sys.stages[v].A_matrix.shape[1]))))
+%		sys.stages[v+1].A_matrix = np.hstack((sys.stages[v+1].A_matrix,b))
+%		sys.stages[v+1].C_matrix = np.hstack((sys.stages[v+1].C_matrix,d))
+%		
+%		else:
+%		#in range -> no need for an additional dim
+%		m = Vt.T[:,:r]@(a[:r].flatten()/s[:r])
+%		print("m:")
+%		display(m)
+%		sys.stages[v].B_matrix = np.hstack((sys.stages[v].B_matrix,m.reshape((-1,1))))
+%		
+%		#set the appropirate D_v
+%		if not d_new:
+%		d_new = np.zeros((sys.stages[v].D_matrix.shape[0],1))
+%		sys.stages[v].D_matrix=np.hstack((sys.stages[v].D_matrix,d_new))
+		\State $b \gets B_k[:,-1]$
+		\State $D_k \gets D_k[:,:-2]$
+		\State $B_k \gets B_k[:,:-2]$
+		\State $D_{k+1} \gets [C_{k+1}b,D_{k+1}]$
+		\State $B_{k+1} \gets [A_{k+1}b,B_{k+1}]$
+		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$ 
+		\If{$\sigma[-1] < \text{tol}$}
+		\State $U \gets U[:,:-2]$
+		\State $\sigma \gets \sigma[:-2]$
+		\State $V \gets V[:-2,:]$
+		\State$[A_k,B_k] \gets \diag(\sigma) V^\top$
+		\State$A_{k+1} \gets A_{k+1}U$
+		\State$C_{k+1} \gets C_{k+1}U$
+		\EndIf
+	\end{algorithmic}
+	\caption{Algorithm to move a boundary between $u_k$ and $u_{k+1}$ to the right}\label{alg:move_right}
+\end{algorithm}
+
+\subsection{Moving Boundaries and calc sigmas}\label{subsec:move_sig}
+
 \section{Permutations}
 if time allows add some notes on permutations here
 
