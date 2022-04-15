@@ -17,13 +17,15 @@
 %special parametres for stages
 \tikzset{fontmatrices/.initial=\small}
 \tikzset{boxsize/.initial=9mm} %Note: width=height=2*boxsize
+%psoition of arrow
+\tikzset{posarr/.initial=0.5}
 
 %line style for the signals
 \tikzstyle{signal} = [line width=1.5pt]%[very thick]
 
 %line style for drawing connections
 \tikzset{signalflow/.style={signal,
-		decoration={markings,mark=at position 0.5 with {\arrow{>}}},postaction={decorate}}}
+		decoration={markings,mark=at position \pgfkeysvalueof{/tikz/posarr} with {\arrow{>}}},postaction={decorate}}}
 
 %set the standard parameters for A,B,C,D
 \tikzset{A/.initial=$A_{}$}

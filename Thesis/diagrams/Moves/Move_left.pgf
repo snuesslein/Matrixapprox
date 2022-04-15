@@ -35,11 +35,11 @@
 
 \draw[signalflow, colmarking] (u_1) to [out=0,in=180] node[near end,anchor = north] {$u_\m$} ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(-\distorig,-\distvert)$); 
  %\draw[signalflow, colmarking] ($(u_1.east)+(0,-\distvert)$) -- ($(sys_1.u)+(0,-\distvert)$);
- \draw[signal,colmarking] ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(0.5*\distorig,-\distvert)$);
- \draw[signalflow, colmarking] ($(sys_1.center)+(0.5*\distorig,-\distvert)$)  to [out=0,in=180] node[anchor=north] {$d$} (sys_1.east);
+ \draw[signal,colmarking,dotted] ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(0.5*\distorig,-\distvert)$);
+ \draw[signalflow, colmarking,dotted] ($(sys_1.center)+(0.5*\distorig,-\distvert)$)  to [out=0,in=180] node[anchor=north] {$d$} (sys_1.east);
 
 
- \draw[signalflow,colmarking] ($(sys_1.center)+(-\distorig,-\distvert)$) -- node[anchor=north east] {$b$} ($(sys_1.center)+(0,-\distorig-\distvert)$)  ; 
+ \draw[signalflow,colmarking,line cap=round] ($(sys_1.center)+(-\distorig,-\distvert)$) -- node[anchor=north east] {$b$} ($(sys_1.center)+(0,-\distorig-\distvert)$)  ; 
 
  \draw[signal,colmarking] ($(sys_1.center)+(0,-\distorig-\distvert)$) -- (sys_2.xout);
  \draw[signal,colmarking] ($(sys_2.center)+(0,\distorig)$) -- ($(sys_2.center)+(\distorig,0)$) -- (sys_2.y);

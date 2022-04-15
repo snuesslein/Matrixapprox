@@ -33,17 +33,18 @@
 	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$x_{k+1}$} (sys_2.xin);
 	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor = west] {$x_{k+2}$} (xout);
 
-
+%dconnection
 \draw[signalflow, colmarking]  ($(sys_2.center)+(\distorig,\distvert)$) -- ($(sys_2.y)+(0,\distvert)$) to [out=0,in=180] node[near end,anchor = south] {$y_\m$} (y_2) ; 
  %\draw[signalflow, colmarking] ($(u_1.east)+(0,-\distvert)$) -- ($(sys_1.u)+(0,-\distvert)$);
- \draw[signal,colmarking] ($(sys_2.y)+(0,\distvert)$)-- ($(sys_2.center)+(-0.5*\distorig,\distvert)$);
- \draw[signalflow, colmarking] (sys_2.west)   to [out=0,in=180] node[anchor=south] {$d$} ($(sys_2.center)+(-0.5*\distorig,\distvert)$);
+ \draw[signal,colmarking,dotted] ($(sys_2.y)+(0,\distvert)$)-- ($(sys_2.center)+(-0.5*\distorig,\distvert)$);
+ \draw[signalflow, colmarking,dotted] (sys_2.west)   to [out=0,in=180] node[anchor=south] {$d$} ($(sys_2.center)+(-0.5*\distorig,\distvert)$);
 
-
- \draw[signalflow,colmarking] ($(sys_2.center)+(0,\distorig+\distvert)$) -- node[near end,anchor=south west] {$\!\!c^\top$}   ($(sys_2.center)+(\distorig,\distvert)$); 
-
- \draw[signal,colmarking] ($(sys_2.center)+(0,\distorig+\distvert)$) -- (sys_1.xin);
- \draw[signal,colmarking] (sys_1.u) -- ($(sys_1.center)+(-\distorig,0)$) -- ($(sys_1.center)+(0,-\distorig)$);
+%diagonal c
+ \draw[signalflow,colmarking,line cap=round] ($(sys_2.center)+(0,\distorig+\distvert)$) -- node[near end,anchor=south west] {$\!\!c^\top$}   ($(sys_2.center)+(\distorig,\distvert)$); 
+%connect systems
+\draw[signal,colmarking] ($(sys_2.center)+(0,\distorig+\distvert)$) -- (sys_1.xin);
+%B_k
+\draw[signal,colmarking] (sys_1.u) -- ($(sys_1.center)+(-\distorig,0)$) -- ($(sys_1.center)+(0,-\distorig)$);
 
 
 
@@ -73,22 +74,24 @@
 	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$\tilde{x}_{k+1}$} (sys_2.xin);
 	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor = west] {$x_{k+2}$} (xout);
 
-
+%shade behind diag
 \draw[white,line width=2.5mm,opacity=0.8] ($(sys_1.center)+(-1mm,1mm+\distorig-\distvert)$) -- ($(sys_1.center)+(\distorig,-\distvert)$); 
 
+%dconnection
 \draw[signalflow, colmarking]  ($(sys_1.center)+(\distorig,-\distvert)$) -- ($(sys_1.y)+(0,-\distvert)$) to [out=0,in=180] node[near end,anchor = south] {$y_\m$} (y_1) ; 
  %\draw[signalflow, colmarking] ($(u_1.east)+(0,-\distvert)$) -- ($(sys_1.u)+(0,-\distvert)$);
  \draw[signalflow,colmarking] ($(sys_1.center)+(0,-\distvert)$) -- node[anchor=north] {$c^\top \!B_k$} ($(sys_1.y)+(0,-\distvert)$);
  \draw[signal, colmarking] (sys_1.west) --  ($(sys_1.center)+(-\distorig,0)$)  to [out=0,in=180]  ($(sys_1.center)+(0,-\distvert)$);
 
-\draw[signalflow,colmarking] ($(sys_1.center)+(0,\distorig-\distvert)$) -- node[name=cA]   {} ($(sys_1.center)+(\distorig,-\distvert)$)  ; 
+%diagonal
+\draw[signalflow,colmarking,line cap=round] ($(sys_1.center)+(0,\distorig-\distvert)$) -- node[name=Cb]   {} ($(sys_1.center)+(\distorig,-\distvert)$)  ; 
  \draw[signal,colmarking] (sys_1.xin) -- ($(sys_1.center)+(0,\distorig-\distvert)$);
 
 %\node (Abtext) at ($(sys_2.center)+(-\distorig,-\distorig)$) {$\;\,\textcolor{\colortext}{A_{k+1}b}$};
-\node (cAtext) at ($(sys_1.center)+(\distorig,\distorig)$) {$\!\!\textcolor{\colortext}{C_{k+1}b}$};
+\node (Cbtext) at ($(sys_1.center)+(\distorig,\distorig)$) {$\!\!\textcolor{\colortext}{C_{k+1}b}$};
 
-\draw[white,line width=1mm,opacity=0.8] (cAtext) to [out=280,in=80] (cA);
-\draw[colmarking,line width=0.7pt] (cAtext) to [out=280,in=80] (cA);
+\draw[white,line width=1mm,opacity=0.8] (Cbtext) to [out=280,in=80] (Cb);
+\draw[colmarking,line width=0.7pt] (Cbtext) to [out=280,in=80] (Cb);
 
 %\draw[colmarking] (Cbtext) to [out=-80,in=40] ($(Cb.center)+(1mm,0.5mm)$);
 \end{tikzpicture}

@@ -102,12 +102,15 @@ To make the lines for the signal consistent, the shapes use the style \texttt{si
 If this style is changed a different line style can be used.
 
 The file also provides a style \texttt{signalflow}. This style is based on \texttt{signal} and automatically adds an arrow in the middle of the line.
+The position can be changed using the parameter \texttt{posarr}
 
 \begin{tikzpicture}
 \tikzstyle{signal} = [very thick]
 \node(stage) [style_stage,stage,A=$A$,B=$B$,C=$C$,D=$D$] at (0,0) {};
 \node(u) [left of=stage,xshift=-1.5cm] {$u$};
+\node(y) [right of=stage,xshift=2cm] {$y$};
 \draw[signalflow] (u) -- (stage.u);
+\draw[signalflow,posarr=0.3] (stage.y) -- (y);
 \end{tikzpicture}
 
 \begin{verbatim}
