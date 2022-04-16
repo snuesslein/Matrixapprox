@@ -1027,7 +1027,111 @@ The proof for this and the algorithms for the anticausal case are omitted for br
 
 \item Might also go in the Background, but I think it would be a bit to much and I did not find a detailed discussion in the literature. 
 \end{itemize}
+
+When using sss to approximate weight matrices, we are mainly interested in the cost of computing the product $y = Tu$ using time varying systems and the number of parameters.
+
+First we consider a causal system.
+The cost $C_k$ for the stage $k$ is 
+Without additions this gives the cost for one stage
+\begin{equation}
+	C_k = d_{k+1}d_k + d_{k+1}m_k+p_kd_k+p_km_k 
+\end{equation}
+ we can also include the additions and get the cost
+ \begin{equation}
+ 	C_k' = d_{k+1}(2d_k-1) + d_{k+1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
+ \end{equation}
+
+
+For anticausal system, the formulas are the same except a change in the indexing 
+Without additions this gives the cost for one stage
+\begin{equation}
+C_k = \da_{k-1}\da_k + \da_{k-1}m_k+p_k \da_k+p_km_k 
+\end{equation}
+we can also include the additions and get the cost
+\begin{equation}
+C_k' = \da_{k-1}(2\da_k-1) + \da_{k-1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
+\end{equation}
+
+If we consider mixed systems we can add the cost for the causal and the anticausal system.
+As we do not need the $D$-matrices for the anticausal part we can ignore the according flops.
+
+This gives the cost for a mixed stage
+
+\begin{equation}
+C_k = d_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
+\end{equation}
+we can also include the additions and get the cost
+\begin{multline}
+C_k' = d_{k-1}(2d_k-1)+ \da_{k-1}(2\da_k-1) 
++ (d_{k-1}+\da_{k+1})(2m_k-1)\\
++p_k(2d_k-1)+p_k(2\da_k+1)+p_k(2m_k-1)
+.
+\end{multline}
+In the following we will only use the number of multiplications, as it is easier to simplify.
+
+We get the total cost by adding the cost for all stages.
+This gives the total cost 
+\begin{equation}
+C = \sum_{k=1}^N C_k
+\end{equation}
+In cases where $d$ $\da$, $p$ and $m$ are constant this can be simplified to a multiplication
+And we get
+\begin{equation}
+C = K(d^2 + {\da}^2 + (d+\da)m +(d+\da)p +pm) 
+\end{equation}.
+The input and output sizes are related to the number of stages by $m = M/K$ and $p=P/K$.
+This results in
+\begin{align}
+C =& K(d^2 + {\da}^2 + (d+\da)\frac{M}{K} +(d+\da)\frac{P}{K} +\frac{PM}{K^2}) \\
+=&
+K(d^2 + {\da}^2) + (d+\da)M +(d+\da)P +\frac{1}{K}PM) 
+\end{align}.
+This relation describes how the general computational cost depends on the number of stages.
+This approximation is not helpful if one wants to approximate matrices, as in these cases the state dimension are usually not constant.
+Usually the state dimensions are small for the first and last states and larger for the states in the middle.
+Here different approximations of the state dimensions have to be used.
+
+I used an approximation based on the properties of the singular values and their relation to the Frobenius norm.
+The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \sigma_i^2}$.
+If we consider the elements of $H$ as constant on average, then $\|H\|_F \propto \text{size(H)}$.
+This means that the Frobenius norm increases with the size of the matrix, this should also result in increasing singular values.
+This is not directly related to the number of states as it depends on the distribution of the singular values and the wanted accuracy.
+But the approximation $d_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\todo{make Figure}.
+It is also possible to approximate the state dimension based on the the maximum possible rank of the Hankel matrix.
+The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
+We approximate the degree using
+\begin{equation}\label{eq:approx_d}
+	d_k = \gamma (K-k+1)(k-1)\frac{PM}{K^2\min(P,M)}.
+\end{equation}
+The variable $\gamma$ is a proportionality factor.
+The factor $1/\min(P,M)$ is used to normalize the state in such a way that for $\gamma = 1$ the approximation is equivalent to the maximal rank for the first and last states. 
+If we suppose that the statedimensions for the anticausal case is equivalent to the statedimensions for the causal case one can calculate the cost using
+\begin{equation}
+\sum_{k=1}^{K} \left(2 d_{k} d_{k+1} + \frac{2 M d_{k+1}}{K} + \frac{2 P d_{k}}{K} + \frac{M P}{K^{2}}\right)
+\end{equation}
+As the the matrix can be transposed, $\min(P,M)=M$ can be assumed without loss of generality.
+By inserting the approximation form Equation\ref{eq:approx_d} and transforming the Sums using Faulhaber's formula \cite{knuth_johann_1993} the cost is transformed to
+\begin{equation}
+ \frac{K P^{2} \gamma^{2}}{15} + \frac{M P \gamma}{3} + \frac{P^{2} \gamma}{3} + \frac{M P - \frac{P^{2} \gamma^{2}}{3}}{K} + \frac{- \frac{M P \gamma}{3} - \frac{P^{2} \gamma}{3}}{K^{2}} + \frac{4 P^{2} \gamma^{2}}{15 K^{3}}
+\end{equation}
+Thsi makes it possible, to calculate the cost for different $\gamma$s.
+In Figure\todo{figure}%\,\ref{fig:cost_parameters} 
+this is done for a example with $M=N = 2^{10}$.
+
+One can see that for one stage the cost is equivalent to the cost of a simple matrix product, as the whole matrix is stored as one $D$-matrix.
+For $\gamma = 1$ the cost only increases for higher number of stages.
+For $\gamma < 0$ the cost first increases before increasing later. 
+We can see that the optimal number of stages increases as $\gamma$ decreases.
+%This means that the number of stages can be higher if the stete diemsniuon 
+%This is not surprising, as for a high number of stages and a high state dimension, the 
+
+
 \subsection{Number of stages}
+\todo[inline]{
+	Write this up in a notebook, \\
+	Question:what number of stage is best?\\ 
+	Start with simple example and constant state dims\\
+	note that this approximation is not good, other approxiamtions -> see notebook}
 \begin{itemize}
 \item Describe continuous surrogate problem for the cost depending on the number of parameters. 
 \item Discuss educated guesses for the number of stages.
