@@ -1096,7 +1096,16 @@ The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \
 If we consider the elements of $H$ as constant on average, then $\|H\|_F \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, this should also result in increasing singular values.
 This is not directly related to the number of states as it depends on the distribution of the singular values and the wanted accuracy.
-But the approximation $d_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\todo{make Figure}.
+But the approximation $d_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
+\todo{How to cite the Neural nets}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
+	\caption{Approximated degree of a Matrix form the Mobilenet V2 model.
+	The actual degree is the number of singular values with $\sigma > \alpha \|A\|_H$ for every causal Hankel matrix. Here $\alpha$ is a hyperparameter that determines the accuracy.
+	Additionally approximations of the rank with suitable parameters $\gamma$ are plotted.}
+	\label{fig:approx_degree}
+\end{figure}
 It is also possible to approximate the state dimension based on the the maximum possible rank of the Hankel matrix.
 The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
 We approximate the degree using
@@ -1115,8 +1124,15 @@ By inserting the approximation form Equation\ref{eq:approx_d} and transforming t
  \frac{K P^{2} \gamma^{2}}{15} + \frac{M P \gamma}{3} + \frac{P^{2} \gamma}{3} + \frac{M P - \frac{P^{2} \gamma^{2}}{3}}{K} + \frac{- \frac{M P \gamma}{3} - \frac{P^{2} \gamma}{3}}{K^{2}} + \frac{4 P^{2} \gamma^{2}}{15 K^{3}}
 \end{equation}
 Thsi makes it possible, to calculate the cost for different $\gamma$s.
-In Figure\todo{figure}%\,\ref{fig:cost_parameters} 
+In Figure\,\ref{fig:cost_parameters} 
 this is done for a example with $M=N = 2^{10}$.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.75\textwidth]{Plots/cost_parameters.pdf}
+	\caption{Approxiamted cost for different numbers of stages. The system has $M=P=2^{10}$ input and output dimensions. 
+	The cost is approximated for different parameters $\gamma$}
+	\label{fig:cost_parameters}
+\end{figure}
 
 One can see that for one stage the cost is equivalent to the cost of a simple matrix product, as the whole matrix is stored as one $D$-matrix.
 For $\gamma = 1$ the cost only increases for higher number of stages.
