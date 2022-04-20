@@ -535,7 +535,17 @@ The state can be transformed with an non-singular state transform matrix $S$ acc
 This gives a transformed 
 reachabilty matrix $\tilde{\R_k}=S \R_k$ and the transformed
 observability matrix $\tilde{\Ob_k}= \Ob_k S^{-1}$. 
-The Hankel matrix stays the same as $\tilde{H_k} = \Ob_k S^{-1} S \R_k= \Ob_k \R_k = H_k$
+The Hankel matrix stays the same as $\tilde{H_k} = \Ob_k S^{-1} S \R_k= \Ob_k \R_k = H_k$.
+If a matrix factorization is used to construct a state transform, then the state transform can be considered as moving a matrix form the reachability matrix to the observability matrix
+\begin{equation}
+	\Ob_{k}R_{k} = \underbrace{\Ob_{k}A}_{\tilde{\Ob}_k}\underbrace{B\vphantom{\Ob_k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
+\end{equation}
+or moving a matrix form the observability matrix to the reachability matrix.
+\begin{equation}
+\Ob_{k}R_{k} = \underbrace{A\vphantom{\R_k}}_{\tilde{\Ob}_k}\underbrace{B\R_{k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
+\end{equation}
+If the used algorithm is able to work directly on the state space model this also makes it possible to reduce the state dimension of nonminimal systems as the state transform does not need to be nonsingular.
+
 There are are three particular types of factorization that are called canonical forms.
 An input-normal realization has the property that the columns of each $\Ob_k$ are orthormormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
 The balanced realization results form the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
@@ -1096,7 +1106,7 @@ The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \
 If we consider the elements of $H$ as constant on average, then $\|H\|_F \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, this should also result in increasing singular values.
 This is not directly related to the number of states as it depends on the distribution of the singular values and the wanted accuracy.
-But the approximation $d_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
+But the approximation $\breve{d}_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
 \todo{How to cite the Neural nets}
 \begin{figure}[htb]
 	\centering
@@ -1110,34 +1120,41 @@ It is also possible to approximate the state dimension based on the the maximum 
 The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
 We approximate the degree using
 \begin{equation}\label{eq:approx_d}
-	d_k = \gamma (K-k+1)(k-1)\frac{PM}{K^2\min(P,M)}.
+	\\breve{d}_k = \gamma (K-k+1)(k-1)\frac{PM}{K^2\min(P,M)}.
 \end{equation}
 The variable $\gamma$ is a proportionality factor.
-The factor $1/\min(P,M)$ is used to normalize the state in such a way that for $\gamma = 1$ the approximation is equivalent to the maximal rank for the first and last states. 
+The factor $1/\min(P,M)$ is used to normalize the state dimensions in such a way that for $\gamma = 1$ the approximation is compatible to the maximal rank of $H_k$. 
 If we suppose that the statedimensions for the anticausal case is equivalent to the statedimensions for the causal case one can calculate the cost using
 \begin{equation}
 \sum_{k=1}^{K} \left(2 d_{k} d_{k+1} + \frac{2 M d_{k+1}}{K} + \frac{2 P d_{k}}{K} + \frac{M P}{K^{2}}\right)
 \end{equation}
 As the the matrix can be transposed, $\min(P,M)=M$ can be assumed without loss of generality.
 By inserting the approximation form Equation\ref{eq:approx_d} and transforming the Sums using Faulhaber's formula \cite{knuth_johann_1993} the cost is transformed to
-\begin{equation}
+\begin{equation}\label{eq:cost_of_K}
  \frac{K P^{2} \gamma^{2}}{15} + \frac{M P \gamma}{3} + \frac{P^{2} \gamma}{3} + \frac{M P - \frac{P^{2} \gamma^{2}}{3}}{K} + \frac{- \frac{M P \gamma}{3} - \frac{P^{2} \gamma}{3}}{K^{2}} + \frac{4 P^{2} \gamma^{2}}{15 K^{3}}
 \end{equation}
-Thsi makes it possible, to calculate the cost for different $\gamma$s.
+This makes it possible, to calculate the cost for different $\gamma$s.
 In Figure\,\ref{fig:cost_parameters} 
 this is done for a example with $M=N = 2^{10}$.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.75\textwidth]{Plots/cost_parameters.pdf}
 	\caption{Approxiamted cost for different numbers of stages. The system has $M=P=2^{10}$ input and output dimensions. 
-	The cost is approximated for different parameters $\gamma$}
+	The cost is approximated for different parameters $\gamma$.
+	The optimal number of stages for every $\gamma$ is marked with an circle}
 	\label{fig:cost_parameters}
 \end{figure}
 
 One can see that for one stage the cost is equivalent to the cost of a simple matrix product, as the whole matrix is stored as one $D$-matrix.
-For $\gamma = 1$ the cost only increases for higher number of stages.
-For $\gamma < 0$ the cost first increases before increasing later. 
-We can see that the optimal number of stages increases as $\gamma$ decreases.
+For $\gamma = 1$ the cost only increases for higher number of stages. 
+For $\gamma < 0$ the cost first decreases before increasing later.
+\todo{Is it usefull to give some details on the parameters of Equation\,\ref{eq:cost_of_K}} 
+We can see that the optimal number of stages $\hat{K}$ increases as $\gamma$ decreases.
+For very small $\gamma$ we get $\hat{K} = 1/2 N$.
+For reasonable more reasonable values $\gamma=0.16$ the optimal number of stages is $\hat{K}=N*2^{-5}$. 
+This gives an educated guess on the optimal number of stages $K$ for a weight matrix.
+The approximation has the downsides, that the parameter $\gamma$ has to be estimated
+and the input and output dimensions are modeled as constant, which is not true for the tested systems.
 %This means that the number of stages can be higher if the stete diemsniuon 
 %This is not surprising, as for a high number of stages and a high state dimension, the 
 
