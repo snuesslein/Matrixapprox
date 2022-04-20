@@ -33,6 +33,11 @@
 
 \usepackage[boxed]{algorithm}
 \usepackage{algpseudocode}
+\newcommand{\Input}{\Require}
+\newcommand{\Output}{\Ensure}
+\renewcommand{\algorithmicrequire}{\textbf{Input:\phantom{\textbf{Output}}\hspace{-0.75cm}}}
+\renewcommand{\algorithmicensure}{\textbf{Output:\phantom{\textbf{Input}}\hspace{-0.7cm}}}
+\newcommand{\spaceIO}{\phantom{Output:Input}\hspace{-0.7cm}}
 
 \usepackage{todonotes}
 \usepackage{subcaption}
@@ -48,7 +53,7 @@
 \DeclareMathOperator{\tril}{tril}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\range}{range}
-
+\DeclareMathOperator{\argmin}{argmin}
 
 
 %define symbols
@@ -56,6 +61,9 @@
 \newcommand{\Ob}{\mathcal{O}} %Observability operator 
 \newcommand{\eye}{I} %identity matrix
 \newcommand{\bigO}{O}
+
+\newcommand{\lsearchud}{l^\text{ud}}
+\newcommand{\lsearchrl}{l^\text{rl}}
 
 
 %some shortcuts for things that might change
@@ -100,6 +108,7 @@
 
 
 \todo[inline]{Make th usage of the state transforms consistent}
+\todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
 
 
 \chapter{Introduction} 3p
@@ -576,7 +585,7 @@ Where every $T_k$ represents a stage. The matrices $T_k$ is constructed accordin
 	\end{bmatrix} 
 \end{equation}
 
-For a system with 3 stages
+For a system with 3 stages this gives the factorization
 \begin{equation*}
 	T=
 	\left[\begin{matrix}A_{3} & 0 & 0 & B_{3}\\0 & 1 & 0 & 0\\0 & 0 & 1 & 0\\C_{3} & 0 & 0 & D_{3}\end{matrix}\right]
@@ -703,7 +712,7 @@ More details on general approximation.
 
 \chapter{Methods} 15p
 
-\section{Matrix Approximations}
+\section{Matrix Approximations}\label{sec:approx}
 \subsection{Algorithm}
 \begin{itemize}
 
@@ -831,12 +840,14 @@ The algorithm is formalized in Algorithm\,\ref{alg:inp_normal}
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
+	\Input System $[A,B,C,D]$
+	\Output Input normal system $[A,B,C,D]$
 	\For{$k\gets 1$ \textbf{to} $K-1$}
-		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$
-		\State $r \gets $ count$(\sigma>\text{tol}_i)$
-		\State $U \gets U[:,:r]$
-		\State $\sigma \gets \sigma[:r]$
-		\State $V^\top \gets V^\top[:r,:]$
+		\State $U,\sigma,V^\top \gets$ reducedSVD$([A_k,B_k],\epsilon=\text{tol}_i)$
+		%\State $r \gets $ count$(\sigma>\text{tol}_i)$
+		%\State $U \gets U[:,:r]$
+		%\State $\sigma \gets \sigma[:r]$
+		%\State $V^\top \gets V^\top[:r,:]$
 		\State $[A_k,B_k] \gets V^\top$
 		\State $A_{k+1}=A_{k+1}U\diag(\sigma)$
 		\State $C_{k+1}=C_{k+1}U\diag(\sigma)$
@@ -903,12 +914,14 @@ The matrices $A_{k-1}$ and $C_{k-1}$ are updated with the state transform $S_k$
 This gives the Algorithm\,\ref{alg:out_normal}
 \begin{algorithm}[htb]
 	\begin{algorithmic}
+	\Input{System $[A,B,C,D]$}
+	\Output{Output normal system $[A,B,C,D]$}
 	\For{$k\gets K$ \textbf{downto} $2$}
-		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} C_k\\A_k \end{bmatrix}\right)$
-		\State $r \gets $ count$(\sigma>\text{tol}_o)$
-		\State $U \gets U[:,:r]$
-		\State $\sigma \gets \sigma[:r]$
-		\State $V^\top \gets V^\top[:r,:]$
+		\State $U,\sigma,V^\top \gets$ reducedSVD$\left(\begin{bmatrix} C_k\\A_k \end{bmatrix},\epsilon=\text{tol}_o\right)$
+		%\State $r \gets $ count$(\sigma>\text{tol}_o)$
+		%\State $U \gets U[:,:r]$
+		%\State $\sigma \gets \sigma[:r]$
+		%\State $V^\top \gets V^\top[:r,:]$
 		\State $\begin{bmatrix} C_k\\A_k \end{bmatrix} \gets U$
 		\State $A_{k-1}=\diag(\sigma)V^\top A_{k+1}$
 		\State $B_{k-1}=\diag(\sigma)V^\top C_{k+1}$
@@ -1226,6 +1239,8 @@ the following stages are transformed according to $\tilde{A}_{k+1} = A_{k+1}U$ a
  
 \begin{algorithm}[htb]
 	\begin{algorithmic}
+		\Input{System $[A,B,C,D]$, index $k$}
+		\Output{System $[A,B,C,D]$ with changed input dimensions}
 		\State $b \gets B_k[:,-1]$
 		\State $D_k \gets D_k[:,:-2]$
 		\State $B_k \gets B_k[:,:-2]$
@@ -1233,9 +1248,10 @@ the following stages are transformed according to $\tilde{A}_{k+1} = A_{k+1}U$ a
 		\State $B_{k+1} \gets [A_{k+1}b,B_{k+1}]$
 		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$ 
 		\If{$\sigma[-1] < \text{tol}$}
-			\State $U \gets U[:,:-2]$
-			\State $\sigma \gets \sigma[:-2]$
-			\State $V \gets V[:-2,:]$
+			\State $U \gets U[:,:-2]$; $\sigma \gets \sigma[:-2]$; $V \gets V[:-2,:]$
+			%\State $U \gets U[:,:-2]$
+			%\State $\sigma \gets \sigma[:-2]$
+			%\State $V \gets V[:-2,:]$
 			\State$[A_k,B_k] \gets \diag(\sigma) V^\top$
 			\State$A_{k+1} \gets A_{k+1}U$
 			\State$C_{k+1} \gets C_{k+1}U$
@@ -1280,6 +1296,8 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
+		\Input{System $[A,B,C,D]$, index $k$}
+		\Output{System $[A,B,C,D]$ with changed output dimensions}
 		\State $c^\top \gets C_{k+1}[1,:]$
 		\State $D_{k+1} \gets D_{k+1}[2:,]$
 		\State $C_{k+1} \gets C_{k+1}[2:,:]$
@@ -1287,9 +1305,10 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
 		\State $C_k \gets \begin{bmatrix} C_k\\c^\top A_k	\end{bmatrix}$
 		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix}\right)$ 
 		\If{$\sigma[-1] < \text{tol}$}
-		\State $U \gets U[:,:-2]$
-		\State $\sigma \gets \sigma[:-2]$
-		\State $V \gets V[:-2,:]$
+			\State $U \gets U[:,:-2]$; $\sigma \gets \sigma[:-2]$; $V \gets V[:-2,:]$
+			%\State $U \gets U[:,:-2]$
+			%\State $\sigma \gets \sigma[:-2]$
+			%\State $V \gets V[:-2,:]$
 		\State$\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix} \gets U\diag(\sigma)$
 		\State$A_{k} \gets V^\top A_{k}$
 		\State$C_{k} \gets V^\top C_{k}$
@@ -1306,7 +1325,7 @@ The input $u_\m$ is attached to the end of the state vector $x_{k+1}$.
 The vector $b$ is attached to the end of $A_{k+1}$ and $d$ is attached to $C_{k+1}$.
 This is illustrated in Figure\,\ref{fig:move_left}.
 This trivial algorithm results in a new Observability matrix $\tilde{\Ob}_{k+1}$ that has one additional column.
-\begin{equation}
+\begin{equation}\label{eq:strucure_mover}
 	\tilde{\Ob}_{k+1}
 	=
 	\begin{bmatrix}
@@ -1382,7 +1401,8 @@ Additionally the vector $d_\text{new}$ is attached $D_k$.
 %		def move_right(sys,v,d_new=None):
 %		#function to move a boundary left 
 %		#v is the index to the left of the boundary
-
+		\Input{System $[A,B,C,D]$, index $k$}
+		\Output{System $[A,B,C,D]$ with changed input dimensions}
 		\State $b \gets B_{k+1}[:,1]$
 		\State $d \gets D_{k+1}[:,1]$
 		\State $B_{k+1} \gets B_{k+1}[:,2:]$
@@ -1399,20 +1419,20 @@ Additionally the vector $d_\text{new}$ is attached $D_k$.
 		\end{bmatrix}$
 		%\If{any $|a[r+1:]|>\text{tol}$}
 		\If{$\|a[r+1:]\|>\text{tol}$}
-%		#not in range -> add a ned dimention to the state
-		\State $B_k \gets \begin{bmatrix}
-		B_k & 0\\
-		0 & 1
-		\end{bmatrix}$
-		\State $A_k \gets \begin{bmatrix}
-		A_k \\ 0
-		\end{bmatrix}$
-		\State $A_{k+1} \gets [A_{k+1},b]$
-		\State $C_{k+1} \gets [C_{k+1},d]$		
+			\Comment not in range
+			\State $B_k \gets \begin{bmatrix}
+			B_k & 0\\
+			0 & 1
+			\end{bmatrix}$
+			\State $A_k \gets \begin{bmatrix}
+			A_k \\ 0
+			\end{bmatrix}$
+			\State $A_{k+1} \gets [A_{k+1},b]$
+			\State $C_{k+1} \gets [C_{k+1},d]$		
 		\Else
-%		#in range -> no need for an additional dim
-		\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
-		\State $B_k \gets \begin{bmatrix} B & m\end{bmatrix}$
+%			#in range -> no need for an additional dim
+			\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
+			\State $B_k \gets \begin{bmatrix} B & m\end{bmatrix}$
 %		
 		\EndIf
 %		#set the appropirate D_v
@@ -1465,10 +1485,8 @@ Using a similar derivation as used for a movement to the right...
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
-		%		def move_right(sys,v,d_new=None):
-		%		#function to move a boundary left 
-		%		#v is the index to the left of the boundary
-
+		\Input{System $[A,B,C,D]$, index $k$}
+		\Output{System $[A,B,C,D]$ with changed  output dimensions}
 		\State $c^\top \gets C_{k}[-1,:]$
 		\State $d^\top \gets D_{k}[-1,:]$
 		\State $C_{k} \gets C_{k}[:-2,:]$
@@ -1477,51 +1495,30 @@ Using a similar derivation as used for a movement to the right...
 		A_{k+1}^\top\\B_{k+1}^\top
 		\end{bmatrix}\right)$ Full matrices 
 		\State $r \gets $ count$(\sigma>\text{tol}_i)$
-%#check if [d;c]^T in range(B_v;A_v)^T
-%U,s,Vt= np.linalg.svd(np.vstack((sys.stages[v].B_matrix.T,sys.stages[v].A_matrix.T)),full_matrices=True)
-%eps = 1e-13
-%r = np.count_nonzero(s>=eps)
-\State $a \gets U^\top \begin{bmatrix}
-c\\d
-\end{bmatrix}$
-%a = U.T@np.vstack((d.T,c.T))
-%if np.linalg.norm(a[r:])>eps:
-\If{$\|a[r+1:]\|>\text{tol}$}
-%		#not in range -> add a ned dimention to the state
-\State $A_k \gets \begin{bmatrix}
-A_k \\ c^\top
-\end{bmatrix}$
-\State $B_k \gets \begin{bmatrix}
-B_k \\ d^\top
-\end{bmatrix}$
-\State $C_{k+1} \gets \begin{bmatrix}
-0 & 1\\ C_{k+1} & 0
-\end{bmatrix}$
-\State $A_{k+1} \gets \begin{bmatrix}
-A_{k+1} & 0
-\end{bmatrix}$
-%sys.stages[v+1].C_matrix = np.block([
-%[np.zeros((1, sys.stages[v+1].C_matrix.shape[1])), 1     ],
-%[sys.stages[v+1].C_matrix,np.zeros((sys.stages[v+1].C_matrix.shape[0],1))]
-%])
-%sys.stages[v+1].A_matrix = np.hstack((sys.stages[v+1].A_matrix,np.zeros((sys.stages[v+1].A_matrix.shape[0],1))))
-%sys.stages[v].A_matrix = np.vstack((sys.stages[v].A_matrix,c))
-%sys.stages[v].B_matrix = np.vstack((sys.stages[v].B_matrix,d))
-
-%else:
-\Else
-%		#in range -> no need for an additional dim
-\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
-\State $C_{k+1} \gets \begin{bmatrix} m\\C_{k+1} \end{bmatrix}$
-%#in range -> no need for an additional dim
-%m = Vt.T[:,:r]@(a[:r].flatten()/s[:r])
-%sys.stages[v+1].C_matrix = np.vstack((m.reshape((1,-1)),sys.stages[v+1].C_matrix))
-\EndIf
-%#set the appropirate D_v
-%sys.stages[v+1].D_matrix=np.vstack((d_new,sys.stages[v+1].D_matrix))
-\State $D_v \gets \begin{bmatrix}
-d_{\text{new}} \\D_k
-\end{bmatrix}$
+		\State $a \gets U^\top \begin{bmatrix}
+		c\\d
+		\end{bmatrix}$
+		\If{$\|a[r+1:]\|>\text{tol}$} 
+			\Comment not in range
+			\State $A_k \gets \begin{bmatrix}
+			A_k \\ c^\top
+			\end{bmatrix}$
+			\State $B_k \gets \begin{bmatrix}
+			B_k \\ d^\top
+			\end{bmatrix}$
+			\State $C_{k+1} \gets \begin{bmatrix}
+			0 & 1\\ C_{k+1} & 0
+			\end{bmatrix}$
+			\State $A_{k+1} \gets \begin{bmatrix}
+			A_{k+1} & 0
+			\end{bmatrix}$
+		\Else
+			\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
+			\State $C_{k+1} \gets \begin{bmatrix} m\\C_{k+1} \end{bmatrix}$
+		\EndIf
+		\State $D_v \gets \begin{bmatrix}
+			d_{\text{new}} \\D_k
+			\end{bmatrix}$
 	\end{algorithmic}
 	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ up}\label{alg:move_up}
 \end{algorithm}
@@ -1532,6 +1529,213 @@ It is also possible to split and combine stages. In \cite{chandrasekaran_fast_20
 Also I think the derivation of the splitting is clearer than the derivation given in the paper}
 
 \subsection{Moving Boundaries and calc sigmas}\label{subsec:move_sig}
+In this section the ideas form Section\,\ref{sec:approx} are used to calculate the singular values for a moved system.
+The main idea is that this algorithm iterates over the different stages and moves them if needed.
+
+
+I will illustrate the algorithms to move the bounds left or right. 
+\todo[inline]{The algorithms for moving up or down will be omitted for brevity/Can be found in the appendix}
+In the following, the algorithm starts with an output normal system and transforms it into a minimal input normal system.
+
+
+\paragraph{Move Left}
+When moving left, the last columns of $\R_{k}$ are removed.
+Based on this we have the new Hankel matrix
+\begin{equation}
+	\tilde{H}_k = \tilde{\Ob}_k \tilde{\R}_k = \Ob_{k}\R_{k}[:,:-(l+1)]
+\end{equation}
+Here $l$ is the wanted change in the dimensions.
+Using the decomposition form Equation\,\ref{eq:decomp_R} this becomes
+\begin{equation}
+	H_{k}=\Ob_{k}
+	\begin{bmatrix}
+	A_{k-1}&B_{k-1}[:,:-(l+1)]
+	\end{bmatrix}
+	\begin{bmatrix}
+	\R_{k-1} & 0\\ 0& \eye
+	\end{bmatrix}
+\end{equation}
+If $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$ then the singular values of the SVD of $\begin{bmatrix}
+A_{k-1}&B_{k-1}[:,:-(l+1)]
+\end{bmatrix}$ are the singular values of $H_k$.
+This is the case as the initial system in input output normal and the previous stages where already transformed to input normal form.
+Based on the singular value decomposition, the stage can be transformed such that $\R_{k} \R_{k}^\top = \eye$.
+
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+	%\For{$k\gets 2$ \textbf{to} $K$}
+		\Input{System $[A,B,C,D]$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
+		Index $k$, distance to move $l$}
+		\Output{System $[A,B,C,D]$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$, \\ \spaceIO 
+			Hankel singular values $\sigma$}
+		\State $b \gets B_{k-1}[:,-l:]$
+		\State $D_{k-1} \gets D_{k-1}[:,:-(l+1)]$
+		\State $B_{k-1} \gets B_{k-1}[:,:-(l+1)]$
+		\State $D_{k} \gets [C_{k}b,D_{k}]$
+		\State $B_{k} \gets [A_{k}b,B_{k}]$
+		\State $U,\sigma,V^\top \gets$ reducedSVD$([A_{k-1},B_{k-1}],\epsilon=\text{tol})$ 
+%		\State $r \gets $ count$(\sigma>\text{tol})$
+%		\State $U \gets U[:,:r]$
+%		\State $\sigma \gets \sigma[:r]$
+%		\State $V^\top \gets V^\top[:r,:]$
+		\State $[A_{k-1},B_{k-1}] \gets V^\top$
+		\State $A_{k}=A_{k}U\diag(\sigma)$
+		\State $C_{k}=C_{k}U\diag(\sigma)$
+	%\EndFor
+	\end{algorithmic}
+	\caption{Algorithm to move the boundary between $u_k$ and $u_{k+1}$ to the left by $l$ inputs}\label{alg:move_left_sig}
+\end{algorithm}
+
+
+\paragraph{Move Right}
+When the bound is moved right by the distance $l$, this results in $l$ additional rows in $\R_k$.
+Additional states are also required in most cases.
+Using the decomposition form Equation\,\ref{eq:decomp_R} and the structure form Equation\,\ref{eq:strucure_mover} the new Hankel matrix can be expressed as
+\begin{equation}
+	H_k = 
+	\begin{bmatrix}
+	\eye & 0\\ 0 &\Ob_{k+2}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_{k+1} & d\\
+	A_{k+1} & b
+	\end{bmatrix}
+	\begin{bmatrix}
+	A_{k-1}&B_{k-1}&0\\
+	0&0&\eye
+	\end{bmatrix}
+	\begin{bmatrix}
+	\R_{k-1} & 0\\ 0& \eye
+	\end{bmatrix}
+\end{equation}
+If $A_{k-1}$ and $B_{k-1}$ were transformed to input normal form analogous to Algorithm\,\ref{alg:inp_normal} this can be reduced to 
+\begin{equation}
+H_k = 
+\begin{bmatrix}
+\eye & 0\\ 0 &\Ob_{k+2}
+\end{bmatrix}
+\begin{bmatrix}
+C_{k+1} & d\\
+A_{k+1} & b
+\end{bmatrix}
+\begin{bmatrix}
+\R_{k-1} & 0\\ 0& \eye
+\end{bmatrix}
+\end{equation}
+with an sub orthogonal $\R_{k-1}$.
+The singular values of the SVD of $\begin{bmatrix}
+	C_{k+1} & d\\
+	A_{k+1} & b
+\end{bmatrix}$ are the singular values of the Hankel matrix.
+Using the SVD the system can be reduced to a minimal system. 
+To preserve the input normality $A_{k-1}$ and $B_{k-1}$ are multiplied with $V^\top$ and $[A_k^\top \quad C_k^\top]^\top$ is set to $U \Sigma$.
+This results in the Algorithm\,\ref{alg:move_right_sig}.
+
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+	\Input{System $[A,B,C,D]$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
+		Index $k$, distance to move $l$}
+	\Output{System $[A,B,C,D]$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$,\\ \spaceIO
+		 Hankel singular values $\sigma$}
+	%\For{$k\gets 2$ \textbf{to} $K$}
+		\State Transform state $x_k$ to input normal 
+		\State $b \gets B_{k}[:,:l]$
+		\State $d \gets D_{k}[:,:l]$
+		\State $B_{k+1} \gets B_{k}[:,l+1:]$
+		\State $D_{k+1} \gets D_{k}[:,l+1:]$
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
+		C_{k+1}&d\\A_{k+1}&b
+		\end{bmatrix}\right)$  
+		\State $r \gets $ count$(\sigma>\text{tol}_i)$
+		\State $U \gets U[:,:r]$
+		\State $\sigma \gets \sigma[:r]$
+		\State $V^\top \gets V^\top[:r,:]$
+		\State $B_{k-1} \gets V^\top \begin{bmatrix}
+		B_{k-1} & 0\\
+		0 & 1
+		\end{bmatrix}$
+		\State $A_{k-1} \gets V^\top \begin{bmatrix}
+		A_{k-1} \\ 0
+		\end{bmatrix}$
+		\State $\begin{bmatrix}
+		A_{k} \\ B_{k} 
+		\end{bmatrix}  \gets U \diag(\sigma)$	
+		\State $D_v \gets \begin{bmatrix}
+		D_k&d_{\text{new}}
+		\end{bmatrix}$
+	%\EndFor
+	\end{algorithmic}
+	\caption{Algorithm to move the boundary between $u_k$ and $u_{k+1}$ to the right by $l$ inputs}\label{alg:move_right_sig}
+\end{algorithm}
+
+Analogous algorithms can be derived for the anticausal part.
+
+\subsection{Algorithm to optimize Input and oputput dims}
+
+When one wants obtain the optimal segmentation of a system, 
+one wants to solve the optimization problem
+\begin{equation}
+min_\text{segmentation} f(\text{System})
+\end{equation}
+Where $F(\text{System})$ is some objective function.
+as this is a discrete optimization problem, \todo{reword}.
+
+To get an possible solution of the optimization problem an iterative algorithm is used.
+For this both the input dimensions and the output dimensions have to be changed.
+This algorithm alternately changes the input and output dimensions.
+
+The general strategy is that one starts with a input normal system in combination with an output normal anticausal system.
+These are transformed to an input normal system and an output norml system accordingly.
+For every boundary, the algorithm computes a preliminary system in which the boundary is moved to the down, not moved or moved up.
+For these three options the objective function is calculated. 
+Then the system with the lowest objective function is adopted.
+This is done for every boundary.
+After this system is transformed back to an input normal system in combination with an output normal anticausal system.
+When this is done the bounds are moved to the left, not moved and moved to the right.
+Again the option with the lowest objective function is used.
+
+As the unchanged version is also included, the objective function is nonincreasing.
+\begin{equation}
+	f(sys_{k+1}) = \min(f(sys_{k,\text{moved pos}}),f(sys_{k}),f(sys_{k,\text{moved neg}})) \leq f(sys_{k})
+\end{equation}
+
+To avoid that the algorithm gets stuck in local minima and to improve the speed, the algorithm does not change the segmentation by a fixed search distance $l$ value but uses a sequence of search distances $l_i$.
+This gives a tree-like structure.
+As the optimal segmentation of the input depends on the segmentation of the output, that is also subject to change, the sequence is constructed in a way that there is not a single way to reach a certain movement of a boundary.
+%by gradually changing the segmentation but by facilitating a tree like structure.
+
+This gives the algorithm
+
+\todo[inline]{Pseudocode? Twas umständlich aber würde vermutlich verständlcihekit verbessern...}
+
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+	\Input{Input normal causal system, output normal anticausal system,\\ 
+		\spaceIO sequences $\lsearchud$ and $\lsearchrl$}
+	\Output{Ordered System $[A,B,C,D]$ with optimized input and output dimensions}
+	%\State Start with input normal causal system and output normal anticausal system, 
+	\For{$i\gets 1$ \textbf{to} Number of iterations}
+		\State update output segmentation
+		\For{$k \gets K$ \textbf{downto} $2$}
+		\State \Comment{iterate over output dimensions and transform causal system to output normal and anticausal to input normal}
+			\State $S_d \gets $ move down$(S)$ by $\lsearchud_i$
+			\State $S_n \gets $ no move down$(S)$ 
+			\State $S_u \gets $ move up$(S)$ by $\lsearchud_i$
+			\State $S \gets \underset{S \in \{S_d,S_n,S_u\}}{\argmin} f(S)$
+		\EndFor
+		\For{$k \gets 2$ \textbf{to} $K$}
+			\Comment iterate over output dimensions transform causal system back to input normal and anticausal to output normal 
+			\State $S_r \gets $ move right$(S)$ by $\lsearchrl_i$
+			\State $S_n \gets $ no move down$(S)$ 
+			\State $S_l \gets $ move left$(S)$ by $\lsearchrl_i$
+			\State $S \gets \underset{S \in  \{S_r,S_n,S_l\}}{\argmin} f(S)$
+		\EndFor
+	\EndFor
+	\end{algorithmic}
+	\caption{Algorithm to optimize the segmentation}\label{alg:optimize segemtnation}
+\end{algorithm}
+
+
 
 \section{Permutations}
 if time allows add some notes on permutations here
