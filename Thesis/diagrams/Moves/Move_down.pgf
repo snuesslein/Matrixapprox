@@ -88,10 +88,10 @@
  \draw[signal,colmarking] (sys_1.xin) -- ($(sys_1.center)+(0,\distorig-\distvert)$);
 
 %\node (Abtext) at ($(sys_2.center)+(-\distorig,-\distorig)$) {$\;\,\textcolor{\colortext}{A_{k+1}b}$};
-\node (Cbtext) at ($(sys_1.center)+(\distorig,\distorig)$) {$\!\!\textcolor{\colortext}{C_{k+1}b}$};
+\node (cAtext) at ($(sys_1.center)+(\distorig,\distorig)$) {$\!\!\textcolor{\colortext}{c^\top A_k}$};
 
-\draw[white,line width=1mm,opacity=0.8] (Cbtext) to [out=280,in=80] (Cb);
-\draw[colmarking,line width=0.7pt] (Cbtext) to [out=280,in=80] (Cb);
+\draw[white,line width=1mm,opacity=0.8] (cAtext) to [out=280,in=80] (Cb);
+\draw[colmarking,line width=0.7pt] (cAtext) to [out=280,in=80] (Cb);
 
 %\draw[colmarking] (Cbtext) to [out=-80,in=40] ($(Cb.center)+(1mm,0.5mm)$);
 \end{tikzpicture}

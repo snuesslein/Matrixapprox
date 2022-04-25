@@ -22,6 +22,8 @@
 
 % !TeX spellcheck = en_US
 
+\usepackage{placeins}
+
 \usepackage{pgfplots}
 \usepackage{tikz}
 \usetikzlibrary{calc}
@@ -36,7 +38,7 @@
 \newcommand{\Input}{\Require}
 \newcommand{\Output}{\Ensure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:\phantom{\textbf{Output}}\hspace{-0.75cm}}}
-\renewcommand{\algorithmicensure}{\textbf{Output:\phantom{\textbf{Input}}\hspace{-0.7cm}}}
+\renewcommand{\algorithmicensure}{\textbf{Output:\phantom{\textbf{Input}}\hspace{-0.75cm}}}
 \newcommand{\spaceIO}{\phantom{Output:Input}\hspace{-0.7cm}}
 
 \usepackage{todonotes}
@@ -88,8 +90,8 @@
 \begin{itemize}
 	\item neural nets
 	\item reduce cost of neural nets using structured matrix
-	\item how to use Sequentially semisperable matrices in this context
-	\item choose number of stages and tuning segmentation
+	\item how to use Sequentially semisperable matrices in this context?
+	\item choose and tuning segmentation
 	\item some sentence on results
 \end{itemize}
 
@@ -107,11 +109,12 @@
 
 
 
-\todo[inline]{Make th usage of the state transforms consistent}
+\todo[inline]{Make the usage of the state transforms consistent}
 \todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
 
 
 \chapter{Introduction} 3p
+\todo{Only draft so far}
 Motivation Why
 
 What others are dooing
@@ -194,24 +197,12 @@ Section contains the results for test cases and in section the algorithm are use
 ´
 
 \chapter{Literature Review}
-\todo[inline]{Some test}
+\todo[inline]{Some text}
 
 \section{Neural Nets}
 %Special matrix structures are been explored for the use in neural nets.
 %Here different matrices structures are used to improve the performance. 
 In this section different approaches that use structured matrices in neural nets are shortly introduced.
-\todo[inline]{moved to introduction delete/replace this}
-\textcolor{blue}{The linear layers in matrices can be represented with matrices.
-Usually full matrices are used. These do not have a particular structure.
-It is also possible to use structured matrices.
-These often have representations for which a matrix vector products can be computed with a reduced cost.
-Instead of using the matrix vector product one might use these structured representations that are computationally cheaper.
-%Instead of using matrix vector products the underlying structure is used to replace the multiplications with convolutions.
-%One might analogously try to use the structure of a matrix to represent it with a different representation that has a reduced computational cost.
-One widely known example are Convolutional Neural Networks (CNN).
-The convolutions are equivalent with an multiplication with a circulant matrix.
-Instead of using a matrix vector products the underlying structure is utilized and convolutions are used.
-One might analogously try to use the structure of a matrix to represent it with a different representation that has a reduced computational cost.}
 There are two main approaches to obtain structured matrices:
 In one case the structure is predetermined and the parameters of the structure are trained by a regular training process \cite{fan_multiscale_2019,dao_kaleidoscope_2020,li_butterfly_2015,ailon_sparse_2021,ioannou_training_2016}.
 Or the neural net is trained without a predetermined matrix structures and the matrices are later approximated with structured matrices \cite{wu_hybrid_2020,hassibi_optimal_1993,jaderberg_speeding_2014,rigamonti_learning_2013}. In \cite{yu_compressing_2017} the model was retrained after the approximation. 
@@ -219,8 +210,9 @@ There are also approaches where the approximation is done during the training pr
 
 
 One widely known approach to reduce the complexity of neural nets is pruning. 
-These are processes that set elements in neural net matrices to 0 to reduce the computational cost \cite{blalock_what_2020}.
-An approach to remove parameters from a trained net based on the Hessian of the parameters\todo{how to phrase} was proposed by Hassibi \cite{hassibi_optimal_1993}.
+These are processes that set elements in neural net matrices to zero to reduce the computational cost \cite{blalock_what_2020}.
+This is equivalent to removing connections between neurons.
+An approach to remove connections from a trained net based on the Hessian of the loss function was proposed by Hassibi \cite{hassibi_optimal_1993}.
 It is also possible to obtain sparse matrices while training.
 Dettmers and Zettlemoyer use an algorithm that includes pruning steps during the training after every epoch \cite{dettmers_sparse_2019}.
 A different approach to obtain sparse matrices is including a regularization term.
@@ -366,9 +358,9 @@ As the Sequentially semiseperable maticies will be used in this thesis a introdu
 There it will be explained form the standpoint of time varying systems.
 Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
 
-The sequentially semiseperable matrices have the properties that submatrices have a low rank.
-This is similar to semiseperable matrices. 
-Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part.
+%The sequentially semiseperable matrices have the properties that submatrices have a low rank.
+%This is similar to semiseperable matrices. 
+%Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part.
 The sequentially semiseperable matrices are divided into blocks.
 Matrices taken form the strict lower and strict upper triangular blockmatrix have the condition that their rank is low.
 This is illustrated in Figure\,\ref{fig:sequentiallysep}.
@@ -376,7 +368,7 @@ This is illustrated in Figure\,\ref{fig:sequentiallysep}.
 \begin{figure}[htb]
 	\centering
 	\input{diagrams/sequentially_sep}
-	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segemntation of the matrix. The thin lines represent submatrices with low rank.}
+	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segemntation of the matrix. The colored lines represent submatrices with low rank.}
 	\label{fig:sequentiallysep}
 \end{figure}
 
@@ -386,27 +378,28 @@ Unlike semiseperable matrices the sequentially semiseperable matrices do not hav
 \chapter{Background}\label{chap:background}
 
 
-Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.
+Sequentially semiseperable Matrices can be considered as descriptions of time varying systems
 \footnote{
 The naming and structure of the matrices is not consistent in the literature.
 Here we will use the notation used in \cite{tong_blind_2003}. 
 In \cite{dewilde_time-varying_1998} a similar notation is used, but the transfer operator is transposed.
 In other works like \cite{rice_efficient_2010,chandrasekaran_fast_2002} the causal and anticausal parts are considered jointly
 }
+.
 These systems can be described using the formulas
 \begin{subequations}
 	\begin{align}
 	x_{k+1} &= A_k x_k + B_k u_k \\
 	y_k &= C_k x_k + D_k u_k 
-	\end{align}.
+	.
+	\end{align}
 	\label{eq:def_causal}
 \end{subequations}
-
 The $u_k$ are the inputs, the $y_k$ are the outputs and the $x_k$ are the states.
 The matrices $A_k$, $B_k$, $C_k$ and $D_k$ can vary with the time index $k$.
 This is different from time-invariant systems, where the matrices $A$, $B$, $C$ and $D$ are constant.
 This also means that the dimensions of the input, the output and the states can vary with time.
-The structure of a system is represented in Figure\ref{fig:struktur-system_a}.
+The structure of a system is represented in Figure\,\ref{fig:struktur-system_a}.
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
@@ -429,8 +422,8 @@ The structure of a system is represented in Figure\ref{fig:struktur-system_a}.
 	\caption{Illustration of the structure of time varying systems}
 	\label{fig:struktur-system}
 \end{figure}
-Here we can see that the system can be structured in stages.
-The stage $k$ has the matrices $A_k$, $B_k$, $C_k$ and $D_k$.
+Here the system is structured in stages.
+The stage $k$ consists of the matrices $A_k$, $B_k$, $C_k$ and $D_k$.
 The matrix $A_k$ maps the old state $x_k$ to the next state $x_{k+1}$, the matrix $B_k$ maps the current input $u_k$ to the next state $x_{k+1}$.
 The matrix $C_k$ maps the old state $x_k$ to the output $y_k$.
 Finally the matrix $D_k$ directly maps the input $u_k$ to the output $y_k$.
@@ -442,20 +435,19 @@ An anticausal system is described using the formula
 	\begin{align}
 	x_{k-1} &= A_k x_k + B_k u_k \\
 	y_k &= C_k x_k + D_k u_k 
-	\end{align}.
+	.
+	\end{align}
 	\label{eq:def_anticausal}
 \end{subequations}
-
 In Figure\ref{fig:struktur-system_b} an anticausal system is illustrated.
-We can see that the structure is analogous except for the direction of the arrows for the states $x_k$. \todo{rephrase}
+The structure is analogous except for the reversed direction of the arrows for the states.
 
 When we stack the input vectors to a one vector $u = [u_1^\top, \dots ,u_k^\top]^\top$ and stack the outputs vectors to a one output vector $y = [y_1^\top, \dots ,y_k^\top]^\top$ we can describe the input-output behaviour of the system using a single matrix vector product 
 \begin{equation}\label{eq:System_mat_vec}
 	y = Tu,
 \end{equation}
 where the matrix $T$ is called the transfer operator.
-
-The matrix $T$ for a causal system with four stages is
+The transfor operator $T$ for a causal system with four stages is
 \begin{equation}\label{eq:T_causal}
 T_\text{causal}=
 \begin{bmatrix}D_{1} & 0 & 0 & 0\\C_{2} B_{1} & D_{2} & 0 & 0\\
@@ -519,19 +511,18 @@ For a causal system this can be written as
 This is the same matrix strucure as we have seen in Equation\,\ref{eq:T_causal}.
 \todo{reword}
 
-If the rows  of rows of $\R_k$ are linearly independent, the range of $\R_k$ is $\mathbb{R}^n$, where $n$ is the number of dimensions of $x_k$.
+If the rows of $\R_k$ are linearly independent, the range of $\R_k$ is $\mathbb{R}^d_k$, where $d_k$ is the number of dimensions of $x_k$.
 This means that we can reach every state with some input.
 Therefore we call a system reachable if every $R_k$ has a full row rank.
 If the columns of $O_k$ are linearly independent, we can reconstruct the state $x_k$ from the output.  
 Therefore we call a system observable if every $R_k$ has a full column rank.
 
 If a system is both observable and reachable, it is called minimal.
-In a minimal system the state dimension is cannot be further reduced.
-\todo{reword}
+In a minimal system the state dimension is cannot be further reduced without a loos of information.
 The rank of the Hankel operator is called the Hankelrank. 
 If the system is minimal we have 
 \begin{equation}
-	\rank{H_k} = rank{\Ob_k} = \rank{R_k} = n_k
+	\rank(H_k) = rank(\Ob_k) = \rank(\R_k) = d_k
 \end{equation}
 for every $k$.
 Usually the state dims are far smaller than the input and output dims.
@@ -540,11 +531,11 @@ This results in the factorization $H_k = \Ob_k\R_k$
 
 \paragraph{State Transforms}
 As this factorization is not unique, the state in also not uniquely defined. 
-The state can be transformed with an non-singular state transform matrix $S$ according to $\tilde{x} =Sx$.
+The state can be transformed with an non-singular state transform matrix $S$ according to $\tilde{x}_k =S_kx_k$.
 This gives a transformed 
-reachabilty matrix $\tilde{\R_k}=S \R_k$ and the transformed
-observability matrix $\tilde{\Ob_k}= \Ob_k S^{-1}$. 
-The Hankel matrix stays the same as $\tilde{H_k} = \Ob_k S^{-1} S \R_k= \Ob_k \R_k = H_k$.
+reachabilty matrix $\tilde{\R}_k=S_k \R_k$ and the transformed
+observability matrix $\tilde{\Ob}_k= \Ob_k S_k^{-1}$. 
+The Hankel matrix stays the same as $\tilde{H_k} = \Ob_k S_k^{-1} S_k \R_k= \Ob_k \R_k = H_k$.
 If a matrix factorization is used to construct a state transform, then the state transform can be considered as moving a matrix form the reachability matrix to the observability matrix
 \begin{equation}
 	\Ob_{k}R_{k} = \underbrace{\Ob_{k}A}_{\tilde{\Ob}_k}\underbrace{B\vphantom{\Ob_k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
@@ -553,13 +544,13 @@ or moving a matrix form the observability matrix to the reachability matrix.
 \begin{equation}
 \Ob_{k}R_{k} = \underbrace{A\vphantom{\R_k}}_{\tilde{\Ob}_k}\underbrace{B\R_{k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
 \end{equation}
-If the used algorithm is able to work directly on the state space model this also makes it possible to reduce the state dimension of nonminimal systems as the state transform does not need to be nonsingular.
+If the used algorithm is able to work directly on the state space model this also makes it possible to reduce the state dimension of nonminimal systems as the resulting state transformation matrix $S_k$ does not need to be nonsingular.
 
 There are are three particular types of factorization that are called canonical forms.
 An input-normal realization has the property that the columns of each $\Ob_k$ are orthormormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
 The balanced realization results form the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
-In a balanced realization $\Ob_k = U_k \Sigma^{1/2}$ and $\R_k = \Sigma^{1/2} V_k^\top$.
-These canonical form usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is hard to define numerically for systems where the $\sigma$s decay slowly. \todo[]{finite equivalent of compact operators, search for word} If minimality is required, it will be explicitly stated.
+In a balanced realization $\Ob_k = U_k \Sigma^{1/2}_k$ and $\R_k = \Sigma^{1/2}_k V_k^\top$.
+These canonical form usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is nontrivial to define for systems where the singular values decay slowly. If minimality is required, it will be explicitly stated.
 
 \paragraph{Matrix Factorization}
 The sequentially semisperabel matrices can also be considered as a matrix factorization.
@@ -617,7 +608,7 @@ We can also represent mixed systems as factorization, if we use insert the facto
 	\eye
 	\end{bmatrix}
 \end{equation}
-Sequentially semiseperable matrices can be added, multiplied and inverted using algorithm that work on the ABCD description.
+Sequentially semiseperable matrices can be added, multiplied and inverted using algorithm that work on the state space description.
 It is also possible to calculate QR factorization \cite{chandrasekaran_fast_2002,tong_blind_2003} or URV factorization \cite{chandrasekaran_fast_2005}. 
 %Note on URV more papers in Dewilde,Diepold and van der Veen p315 
 There are also a couple of other algorithms that can be used for different purposes like sign iterations \cite{rice_efficient_2010}.
@@ -631,7 +622,7 @@ The Hankel Norm is defined as
 	\|T\|_H = \sup_{i}\|H_i\|.
 \end{equation}
 This norm is the supremeum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
-In \cite{dewilde_time-varying_1998} an algorithm is given for the hankel rank approxiamtion that computes a $\tilde{T}$.
+In \cite{dewilde_time-varying_1998} an algorithm is given for the hankel norm approxiamtion that computes a $\tilde{T}$.
 The approximated system satisfies the condition
 \begin{equation}
 	\| \Gamma^{-1}(T-\tilde{T})\|_H \leq 1.
@@ -641,9 +632,10 @@ If we set $\Gamma = \eye\gamma$ we obtain the simplified condition
 \begin{equation}
 	\|T-\tilde{T}\|_H \leq \gamma.
 \end{equation}
-
-A second approach is balanced truncation is described in . 
-Here the state dimensions $x_k$ are reduced to a new dimension $\tilde{n}_k$.
+\todo[inline]{Write something on Hankel norm approx}
+A second approach is balanced truncation. 
+This is described in \cite{sandberg_balanced_2004,hinrichsen_improved_1990}. 
+Here the state dimensions $d_k$ are reduced to a new dimension $\tilde{d}_k$.
 The idea is to remove stated that result in a small output $y$ or need a relatively big input $u$.
 We can calculate the norm of the output for a state $x$ using
 \begin{equation}
@@ -651,7 +643,7 @@ We can calculate the norm of the output for a state $x$ using
 	.
 \end{equation}
 The matrix $\Ob^\top \Ob$ is called the Observability gramian.
-analogously we can calculate the norm of the input required ti reach a certain state using
+analogously we can calculate the norm of the input required to reach a certain state using
 \begin{equation}
 	\|u\|_2^2 = x^\top (\R\R^\top)^{-1} x
 	.
@@ -672,7 +664,7 @@ and
 \|u\|_2^2\big|_{x = e_l} = \sigma_l^{-1}
 \end{equation}
 Where $e_l$ is the $l$-th standard basis vector.
-This allows us to only keep the states with $\|y\| > \epsilon^{1/2} \|x\|$ and $\|x\| > \epsilon^{1/2} \|u\| $ for some $\epsilon>0$ by cutting all dimensions $l$ for all $l$ with $\sigma_l < \epsilon$.
+This allows us to only keep the states with $\|y\| > \epsilon^{1/2} \|x\|$ and $\|x\| > \epsilon^{1/2} \|u\| $ for some $\epsilon>0$ by cutting all dimensions $l$ with $\sigma_l < \epsilon$.
 \todo{reword}
 %that are
 % result in a large output and only need a small input to be reached. 
@@ -701,28 +693,25 @@ The approximated system $\tilde{T}$ is then set to
 \end{align}
 %This is equivalent to removing the tailing states.
 %Because the realization is balanced every state in the original system corresponds to a $\sigma$ of the according Hankel matrix.
-This approach is equivalent to removing all $\sigma<\epsilon$s of the SVD of the Hankel operator.
+This approach is equivalent to removing all $\sigma_l<\epsilon$ of the SVD of the Hankel operator.
 Therefore we can also construct an approximation when identifying a system using the SVD by truncating the SVD as described in \cite{shokoohi_identification_1987}.
 \todo[inline]{Check proof in paper}
-In an error bound given in \cite{sandberg_balanced_2004}.
+An error bound given in \cite{sandberg_balanced_2004}.
 \todo[inline]{find an easily understandable derivation or similar}
 
-More details on general approximation.
-\cite{antoulas_approximation_2005} detailed discussion of approxiamtions.
+A detailed discussion of approxiamtions is given in
+\cite{antoulas_approximation_2005}.
 
 \chapter{Methods} 15p
 
 \section{Matrix Approximations}\label{sec:approx}
 \subsection{Algorithm}
-\begin{itemize}
-
-
-\item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
-\item Define ordered realization as extention of the ballanced realization
-
-\item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
-
-\item Describe the overall approximation algorithm.
+%\begin{itemize}
+%\item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
+%\item Define ordered realization as extention of the ballanced realization
+%\item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
+%\item Describe the overall approximation algorithm.
+%\end{itemize}
 
 \paragraph{Extention balanced truncation to nonbalanced systems/Define ordered system}
 In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
@@ -739,7 +728,7 @@ In this thesis these Realizations will be called ordered.
 	\end{align}
 	\end{subequations}
 	where $\Sigma_{\Ob k}$ and $\Sigma_{\R k}$ are diagonal matrices
-	and the diagonal entries of $\Sigma_k =\Sigma_{\Ob k}\Sigma_{\R k}$ are non increasing (i.e. $\sigma_1 \leq \sigma_2 \leq \dots \leq \sigma_n$).
+	and the diagonal entries of $\Sigma_k =\Sigma_{\Ob k}\Sigma_{\R k}$ are non increasing (i.e. $\sigma_1 \leq \sigma_2 \leq \dots \leq \sigma_n$)
 	%Positiov sowieso, weil gram matrix
     for every $k$.
 \end{definition}
@@ -753,13 +742,16 @@ This gives the balanced system $\tilde{T}$
 	\tilde{C}_k &= C_k S_k^{-1}   & \tilde{D} =& D 
 \end{align}
 \begin{proof}
-	By applying the state transform we can see that we get a balanced system
-	$\Ob_k S_k^{-1} = U_k \Sigma_\Ob \Sigma_{\Ob k}^{-1}\Sigma_k^{1/2} = U_k \Sigma_k^{1/2}$\\
+	By applying the state transform we can see that we get a balanced system\\
+	$\Ob_k S_k^{-1} = U_k \Sigma_{\Ob k} \Sigma_{\Ob k}^{-1}\Sigma_k^{1/2} = U_k \Sigma_k^{1/2}$\\
 	$S_k \R_k = \Sigma_k^{1/2}\Sigma_{\R k}^{-1} \Sigma_{\R k} V_k^\top = \Sigma_k^{1/2} V_k^\top$
 \end{proof}
 
 A ordered system can be reduced using the same segmentation as used for the balanced truncation.
-This allows us to use algorithms that require input- or output normal forms, as systems can be both balanced and input normal if $\Sigma_{\R k}=\eye$ or balanced and output normal if $\Sigma_{\Ob k}=\eye$.
+\begin{proof}
+	As the state transforms are diagonal matrices the result of first reducing the system and then applying the reduced state transformation is equivalent to applying the state transformation and later reducing the system.
+\end{proof}
+This allows us to use algorithms that require input- or output normal forms, as systems can be both ordered and input normal $\Sigma_{\R k}=\eye$ or both ordered and output normal if $\Sigma_{\Ob k}=\eye$.
 
 \paragraph{Recusrsve factorization of $\Ob_k$ and  $\R_k$}
 The goal of this section is to construct an algorithm to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H$, $\Ob_k$ or $\R_k$.
@@ -779,6 +771,7 @@ The idea is that we can recursively factor the observability matrix according to
 	C_k\\
 	A_k
 	\end{bmatrix}
+	.
 \end{equation}
 And analogously the reachability matrix
 \begin{equation}\label{eq:decomp_R}
@@ -794,22 +787,23 @@ And analogously the reachability matrix
 	\R_{k-1} &0\\
 	0& \eye
 	\end{bmatrix}
+	.
 \end{equation}
 This allows us to create algorithms, that can convert realizations into input normal and output normal form.
 With an combination of both it is also possible to obtain the singular values.
 This is similar to the idea used in square root algorithms for the computation of normal forms.
-The algorithm derived here was introduced in \cite{chandrasekaran_fast_2005}.
-Here a different explanation will be given will be given as well as a derivation of the SVD of the Hankel matrix. 
+The algorithm derived here is also given in \cite{chandrasekaran_fast_2005}.
+Here a different explanation will be presented as well as a derivation of the SVD of the Hankel matrix. 
 
-\todo[inline]{More details on the fact that we do not require mininality and unlike QR based algorithms we can make sure that we do not create spurious observable states....
-May bee some proof based on the original rank of $\Ob_{k}$ and $\R_k$.
-Also note that a Rank revealing QR-algorithm would also work}
+%\todo[inline]{More details on the fact that we do not require mininality and unlike QR based algorithms we can make sure that we do not create spurious observable states....
+%May bee some proof based on the original rank of $\Ob_{k}$ and $\R_k$.
+%Also note that a Rank revealing QR-algorithm would also work}
 
 \paragraph{Make input normal and reachable}
-First we give an algorithm to transform the system into an reachable and input normal system.
-This means that we want to make all $R_k$ subunitary.
-As we do not want to calculate the reachability matrices directly we will employ the decomposition given in Equation\,\ref{eq:decomp_R}.
-If $\R_{k-1}^\top \R_{k-1}=\eye$ we can make $\R_{k}$ sub orthogonal by calculating the SVD of $[A_{k-1} B_{k-1}]$
+First an algorithm to transform the system into an reachable and input normal system is given.
+This means that all $R_k$ are made subunitary.
+As ones does not want to calculate the reachability matrices directly, the algorithm employs the decomposition given in Equation\,\ref{eq:decomp_R}.
+If $\R_{k-1}^\top \R_{k-1}=\eye$ the next reachability matrix $\R_{k}$ is made sub orthogonal by calculating the SVD of $[A_{k-1} B_{k-1}]$
 \begin{equation}
 \R_k = 
 %\begin{bmatrix}
@@ -831,7 +825,7 @@ A_{k-1} & B_{k-1}
 \end{bmatrix}}_{\tilde{\R}_k}
 \end{equation}
 This gives the state transform $S_k = U_k\Sigma_k$. 
-The usage of the SVD also allows us to remove states that are not reachable by counting all nonzero elements in $\Sigma$ and reducing the SVD accordingly.
+The usage of the reduced SVD also removes states that are not reachable by not increasing the rank of $\R_k$.
 The product with the inverse $S_k^{-1}$ is implicitly calculated by computing the SVD.
 Therefore the matrices $\tilde{A}_k$ and $\tilde{B}_k$ are set to $[\tilde{A}_k,\tilde{B}_k]=V_k^\top$.
 The matrices $A_{k}$ and $B_{k}$ have to be updated with the state transform $S_k$.
@@ -882,9 +876,9 @@ This results in a input normal and reachable system.
 
 \paragraph{Make output normal}
 The algorithm to transform the system into an observable and output normal system is analogous.
-Here all $\Ob_k$ have to be subunitary.
-Here the decomposition given in Equation\,\ref{eq:decomp_O} is used to avoid a computation of $\Ob_k$.
-If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ we can make $\Ob_{k}$ sub orthogonal by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
+Here all $\Ob_k$ have to be sub-orthogonal.
+Here the decomposition given in Equation\ref{eq:decomp_O} is used to avoid a computation of $\Ob_k$.
+If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm makes $\Ob_{k}$ sub-orthogonal by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
 
 \begin{equation}
 	\Ob_{k}
@@ -970,10 +964,11 @@ to get
  A_k
  \end{bmatrix}
  \R_k
- \end{equation}.
+ .
+ \end{equation}
 As the algorithm started with an input normal system $\R_k\R_k^\top = \eye$ is still fulfilled.
 And due to the fact the algorithm has transformed the states $x_i$ for $i>k$ to output normal form $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ is already fulfilled.
-When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in an SVD decomposition of $H$
+When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in the SVD of $H$
  \begin{equation}
  H = 
  \underbrace{
@@ -990,7 +985,7 @@ When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in
  \end{equation}
 
  \begin{proof}
- 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is a singluar value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
+ 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is the singluar value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
  	If $\Ob_{k+1}$, $R_k$, $U_k$ and $V$ are orthogonal the proof directly follows. For the sub unitary case we have 
  	$
  	\breve{V}_k^\top \breve{V}_k
@@ -1030,7 +1025,7 @@ The resulting system is ordered.
 Therefore the system can be approximated using balanced truncation.
 
 This algorithm is also a fast way to reduce the system to a minimal system.
-The tolerance for the first transformation$\text{tol}_i$ is usually set to a value close to the machine precision to avoid errors due to the removed states.
+The tolerance for the first transformation $\text{tol}_i$ is usually set to a value close to the machine precision to avoid errors due to the removed states.
 The tolerance for the second transformation $\text{tol}_o$ is then set to the wanted $\epsilon$.
  
 It is also possible to first convert the system to an output normal system and calculate the SVD when converting it to an input normal system.
@@ -1039,76 +1034,84 @@ The proof for this and the algorithms for the anticausal case are omitted for br
 \todo[inline]{Some notes on cumputational cost}
  
  
-\todo[inline]{is it clear if the ordering makes a difference, slo difference between immediately cutting or cutting later?}
+\todo[inline]{Is it clear if there is a difference between immediately cutting or cutting later?}
 
-\end{itemize}
-\subsection{Cost of computation}
-\begin{itemize}
-\item Short section on the computational cost and number of parameters.
+%\end{itemize}
+\section{Cost of computation}
+%\begin{itemize}
+%\item Short section on the computational cost and number of parameters.
+%\item Define it with and without additions.
 
-\item Define it with and without additions.
+\todo[inline]{Might also go in the Background, but I think it would be a bit to much and I did not find a detailed discussion in the literature. } 
+%\end{itemize}
 
-\item Might also go in the Background, but I think it would be a bit to much and I did not find a detailed discussion in the literature. 
-\end{itemize}
+When using Time Varying Systems to approximate weight matrices, one is mainly interested in the cost of computing the product $y = Tu$ using time varying systems.
+The cost is the number of Floating Point Operations(FLOPs).
+The number of parameters is also important, as this determines the required memory.
 
-When using sss to approximate weight matrices, we are mainly interested in the cost of computing the product $y = Tu$ using time varying systems and the number of parameters.
-
-First we consider a causal system.
-The cost $C_k$ for the stage $k$ is 
-Without additions this gives the cost for one stage
+First the cost for a causal stage is derived.
+Without considering additions, the cost $C_k$ for the stage $k$ is 
 \begin{equation}
-	C_k = d_{k+1}d_k + d_{k+1}m_k+p_kd_k+p_km_k 
+	C_k = d_{k+1}d_k + d_{k+1}m_k+p_kd_k+p_km_k
+	.
 \end{equation}
- we can also include the additions and get the cost
+One can also include the additions and get the cost
  \begin{equation}
- 	C_k' = d_{k+1}(2d_k-1) + d_{k+1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
+ 	C_k' = d_{k+1}(2d_k-1) + d_{k+1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1)
+ 	.
  \end{equation}
-
 
 For anticausal system, the formulas are the same except a change in the indexing 
 Without additions this gives the cost for one stage
 \begin{equation}
-C_k = \da_{k-1}\da_k + \da_{k-1}m_k+p_k \da_k+p_km_k 
+C_k = \da_{k-1}\da_k + \da_{k-1}m_k+p_k \da_k+p_km_k
+.
 \end{equation}
-we can also include the additions and get the cost
+If the additions are included this results in the cost
 \begin{equation}
 C_k' = \da_{k-1}(2\da_k-1) + \da_{k-1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
 \end{equation}
 
-If we consider mixed systems we can add the cost for the causal and the anticausal system.
-As we do not need the $D$-matrices for the anticausal part we can ignore the according flops.
-
+When considering mixed systems the cost for the causal and the anticausal system are added.
+As the $D$-matrices for the anticausal part are not needed the according FLOPs are irrelevant.
 This gives the cost for a mixed stage
-
 \begin{equation}
 C_k = d_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
 \end{equation}
-we can also include the additions and get the cost
+Include the additions, the cost is
 \begin{multline}
 C_k' = d_{k-1}(2d_k-1)+ \da_{k-1}(2\da_k-1) 
 + (d_{k-1}+\da_{k+1})(2m_k-1)\\
 +p_k(2d_k-1)+p_k(2\da_k+1)+p_k(2m_k-1)
 .
 \end{multline}
-In the following we will only use the number of multiplications, as it is easier to simplify.
 
-We get the total cost by adding the cost for all stages.
+
+The total cost is the sum over all stages.
 This gives the total cost 
-\begin{equation}
-C = \sum_{k=1}^N C_k
+\begin{equation}\label{eq:cost_total}
+C = \sum_{k=1}^K C_k
 \end{equation}
-In cases where $d$ $\da$, $p$ and $m$ are constant this can be simplified to a multiplication
-And we get
+The number of parameters is equal to the number of multiplications.
+In the following I will only use the number of multiplications, as it is easier to simplify.
+
+\section{Number of stages}
+To choose the appropriate number of stages I approximated how the cost depends on the number of stages.
+For this the dimensions $d$ $\da$, $p$ and $m$ are considered as constant.
+
+Then the cost in Equation\,\ref{eq:cost_total} can be simplified to the multiplication
 \begin{equation}
 C = K(d^2 + {\da}^2 + (d+\da)m +(d+\da)p +pm) 
-\end{equation}.
+.
+\end{equation}
 The input and output sizes are related to the number of stages by $m = M/K$ and $p=P/K$.
 This results in
 \begin{align}
 C =& K(d^2 + {\da}^2 + (d+\da)\frac{M}{K} +(d+\da)\frac{P}{K} +\frac{PM}{K^2}) \\
 =&
 K(d^2 + {\da}^2) + (d+\da)M +(d+\da)P +\frac{1}{K}PM) 
-\end{align}.
+.
+\end{align}
 This relation describes how the general computational cost depends on the number of stages.
 This approximation is not helpful if one wants to approximate matrices, as in these cases the state dimension are usually not constant.
 Usually the state dimensions are small for the first and last states and larger for the states in the middle.
@@ -1119,41 +1122,39 @@ The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \
 If we consider the elements of $H$ as constant on average, then $\|H\|_F \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, this should also result in increasing singular values.
 This is not directly related to the number of states as it depends on the distribution of the singular values and the wanted accuracy.
-But the approximation $\breve{d}_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
-\todo{How to cite the Neural nets}
+I did choose to not make this more concrete using random matrix theory, as this is only a rough approximation.
+Regardless, the approximation $\breve{d}_k \propto \text{size}(H_k)$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
-	\caption{Approximated degree of a Matrix form the Mobilenet V2 model.
+	\caption{Approximated degree of a matrix form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019}.
 	The actual degree is the number of singular values with $\sigma > \alpha \|A\|_H$ for every causal Hankel matrix. Here $\alpha$ is a hyperparameter that determines the accuracy.
 	Additionally approximations of the rank with suitable parameters $\gamma$ are plotted.}
 	\label{fig:approx_degree}
 \end{figure}
-It is also possible to approximate the state dimension based on the the maximum possible rank of the Hankel matrix.
-The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
-We approximate the degree using
+I approximate the degree using the relation
 \begin{equation}\label{eq:approx_d}
-	\\breve{d}_k = \gamma (K-k+1)(k-1)\frac{PM}{K^2\min(P,M)}.
+	\breve{d}_k = \gamma (K-k+1)(k-1)\frac{PM}{K^2\min(P,M)}.
 \end{equation}
 The variable $\gamma$ is a proportionality factor.
 The factor $1/\min(P,M)$ is used to normalize the state dimensions in such a way that for $\gamma = 1$ the approximation is compatible to the maximal rank of $H_k$. 
-If we suppose that the statedimensions for the anticausal case is equivalent to the statedimensions for the causal case one can calculate the cost using
+As I suppose that the statedimensions for the anticausal case is equivalent to the statedimensions for the causal case, I can calculate the cost using
 \begin{equation}
 \sum_{k=1}^{K} \left(2 d_{k} d_{k+1} + \frac{2 M d_{k+1}}{K} + \frac{2 P d_{k}}{K} + \frac{M P}{K^{2}}\right)
 \end{equation}
 As the the matrix can be transposed, $\min(P,M)=M$ can be assumed without loss of generality.
-By inserting the approximation form Equation\ref{eq:approx_d} and transforming the Sums using Faulhaber's formula \cite{knuth_johann_1993} the cost is transformed to
+By inserting the approximation form Equation\,\ref{eq:approx_d} and transforming the sums using Faulhaber's formula \cite{knuth_johann_1993} the cost is transformed to
 \begin{equation}\label{eq:cost_of_K}
  \frac{K P^{2} \gamma^{2}}{15} + \frac{M P \gamma}{3} + \frac{P^{2} \gamma}{3} + \frac{M P - \frac{P^{2} \gamma^{2}}{3}}{K} + \frac{- \frac{M P \gamma}{3} - \frac{P^{2} \gamma}{3}}{K^{2}} + \frac{4 P^{2} \gamma^{2}}{15 K^{3}}
 \end{equation}
-This makes it possible, to calculate the cost for different $\gamma$s.
+This makes it possible, to calculate the cost for different values for the parameter $\gamma$.
 In Figure\,\ref{fig:cost_parameters} 
 this is done for a example with $M=N = 2^{10}$.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.75\textwidth]{Plots/cost_parameters.pdf}
 	\caption{Approxiamted cost for different numbers of stages. The system has $M=P=2^{10}$ input and output dimensions. 
-	The cost is approximated for different parameters $\gamma$.
+	The cost is approximated for different values for the parameter $\gamma$.
 	The optimal number of stages for every $\gamma$ is marked with an circle}
 	\label{fig:cost_parameters}
 \end{figure}
@@ -1162,54 +1163,44 @@ One can see that for one stage the cost is equivalent to the cost of a simple ma
 For $\gamma = 1$ the cost only increases for higher number of stages. 
 For $\gamma < 0$ the cost first decreases before increasing later.
 \todo{Is it usefull to give some details on the parameters of Equation\,\ref{eq:cost_of_K}} 
-We can see that the optimal number of stages $\hat{K}$ increases as $\gamma$ decreases.
-For very small $\gamma$ we get $\hat{K} = 1/2 N$.
-For reasonable more reasonable values $\gamma=0.16$ the optimal number of stages is $\hat{K}=N*2^{-5}$. 
+The figure shows that the optimal number of stages $\hat{K}$ increases as $\gamma$ decreases.
+For very small $\gamma$ I get $\hat{K} = 1/2 N$.
+For more reasonable values $\gamma=0.16$ the optimal number of stages is $\hat{K}=N*2^{-5}$. 
 This gives an educated guess on the optimal number of stages $K$ for a weight matrix.
+
 The approximation has the downsides, that the parameter $\gamma$ has to be estimated
 and the input and output dimensions are modeled as constant, which is not true for the tested systems.
 %This means that the number of stages can be higher if the stete diemsniuon 
 %This is not surprising, as for a high number of stages and a high state dimension, the 
+It is also possible to approximate the state dimension based on the the maximum possible rank of the Hankel matrix.
+The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
+This approximation might have some benefits for very tall or wide matrices, as this approximation is able to represent ranks that are not symmetric in $k$. 
 
 
-\subsection{Number of stages}
-\todo[inline]{
-	Write this up in a notebook, \\
-	Question:what number of stage is best?\\ 
-	Start with simple example and constant state dims\\
-	note that this approximation is not good, other approxiamtions -> see notebook}
-\begin{itemize}
-\item Describe continuous surrogate problem for the cost depending on the number of parameters. 
-\item Discuss educated guesses for the number of stages.
-\end{itemize}
-
+\newpage
 \section{Segmentation Adaptation}
-\begin{itemize}
-\item Describe algorithm of moving boundaries.
-\item First for causal system, then for mixed system.
 
-\item Describe splitting and combining states.
+In this section the segmentatation of the matrix is changed. 
+This means adapting the input and output dimensions. 
+First I will describe how to move the boundaries.
+In Subsection\,\ref{subsec:move_sig} the algorithm are going to be extended in a way that makes it possible to calculate the singular values.
+In Subsection\,\ref{subsec:optim_segmentation} an strategy to improve the segmentation is presented.
 
-\item Pseudocode for the causal systems
-
-\item Move all the proves of minimality to the appendix for brevity.
-\item Describe calculation of $\sigma$s
-\end{itemize}
 \subsection{Moving Boundaries}
 In this section an algorithm to move the boundaries of a causal system is introduced.
-
 The algorithms can be constructed in a way such that they preserve minimality.
-In Subsection\,\ref{subsec:move_sig} the algorithm are going to be extended in a way that makes it possible to calculate the singular values.
 
-When the boundaries are moved, some connections that are no longer possible in a causal system will be dropped or new connections will be established.
-This changes the parts of the matrix that can be represented with a causal system.
+The adaptation of the segmentation changes the parts of the matrix that can be represented with a causal system.
+When the boundaries are moved to the left or down, some connections are no longer possible in a causal system. These will be dropped.
+When moving the boundaries to the right or up new connections will be established.
 For an mixed system these connections can be moved to the anticausal system and vice versa.
+
 \paragraph{move left}
-First the bounds are moved left.
+First the boundary between two inputs is moved left.
 This means that the last element of the input $u_k$ is removed and inserted as a new first element in $u_{k+1}$. 
-The moved input is designated as $u_\m$
-This is illustrated in Figure\,\ref{fig:move_left}.
-\begin{figure}[htb]
+The moved input is designated as $u_\m$.
+This change is illustrated in Figure\,\ref{fig:move_left}.
+\begin{figure}[!htb]
 	\centering
 	\input{diagrams/Moves/Move_left.pgf}
 	\begin{subfigure}[b]{0.45\textwidth}
@@ -1224,20 +1215,24 @@ This is illustrated in Figure\,\ref{fig:move_left}.
 	\caption{Illustration of the movement of boundary}
 	\label{fig:move_left}
 \end{figure}
+
 The vector $b$ is the last column of $B_k$ and describes the mapping from $u_\m$ to $x_{k+1}$. The vector $d$ is the last column of $D_k$ and describes the mapping from $u_\m$ to $y_{k}$.
-These are removed form the matrices and we get $\breve{B}_k$ and $\tilde{D}$
+These are removed form the matrices and we get $\breve{B}_k$ and $\tilde{D}$.
 We can see that the connection $d$ in the original system cannot by realized with an causal system as this would mean a mapping from $\tilde{u}_{k+1}$ to $y_k$ in the transformed system.
-The mapping form the input $u_\m$ to the output $y_{k+1}$ can be directly incorporated by adding a the vector $A_{k+1}b$ to $D_{k+1}$ as a new column.
-Analogously the mapping to the state $x_{k+1}$ can be incorporated by attaching the vector $Ab$ to $B_{k+1}$.
+The mapping form the input $u_\m$ to the output $y_{k+1}$ can be incorporated by adding the vector $C_{k+1}b$ to $D_{k+1}$ as a new column.
+Analogously the mapping to the state $x_{k+1}$ can be incorporated by attaching the vector $A_{k+1}b$ to $B_{k+1}$.
+
 As the last column of $\R_{k+1}$ is removed, this might result in a non reachable system.
 This is the case if the matrix $[A_b \breve{B}_k]$ no longer has full rank.
 This can be checked using the SVD. 
-If the last $\sigma$ is equal to $0$ the state has to be removed. 
+If the last $\sigma$ is equal to zero, the state has to be removed. 
 This can be done using a state transform based on the reduced SVD. 
-The matrices $[\tilde{A}_b \tilde{B}_k]$ are set to $\diag{sigma} V^\top$ and 
+The matrices $[\tilde{A}_b \tilde{B}_k]$ are set to $\diag{\sigma} V^\top$ and 
 the following stages are transformed according to $\tilde{A}_{k+1} = A_{k+1}U$ and $\tilde{C}_{k+1} = C_{k+1} U$.
+
+The pseudocode to move the boundary to the left is given in Algorithm\,\ref{alg:move_left}.
  
-\begin{algorithm}[htb]
+\begin{algorithm}[!htb]
 	\begin{algorithmic}
 		\Input{System $[A,B,C,D]$, index $k$}
 		\Output{System $[A,B,C,D]$ with changed input dimensions}
@@ -1264,21 +1259,7 @@ the following stages are transformed according to $\tilde{A}_{k+1} = A_{k+1}U$ a
 A similar strategy can be used to move a boundary down.
 That means removing the first output $y_\m$ form $y_{k+1}$ and adding it to $y_k$.
 This is illustrated in Figure\,\ref{fig:move_left}.
-The vector $c^\top$ describes the mapping form $x_k$ to $y_\m$.
-This is also the first row of $C_{k+1}$.
-When moving the bound the first row of $C_{k+1}$ and from $D_{k+1}$ are removed.
-To attach the output $y_\m$ to the output vector $y_k$ the vector $c^\top B_k$ is added as last row to $D_k$ and the vector $c^\top A_k$is added as last row to $B_k$.
-As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
-This is the case if the kernel of $\Ob_{k+1}$ is not zero subspace.
-This can be checked with the SVD of $[A_{k+1}^\top,C_{k+1}^\top]^\top$.
-If the last singular values is equal to zero the state has to be reduced.
-This is done by using the reduced matrix $V$ as state transform.
-Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
-An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
-
-
-
-\begin{figure}[htb]
+\begin{figure}[!htb]
 	\centering
 	\input{diagrams/Moves/Move_down.pgf}
 	\begin{subfigure}[b]{0.45\textwidth}
@@ -1294,7 +1275,21 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
 	\label{fig:move_down}
 \end{figure}
 
-\begin{algorithm}[htb]
+
+The vector $c^\top$ describes the mapping form $x_k$ to $y_\m$.
+This is also the first row of $C_{k+1}$.
+When moving the bound the first row of $C_{k+1}$ and from $D_{k+1}$ are removed.
+To attach the output $y_\m$ to the output vector $y_k$ the vector $c^\top B_k$ is added as last row to $D_k$ and the vector $c^\top A_k$ is added as last row to $C_k$.
+
+As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
+This is the case if the kernel of $\Ob_{k+1}$ is not the zero subspace.
+This can be checked with the SVD of $[A_{k+1}^\top,\breve{C}_{k+1}^\top]^\top$.
+If the last singular values is equal to zero the state has to be reduced.
+This is done by using the reduced matrix $V$ as state transform.
+Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
+An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
+
+\begin{algorithm}[!htb]
 	\begin{algorithmic}
 		\Input{System $[A,B,C,D]$, index $k$}
 		\Output{System $[A,B,C,D]$ with changed output dimensions}
@@ -1317,13 +1312,30 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}
 	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
 \end{algorithm}
 
+\FloatBarrier
 \paragraph{Move right}
 It is also possible to reverse these changes.
-When moving the boundary right the input $x_\m$ is removed form the input $u_{k+1}$ and attached to the input vector $u_k$.
+When moving the boundary right the input $x_\m$ is removed form the input $u_{k+1}$ and attached to the input vector $\tilde{u}_k$.
 For this the first row of $D_{k+1}$ is removed and stored in the vector $d$. Analogously the first row of $B_{k+1}$ is removed and stored in the vector $b$.
 The input $u_\m$ is attached to the end of the state vector $x_{k+1}$.
 The vector $b$ is attached to the end of $A_{k+1}$ and $d$ is attached to $C_{k+1}$.
 This is illustrated in Figure\,\ref{fig:move_left}.
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Moves/Move_right.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_right_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_right_b}
+	\end{subfigure}
+	\caption{Illustration of the movement of boundary}
+	\label{fig:move_right}
+\end{figure}
+
 This trivial algorithm results in a new Observability matrix $\tilde{\Ob}_{k+1}$ that has one additional column.
 \begin{equation}\label{eq:strucure_mover}
 	\tilde{\Ob}_{k+1}
@@ -1380,23 +1392,8 @@ The vector $m$ is computed with
 \end{equation}
 This is equivalent to calculating the vector $m$ using the pseudoniverse.  
 Additionally the vector $d_\text{new}$ is attached $D_k$.
-\begin{figure}[htb]
-	\centering
-	\input{diagrams/Moves/Move_right.pgf}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Original system}
-		\label{fig:move_right_a}
-	\end{subfigure}
-	\hspace{0.8cm}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Moved system}
-		\label{fig:move_right_b}
-	\end{subfigure}
-	\caption{Illustration of the movement of boundary}
-	\label{fig:move_right}
-\end{figure}
 
-\begin{algorithm}[htb]
+\begin{algorithm}[!htb]
 	\begin{algorithmic}
 %		def move_right(sys,v,d_new=None):
 %		#function to move a boundary left 
@@ -1449,7 +1446,24 @@ When moving the boundary up the output $y_\m$ is removed form the output $y_k$ a
 First the last column of $D_{k}$ is removed and stored in $d^\top$ and analogously the last column of $C_k$ is removed and stored in $c^\top$.
 The output $y_\m$ is appended to the state $x_{k+1}$.
 The vectors $c^\top$ is appended to the matrix $A_k$ and the vector $d^\top$ is attached to $B_k$.
-This adds a new column to reachability matrix.
+This is illustrated in Figure\,\ref{fig:move_up}.
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Moves/Move_up.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_up_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_up_b}
+	\end{subfigure}
+	\caption{Illustration of the movement of boundary}
+	\label{fig:move_up}
+\end{figure}
+
+The algorithm adds a new column to reachability matrix.
 \begin{equation}
 \tilde{\R}_{k+1}
 =
@@ -1467,23 +1481,7 @@ In this case no additional state is needed.
 Using a similar derivation as used for a movement to the right...
 
 
-\begin{figure}[htb]
-	\centering
-	\input{diagrams/Moves/Move_up.pgf}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Original system}
-		\label{fig:move_up_a}
-	\end{subfigure}
-	\hspace{0.8cm}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Moved system}
-		\label{fig:move_up_b}
-	\end{subfigure}
-	\caption{Illustration of the movement of boundary}
-	\label{fig:move_up}
-\end{figure}
-
-\begin{algorithm}[htb]
+\begin{algorithm}[!htb]
 	\begin{algorithmic}
 		\Input{System $[A,B,C,D]$, index $k$}
 		\Output{System $[A,B,C,D]$ with changed  output dimensions}
@@ -1594,15 +1592,21 @@ Using the decomposition form Equation\,\ref{eq:decomp_R} and the structure form 
 \begin{equation}
 	H_k = 
 	\begin{bmatrix}
-	\eye & 0\\ 0 &\Ob_{k+2}
+	\eye & 0\\ 0 &\Ob_{k+1}
 	\end{bmatrix}
 	\begin{bmatrix}
-	C_{k+1} & d\\
-	A_{k+1} & b
+	C_{k} & d\\
+	A_{k} & b
 	\end{bmatrix}
 	\begin{bmatrix}
-	A_{k-1}&B_{k-1}&0\\
-	0&0&\eye
+	\begin{bmatrix}
+	A_{k-1} \\
+	0
+	\end{bmatrix}&
+	\begin{bmatrix}
+		B_{k-1}&0\\
+		0&\eye
+	\end{bmatrix}
 	\end{bmatrix}
 	\begin{bmatrix}
 	\R_{k-1} & 0\\ 0& \eye
@@ -1612,7 +1616,7 @@ If $A_{k-1}$ and $B_{k-1}$ were transformed to input normal form analogous to Al
 \begin{equation}
 H_k = 
 \begin{bmatrix}
-\eye & 0\\ 0 &\Ob_{k+2}
+\eye & 0\\ 0 &\Ob_{k+1}
 \end{bmatrix}
 \begin{bmatrix}
 C_{k+1} & d\\
@@ -1670,7 +1674,7 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 
 Analogous algorithms can be derived for the anticausal part.
 
-\subsection{Algorithm to optimize Input and oputput dims}
+\subsection{Algorithm to optimize Input and oputput dims}\label{subsec:optim_segmentation}
 
 When one wants obtain the optimal segmentation of a system, 
 one wants to solve the optimization problem
@@ -1717,16 +1721,17 @@ This gives the algorithm
 	\For{$i\gets 1$ \textbf{to} Number of iterations}
 		\State update output segmentation
 		\For{$k \gets K$ \textbf{downto} $2$}
-		\State \Comment{iterate over output dimensions and transform causal system to output normal and anticausal to input normal}
+		\State \Comment{iterate over output dimensions 
+		and transform causal system to output normal and anticausal to input normal}
 			\State $S_d \gets $ move down$(S)$ by $\lsearchud_i$
-			\State $S_n \gets $ no move down$(S)$ 
+			\State $S_n \gets $ no move $(S)$ 
 			\State $S_u \gets $ move up$(S)$ by $\lsearchud_i$
 			\State $S \gets \underset{S \in \{S_d,S_n,S_u\}}{\argmin} f(S)$
 		\EndFor
 		\For{$k \gets 2$ \textbf{to} $K$}
 			\Comment iterate over output dimensions transform causal system back to input normal and anticausal to output normal 
 			\State $S_r \gets $ move right$(S)$ by $\lsearchrl_i$
-			\State $S_n \gets $ no move down$(S)$ 
+			\State $S_n \gets $ no move $(S)$ 
 			\State $S_l \gets $ move left$(S)$ by $\lsearchrl_i$
 			\State $S \gets \underset{S \in  \{S_r,S_n,S_l\}}{\argmin} f(S)$
 		\EndFor
