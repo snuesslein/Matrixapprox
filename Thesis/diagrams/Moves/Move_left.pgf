@@ -1,11 +1,11 @@
-﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=12mm]
+﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=11mm]
 
 \tikzstyle{colmarking} = [magenta!50!violet!100,line width=1.5pt]
 \def\colortext{magenta!50!violet!100}
 
 
 \def\distorig{\rel_i_stage*\pgfkeysvalueof{/tikz/boxsize}}
-\def\distvert{3mm}
+\def\distvert{2.7mm}
 %\def
 
 	\matrix (m1) [row sep=5.mm, column sep=9mm] at (-3.2,0)
@@ -33,13 +33,13 @@
 	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$x_{k+1}$} (sys_2.xin);
 	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor = west] {$x_{k+2}$} (xout);
 
-\draw[signalflow, colmarking] (u_1) to [out=0,in=180] node[near end,anchor = north] {$u_\m$} ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(-\distorig,-\distvert)$); 
+\draw[signalflow, colmarking] (u_1) to [out=0,in=180] node[near end,anchor = north] {$u_\m$} ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(-\distorig,-\distvert)$);
  %\draw[signalflow, colmarking] ($(u_1.east)+(0,-\distvert)$) -- ($(sys_1.u)+(0,-\distvert)$);
  \draw[signal,colmarking,dotted] ($(sys_1.u)+(0,-\distvert)$)-- ($(sys_1.center)+(0.5*\distorig,-\distvert)$);
  \draw[signalflow, colmarking,dotted] ($(sys_1.center)+(0.5*\distorig,-\distvert)$)  to [out=0,in=180] node[anchor=north] {$d$} (sys_1.east);
 
 
- \draw[signalflow,colmarking,line cap=round] ($(sys_1.center)+(-\distorig,-\distvert)$) -- node[anchor=north east] {$b$} ($(sys_1.center)+(0,-\distorig-\distvert)$)  ; 
+ \draw[signalflow,colmarking,line cap=round] ($(sys_1.center)+(-\distorig,-\distvert)$) -- node[anchor=north east] {$b$} ($(sys_1.center)+(0,-\distorig-\distvert)$)  ;
 
  \draw[signal,colmarking] ($(sys_1.center)+(0,-\distorig-\distvert)$) -- (sys_2.xout);
  \draw[signal,colmarking] ($(sys_2.center)+(0,\distorig)$) -- ($(sys_2.center)+(\distorig,0)$) -- (sys_2.y);
@@ -73,13 +73,13 @@
 	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor = west] {$x_{k+2}$} (xout);
 
 %d-connection
-\draw[signalflow, colmarking] (u_2) to [out=0,in=180] node[near end,anchor = south] {$u_\m$} ($(sys_2.u)+(0,+\distvert)$)-- ($(sys_2.center)+(-\distorig,+\distvert)$); 
+\draw[signalflow, colmarking] (u_2) to [out=0,in=180] node[near end,anchor = south] {$u_\m$} ($(sys_2.u)+(0,+\distvert)$)-- ($(sys_2.center)+(-\distorig,+\distvert)$);
 %\draw[signalflow, colmarking] ($(u_2.east)+(0,\distvert)$) --  ($(sys_2.u)+(0,\distvert)$);
 \draw[signal,colmarking] ($(sys_2.u)+(0,\distvert)$)--($(sys_2.center)+(0.5*\distorig,\distvert)$);
  \draw[signalflow, colmarking] ($(sys_2.center)+(0.5*\distorig,\distvert)$) to [out=0,in=180] node[name=Cb] {} (sys_2.y);
 
 %diagonal
- \draw[signalflow,colmarking] ($(sys_2.center)+(-\distorig,\distvert)$) -- node[name=Ab]   {} ($(sys_2.center)+(0,-\distorig+\distvert)$)  ; 
+ \draw[signalflow,colmarking] ($(sys_2.center)+(-\distorig,\distvert)$) -- node[name=Ab]   {} ($(sys_2.center)+(0,-\distorig+\distvert)$)  ;
 %down
 \draw[signal,colmarking] ($(sys_2.center)+(0,-\distorig+\distvert)$) -- (sys_2.xout);
 
