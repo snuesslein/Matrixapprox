@@ -6,11 +6,11 @@
 		&		\node[coordinate]  (xout) {}; & \\[0.8cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]                  (u_1) {$u_1$};          &
-		\node[style_stage, stageanti, name=sys_1,A=$A_{1}$,B=$B_{1}$,C=$C_{1}$,D=$D_{1}$] {};&
+		\node[style_stage, stageanti, name=sys_1,A=$E_{1}$,B=$F_{1}$,C=$G_{1}$,D=$D_{1}$] {};&
 		\node[]                  (y_1) {$y_1$};          \\
 		%--------------------------------------------------------------------
 		\node[]                  (u_2) {$u_2$};          &
-		\node[style_stage, stageanti, name=sys_2,A=$A_{2}$,B=$B_{2}$,C=$C_{2}$,D=$D_{2}$] {};&
+		\node[style_stage, stageanti, name=sys_2,A=$E_{2}$,B=$F_{2}$,C=$G_{2}$,D=$D_{2}$] {};&
 		\node[]                  (y_2) {$y_2$};          \\[1.2cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]  (dots_u) {}; &
@@ -18,7 +18,7 @@
 		\node[]  (dots_y) {}; \\[0.9cm,between origins]
 		%--------------------------------------------------------------------
 		\node[]                  (u_k) {$u_n$};          &
-		\node[style_stage, stageanti, name=sys_k,A=$A_{n}$,B=$B_{n}$,C=$C_{n}$,D=$D_{n}$] {};&
+		\node[style_stage, stageanti, name=sys_k,A=$E_{n}$,B=$F_{n}$,C=$G_{n}$,D=$D_{n}$] {};&
 		\node[]                  (y_k) {$y_n$};          \\[0.8cm,between origins]
 		%--------------------------------------------------------------------
 		 &		\node[coordinate]  (xin) {}; & \\

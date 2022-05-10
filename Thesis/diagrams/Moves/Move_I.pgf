@@ -1,0 +1,76 @@
+﻿\makeatletter
+\DeclareRobustCommand{\rvdots}{%
+  \vbox{
+    \baselineskip4\p@\lineskiplimit\z@
+    \kern-\p@
+    \hbox{.}\hbox{.}\hbox{.}
+  }}
+\makeatother
+
+\tikzstyle{border} = [line width=1.pt]%[very thick]
+
+\tikzset{
+arrow_rl/.pic={
+\path[line width=1.5pt,<->] (-3mm,0) edge  (3mm,0);
+}
+}
+\tikzset{
+arrow_ud/.pic={
+\path[line width=1.5pt,<->] (0,-3mm) edge  (0,3mm);
+}
+}
+
+\begin{equation}
+	\begin{bmatrix}\begin{tikzpicture}
+     \matrix [%
+       matrix of math nodes,
+       column sep=1em,
+       row sep=0em,
+     ] (y) {%
+				\rvdots\\
+       y_{k} \\
+       y_{k+1} \\
+       \rvdots \\
+     };
+
+
+   \end{tikzpicture} \end{bmatrix}
+=
+\begin{bmatrix}\begin{tikzpicture}
+     \matrix [%
+       matrix of math nodes,
+       column sep=0em,
+       row sep=0em
+     ] (T) {%
+       \ddots&[-0.3em]&&\\
+       \cdots&D_k&&\\
+       \cdots&B_kC_{k+1}&D_{k+1}&\\[0.75cm,between origins]
+       \iddots&\rvdots&\rvdots&\ddots\\
+     };
+
+
+
+		\node[name=s_line,shape=coordinate] at ($($(T-4-2.south)!0.5!(T-4-3.south)$)+(0.25em,0)$) {};
+		\node[name=e_line,shape=coordinate] at ($(s_line)!(T-1-1.north)!($(s_line)+(0,1)$)$) {};
+		\draw[border,blue] (s_line) -- (e_line);
+		\pic at ($(e_line)-(0,1.5mm)$){arrow_rl};
+   \end{tikzpicture} \end{bmatrix}
+	\begin{bmatrix}\begin{tikzpicture}
+     \matrix [%
+       matrix of math nodes,
+       column sep=1em,
+       row sep=0em,
+     ] (u) {%
+				\rvdots\\
+       u_{k} \\
+       u_{k+1} \\
+       \rvdots \\
+     };
+
+		\node[name=s_line,shape=coordinate] at ($(u-2-1.west)!0.5!(u-3-1.west)$) {};
+		\draw[border,blue] (s_line) -- ($(s_line)!(u-3-1.east)!($(s_line)+(1,0)$)$);
+    \pic at ($(s_line)+(9mm,0)$){arrow_ud};
+   \end{tikzpicture} \end{bmatrix}
+\end{equation}
+
+
