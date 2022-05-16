@@ -313,6 +313,7 @@ A similar definition for semiseparable matrices of semiseparability rank $r$ is 
 
 \subsection{Hirarchical Matrices}\label{subsec:H-mat}
 The Hirarchical matrices ($\mathcal{H}$-Matrices) are a matrix structure to approximate large matrices. These were mainly introduced by Hackbusch \cite{hackbusch_hierarchische_2009} and Grasedyck \cite{grasedyck_theorie_2001}.
+A short introduction can also be found in \cite{grasedyck_adaptive_2004}.
 The $\mathcal{H}$-Matrices where developed for the solution of PDEs.
 If an PDEs is solved numerically, it has to be discreticed in order to obtain an approximated solution.
 As the disscretization already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
@@ -356,7 +357,7 @@ The Hierarchical matrices make it possible to compute different matrix operation
 
 \subsection{Sequentially semiseperable}
 %\todo[inline]{Quellen, also which notation, note that book is on the transposed...}
-Sequentially semiseperable matrices were introduced in \cite{dewilde_time-varying_1998}.
+Sequentially semiseperable matrices are described in detail in the book by Dewilde and van der Veen\cite{dewilde_time-varying_1998}.
 These matrices can represent time varying systems.
 As the Sequentially semiseperable maticies will be used in this thesis a introduction will be given in chapter\,\ref{chap:background}. 
 %Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
@@ -818,9 +819,12 @@ A ordered system can be reduced using the same segmentation as used for the bala
 \end{proof}
 This allows us to use algorithms that require input normal or output normal forms, as systems can be both ordered and input normal if $\Sigma_{\R k}=\eye$ or both ordered and output normal if $\Sigma_{\Ob k}=\eye$.
 
-\paragraph{Recusrsve factorization of $\Ob_k$ and  $\R_k$}
-The goal of this section is to construct an algorithm to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H$, $\Ob_k$ or $\R_k$.
-The idea is that we can recursively factor the observability matrix according to
+\paragraph{Recursive factorization of $\Ob_k$ and  $\R_k$}
+The goal of this section is to construct an algorithm to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H_k$, $\Ob_k$ or $\R_k$.
+The idea is that we can recursively factor the observability matrix, as $\Ob_k$ contains both the mapping form the state $x_k$ to the output $y_k$ and the mapping from $x_k$ to the later outputs.
+The first mapping is represented by $C_k$.
+The later mapping is represented by $\Ob_{k+1}A_k$.
+This gives the recursive factorization
 \begin{equation}\label{eq:decomp_O}
 	\Ob_k = 
 	\begin{bmatrix}
@@ -838,7 +842,7 @@ The idea is that we can recursively factor the observability matrix according to
 	\end{bmatrix}
 	.
 \end{equation}
-And analogously the reachability matrix
+And analogously the reachability matrix can be factorized as
 \begin{equation}\label{eq:decomp_R}
 	\R_k = 
 	\begin{bmatrix}
@@ -1032,7 +1036,7 @@ This results in a output normal and observable system.
 
 
 \paragraph{Obtain sigmas}
-By converting an input normal system to an output normal system it is possible to calculate the singlaur values of $H$.
+By converting an input normal system to an output normal system it is possible to calculate the singular values of $H$.
 This uses the factorization in Equation\,\ref{eq:decomp_O}
 to get
  \begin{equation}
@@ -1067,7 +1071,7 @@ When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in
  \end{equation}
 
  \begin{proof}
- 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is the singluar value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
+ 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is the singular value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
  	If $\Ob_{k+1}$, $R_k$, $U_k$ and $V$ are orthogonal the proof directly follows. For the sub unitary case we have 
  	$
  	\breve{V}_k^\top \breve{V}_k
@@ -1199,7 +1203,7 @@ If we suppose that the elements of $H$ have a constant absolute value, then $\|H
 This means that the Frobenius norm increases with the size of the matrix, which in turn should also result in increasing singular values.
 Finally $d_k$ is the number of singular values larger than a certain threshold value.
 The number of states is not directly related to the two norm of the singular values as it depends on their distribution and the threshold value.% that depends on wanted accuracy.
-The approximation $\breve{d}_k \propto \|H_k\|_F$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
+Regardless the approximation $\breve{d}_k \propto \|H_k\|_F$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
@@ -1262,7 +1266,7 @@ This approximation might have some benefits for very tall or wide matrices, as t
 
 \section{Segmentation Adaptation}\label{sec:Segmentation}
 
-In this section the segmentatation of the matrix is changed. 
+In this section the segmentation of the matrix is changed. 
 This means adapting the input and output dimensions. 
 First I will describe how to move the boundaries.
 In Subsection\,\ref{subsec:move_sig} the algorithm is extended in a way that makes it possible to calculate the Hankel singular values.
@@ -1272,10 +1276,10 @@ In Subsection\,\ref{subsec:optim_segmentation} a strategy to improve the segment
 In this subsection algorithms to move the boundaries of a causal system are introduced.
 This is done by changing the segmentation of the input and output.
 When we change the segmentation of the input and output, this also changes the segmentation of the transfer matrix $T$.
-A change of the division between the inputs $u_k$ and $u_{k+1}$ moves the $k$-th vertical boundary left or right.
+A change of the division between the inputs $u_k$ and $u_{k+1}$ moves the $k$-th vertical boundary left or right according to
 %When we want to movie the $k$-th vertical boundary left or right we change the. 
 \input{diagrams/Moves/Move_I.pgf}
-A change of the division between the outputs $y_k$ and $y_{k+1}$ analogously moves the $k$-th horizontal boundary up or down.
+A change of the division between the outputs $y_k$ and $y_{k+1}$ analogously moves the $k$-th horizontal boundary up or down according to
 \input{diagrams/Moves/Move_O.pgf}
 %To move the  we change the .
 %This means moving the input $u_\m$ or output $y_\m$ from one stage to another.
@@ -1289,7 +1293,7 @@ Conversely when we move boundaries to the right or up new connections will be es
 %These connections will be drawn with dotted lines in the Figures\,\ref{fig:move_left}-\ref{fig:move_up}.
 For an mixed system these connections can be moved to the anticausal system and vice versa.
 The algorithms are constructed such that they also preserve the minimality of the system.%intermediate state $x_{k+1}$.
-\todo[inline]{deeper explination needed?}
+%\todo[inline]{deeper explination needed?}
 
 \paragraph{Move Left}
 \begin{figure}[!htb]
