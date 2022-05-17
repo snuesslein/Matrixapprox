@@ -56,6 +56,7 @@
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\range}{range}
 \DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\f}{f}
 
 
 %define symbols
@@ -1716,9 +1717,9 @@ This also gives an ordered realization.
 \begin{algorithm}[htb]
 	\begin{algorithmic}
 	%\For{$k\gets 2$ \textbf{to} $K$}
-		\Input{System $[A,B,C,D]$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
+		\Input{System $\Sigma_{[A,B,C,D]}$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
 		Index $k$, Distance to move $l$, Tolerance $\text{tol}$} 
-		\Output{System $[A,B,C,D]$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$, \\ \spaceIO 
+		\Output{System $\Sigma_{[A,B,C,D]}$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$, \\ \spaceIO 
 			Hankel singular values $\sigma$}
 		\State $b \gets B_{k-1}[:,-l:]$
 		\State $D_{k-1} \gets D_{k-1}[:,:-(l+1)]$
@@ -1792,12 +1793,12 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
-	\Input{System $[A,B,C,D]$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
+	\Input{System $\Sigma_{[A,B,C,D]}$ with $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$,\\ \spaceIO
 		Index $k$, Distance to move $l$, Tolerance $\text{tol}$ }
-	\Output{System $[A,B,C,D]$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$,\\ \spaceIO
+	\Output{System $\Sigma_{[A,B,C,D]}$ with changed input dimensions and $\R_{k} \R_{k}^\top = \eye$,\\ \spaceIO
 		 Hankel singular values $\sigma$}
 	%\For{$k\gets 2$ \textbf{to} $K$}
-		\State $[A,B,C,D] \gets \text{input normal}_k([A,B,C,D])$
+		\State $\Sigma_{[A,B,C,D]} \gets \text{input normal}_k(\Sigma_{[A,B,C,D]})$
 		\Comment Transform state $x_k$
 		\State $b \gets B_{k}[:,:l]$
 		\State $d \gets D_{k}[:,:l]$
@@ -1836,12 +1837,12 @@ Analogous algorithms can be derived for the anticausal part.
 When we want to obtain the optimal segmentation of a system, 
 we want to solve the optimization problem
 \begin{equation}
-min_\text{segmentation} f(\text{System})
+\underset{\text{segmentation}}{\min} \f(\Sigma_{[A,B,C,D]})
 \end{equation}
-Where $f(\text{System})$ is some objective function.
+Where $f(\Sigma_{[A,B,C,D]})$ is some objective function.
 The problem is discrete and in general nonconvex, which makes it hard for us to solve it.
 
-To get an possible solution of the optimization problem an iterative algorithm is used.
+To get a solution of the optimization problem, an iterative algorithm is used.
 For this both the input dimensions and the output dimensions have to be changed.
 This algorithm alternately changes the input and output dimensions.
 
@@ -1852,9 +1853,9 @@ For these three options the objective function is calculated.
 Then the system with the lowest objective function is adopted.
 This is done for every boundary.
 By doing this using the Algorithms described in the previous subsection, the Systems are transformed to an causal input normal system and an anticausal output normal system.
-These algorithms also compute the singular values of the Hankel matrices. This makes ist possible, to use these in the objective function.
+These algorithms also compute the singular values of the Hankel matrices. This makes it possible, to use these in the objective function.
 After this, we adapt the input dimensions.
-When this is done the bounds are moved to the left, not moved and moved to the right.
+When this is done, the bounds are moved to the left, not moved and moved to the right.
 Again the option with the lowest objective function is used.
 During this, the system is transformed back to an input normal causal system in combination with an output normal anticausal system.
 This makes it possible to immediately start again with an adaption of the output dimensions.
@@ -1863,27 +1864,33 @@ The pseudocode for the adaptation of the segmentation is given in Algorithm\,\re
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
-		\Input{Input normal causal system, output normal anticausal system,\\ 
+		\Input{Mixed system $\Sigma_{[A,B,C,D,E,F,G]}$ \\
+			\spaceIO with Input normal causal system and output normal anticausal system \\ 
 			\spaceIO sequences $\lsearchud$ and $\lsearchrl$}
-		\Output{Ordered System $[A,B,C,D]$ with optimized input and output dimensions}
+		\Output{Ordered mixed system $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D},\tilde{E},\tilde{F},\tilde{G}]}$ \\
+			\spaceIO with optimized input and output dimensions}
 		%\State Start with input normal causal system and output normal anticausal system, 
 		\For{$i\gets 1$ \textbf{to} Number of iterations}
-		\State update output segmentation
 		\For{$k \gets K$ \textbf{downto} $2$}
-		\State \Comment{iterate over output dimensions 
-			and transform causal system to output normal and anticausal to input normal}
-		\State $S_d \gets $ move down$(S)$ by $\lsearchud_i$
-		\State $S_n \gets $ no move $(S)$ 
-		\State $S_u \gets $ move up$(S)$ by $\lsearchud_i$
-		\State $S \gets \underset{S \in \{S_d,S_n,S_u\}}{\argmin} f(S)$
+		\State \Comment Iterate over output dimensions 
+			and transform causal system
+			\State \hspace{1.8cm} to output normal and anticausal to input normal
+		\State $\Sigma_d \gets $ move down$(S)$ by $\lsearchud_i$
+		\State $\Sigma_n \gets $ no move $(S)$ 
+		\State $\Sigma_u \gets $ move up$(S)$ by $\lsearchud_i$
+		\State $\Sigma \gets \underset{\Sigma \in \{\Sigma_d,\Sigma_n,\Sigma_u\}}{\argmin} \f(\Sigma)$
 		\EndFor
 		\For{$k \gets 2$ \textbf{to} $K$}
-		\Comment iterate over output dimensions transform causal system back to input normal and anticausal to output normal 
-		\State $S_r \gets $ move right$(S)$ by $\lsearchrl_i$
-		\State $S_n \gets $ no move $(S)$ 
-		\State $S_l \gets $ move left$(S)$ by $\lsearchrl_i$
-		\State $S \gets \underset{S \in  \{S_r,S_n,S_l\}}{\argmin} f(S)$
+		\State \Comment Iterate over output dimensions and transform causal system 
+		\State \hspace{1.7cm} back to input normal and anticausal to output normal 
+		\State $\Sigma_r \gets $ move right$(S)$ by $\lsearchrl_i$
+		\State $\Sigma_n \gets $ no move $(S)$ 
+		\State $\Sigma_l \gets $ move left$(S)$ by $\lsearchrl_i$
+		\State $\Sigma \gets \underset{\Sigma \in  \{\Sigma_r,\Sigma_n,\Sigma_l\}}{\argmin} \f(\Sigma)$
 		\EndFor
+		\If{$\Sigma$ did not change} 
+		\State Exit 
+		\EndIf
 		\EndFor
 	\end{algorithmic}
 	\caption{Algorithm to optimize the segmentation}\label{alg:optimize segemtnation}
@@ -1898,13 +1905,50 @@ As the optimal segmentation of the input depends on the segmentation of the outp
 %by gradually changing the segmentation but by facilitating a tree like structure.
 
 
-As the unchanged version is also included, the sequence of objective functions is nonincreasing.
+The objective function for the output form Algorithm\,\ref{alg:optimize segemtnation} $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D},\tilde{E},\tilde{F},\tilde{G}]}$ is lower than or equal to the objective function for the original system $\Sigma_{[A,B,C,D,E,F,G]}$.
+For every objective function that is invariant under state transformations.
+This means 
 \begin{equation}
-f(\sys_{l+1}) = \min(f(\sys_{l,\text{moved pos}}),f(\sys_{l}),f(\sys_{l,\text{moved neg}})) \leq f(\sys_{l})
+	\f(\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D},\tilde{E},\tilde{F},\tilde{G}]}) \leq \f(\Sigma_{[A,B,C,D,E,F,G]})
 \end{equation}
+\begin{proof}
+	 The sequence of objective functions for the intermediate systems $\f(\sys^{(1)}),\dots,\f(\sys^{(N)})$ produced by the algorithm is non-increasing.
+	 When the output dimensions are adapted this is due to  
+	\begin{equation}
+	\f(\sys^{(l+1)}) = \min(\f(\sys^{(l)}_{d}),\f(\sys^{(l)}),\f(\sys^{(l)}_{u})) \leq \f(\sys^{(l)})
+	\end{equation}
+	The analogous argument holds when the input dimensions are adapted
+	\begin{equation}
+	\f(\sys^{(l+1)}) = \min(\f(\sys^{(l)}_{r}),\f(\sys^{(l)}),\f(\sys^{(l)}_{l})) \leq \f(\sys^{(l)})
+	\end{equation} 
+\end{proof}
 
-\todo[inline]{something on the objective functions}
-\todo[inline]{maybee some example}
+\paragraph{Objective function}
+As an objective function I used the number of multiplications.
+Here the number of state is determined by counting the Hankel singular values bigger than a certain threshold value. 
+This threshold value has to be known in advance.
+
+If this value is not known a priori, we want to reduce the rank of the Hankel matrices.
+The rank is usually not a good objective function, as the Hankelmatrices of the weight matrices often always have full rank.
+Therefore we use the nuclear norm $\|H\|_*$.
+The Nuclear norm is defined as the sum of the singualr values
+\begin{equation}
+	\|X\|_* = \sum_{i=1}^r \sigma_i
+	.
+\end{equation}
+The norm also depends on the size of the Hankelmatrices.
+As we do not want to reduce the size of the hankel matrices, we have to control for the size of the matrix.
+This is done by dividing with the operator norm$\|H\|$. 
+\begin{equation}\label{eq:objective_nuc}
+	\f_{\text{nuc}}(H)= \frac{\|H\|_*}{\|H\|}
+	.
+\end{equation}
+This function is also a lower bound of $\rank(H)$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
+
+
+ 
+%\todo[inline]{something on the objective functions}
+%\todo[inline]{maybee some example}
 
 \section{Permutations}
 if time allows add some notes on permutations here
@@ -1916,6 +1960,70 @@ if time allows add some notes on permutations here
 
 
 \section{Matrix Approximation}
+
+\paragraph{Illustrative examples}
+First I demonstrate the algorithm for a sequentially semiseparable matrix $A$.
+All Hankel matrices are rank one.
+The blockmatrix $A$ is constructed according to
+\begin{equation}
+	A_{[i,j]} = 
+	\begin{cases}
+	U_{i[:,0]} V_{j[:,0]}^\top & \text{if } i<j\\
+	U_{i[:,1]} V_{j[:,1]}^\top & \text{if } i=j\\
+	U_{i[:,2]} V_{j[:,2]}^\top & \text{if } i>j\\
+	\end{cases}
+\end{equation}
+Here the matrices $U_i \in \mathbb{R}^{p_i\times p_i}$ and $V_i in \mathbb{R}^{m_i\times m_i}$ are random orthogonal matrices. 
+These are scaled such that $\|U_{i[:,0]}\|_2=p_i$ and $\|V_{i[:,0]}\|_2=m_i$.
+
+Now we want to represent the matrix with a time varying system without using the knowledge about the input and output dimensions.
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[trim=0.4cm 0.9cm 0 0, clip,width=\textwidth]{Plots/example_move.pdf}
+	\begin{subfigure}[b]{0.35\textwidth}
+		\caption{Initial system}
+		\label{fig:example_move_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.35\textwidth}
+		\caption{Optimized system}
+		\label{fig:example_move_b}
+	\end{subfigure}
+	\caption{Illustration of the initial system and the optimized system.
+		The lines mark the segmentation of the system.
+		The matrices $D$ are shaded in gray.
+		The ticks show the segmentation of the matrix $A$. 
+		We can see that the segmentation of the optimized system coincides with the segmentation of $A$}
+	\label{fig:example_move}
+\end{figure}
+
+For this we first create a system with constant input and output dimensions.
+This system is illustrated in Figure\,\ref{fig:example_move_a}.
+Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
+As an objective function I used the normalized nuclear norm as described in Equation\,\ref{eq:objective_nuc}.
+This gives the system illustrated in Figure\,\ref{fig:example_move_b}.
+We can see that the algorithm can recover the original segmentation.
+ 
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.75\textwidth]{Plots/example_move_iterations.pdf}
+	\caption{Illustration of the change of the segmentation.
+		The blue lines mark the change of the segmentation.
+		The insert on the left shows the search tree for the output segmentation.
+	}
+	\label{fig:example_move_bound}
+\end{figure}
+In Figure\,\ref{fig:example_move_bound} the changing segmentation is illustrated. 
+The segmentation for the different iterations are plotted in blue.
+As search distances I used $l = [4,2,1,1]$.
+The insert shows the resulting search tree. We can see that in the first iterations the possible changes are larger and decrease for further iterations.
+Also note that the segmentation can be reached with different paths.
+\todo{wording: tree is not actually tree...}
+
+The algorithm does not always converge to the original segmentation if the Hankel matricies have a higher rank.
+
 \begin{itemize}
 \item Test different approaches to represent matrices.
 \item Have a look at the representation error in different norms for different algorithms
