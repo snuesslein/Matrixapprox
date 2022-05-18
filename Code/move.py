@@ -12,6 +12,238 @@ from tvsclib.transformations.reduction import Reduction
 import tvsclib.utils as utils
 import tvsclib.math as math
 
+
+def move_left_causal(stages,m_l,epsilon = 1e-16):
+    """
+        Move left:
+        function that moves the boundary to the left by m steps and transform it to input normal
+
+        Args:
+            stages (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_l (int):            Distance to move
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_l (List[float]):    Singular values
+    """
+    b = stages[0].B_matrix[:,-m_l:]
+    U,s_l,Vt= np.linalg.svd(np.hstack([stages[0].A_matrix,stages[0].B_matrix[:,:-m_l]]),full_matrices=False)
+    n = np.count_nonzero(s_l>epsilon)
+    Us=U[:,:n]*s_l[:n]
+    s_l = s_l[:n]
+
+    stages_l = [
+        Stage(Vt[:n,:stages[0].A_matrix.shape[1]],Vt[:n,stages[0].A_matrix.shape[1]:],\
+            stages[0].C_matrix,stages[0].D_matrix[:,:-m_l]),
+        Stage(stages[1].A_matrix@Us,np.hstack((stages[1].A_matrix@b,stages[1].B_matrix)),\
+            stages[1].C_matrix@Us,np.hstack((stages[1].C_matrix@b,stages[1].D_matrix)))
+            ]
+    return stages_l,s_l
+
+def move_left_anticausal(stages_anti,m_l,d,epsilon = 1e-16):
+    """
+        Move left:
+        function that moves the boundary to the left by m steps and transform it to output normal
+
+        Args:
+            stages_anti (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_l (int):            Distance to move
+            d (matrix):           matrix to attach
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_l (List[float]):    Singular values
+    """
+
+    b = stages_anti[0].B_matrix[:,-m_l:]
+    #d = stages_causal[i-1].D_matrix[:,-m_l:]
+    d_add = np.zeros((stages_anti[1].D_matrix.shape[0],m_l))
+    #d_add = stages_causal[i].C_matrix@stages_causal[i-1].B_matrix[:,-1:]
+
+    U,s_al,Vt= np.linalg.svd(np.block([[b,stages_anti[0].A_matrix],
+                                   [d,stages_anti[0].C_matrix]]),full_matrices=False)
+    n = np.count_nonzero(s_al>epsilon)
+    sVt=s_al[:n].reshape(-1,1)*Vt[:n,:]
+    s_al = s_al[:n]
+    stages_anti_l=[
+        Stage(U[:stages_anti[0].A_matrix.shape[0],:n],stages_anti[0].B_matrix[:,:-m_l],\
+          U[stages_anti[0].A_matrix.shape[0]:,:n],stages_anti[0].D_matrix[:,:-m_l]),
+     #Here the A and B are more complicated as we have to stack them
+        Stage(sVt@(np.vstack([np.zeros((m_l,stages_anti[1].A_matrix.shape[1])),stages_anti[1].A_matrix])),
+          sVt@(np.block([[np.eye(m_l),np.zeros((m_l,stages_anti[1].B_matrix.shape[1]))],
+                         [np.zeros((stages_anti[1].B_matrix.shape[0],m_l)),stages_anti[1].B_matrix]])),
+          stages_anti[1].C_matrix,np.hstack([d_add,stages_anti[1].D_matrix]))
+          ]
+    return stages_anti_l,s_al
+
+def transform_input_normal_causal(stages,epsilon = 1e-16):
+    """
+        Transforms input normal:
+
+        Args:
+            stages (List[Stage]): List with two stages to transform
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two transformed stages
+            s (List[float]):    Singular values
+    """
+    U,s,Vt= np.linalg.svd(np.hstack([stages[0].A_matrix,stages[0].B_matrix]),full_matrices=False)
+    n = np.count_nonzero(s>epsilon)
+    Us=U[:,:n]*s[:n]
+    s = s[:n]
+
+    stages_n=[
+        Stage(Vt[:n,:stages[0].A_matrix.shape[1]],Vt[:n,stages[0].A_matrix.shape[1]:],\
+                stages[0].C_matrix,stages[0].D_matrix),
+        Stage(stages[1].A_matrix@Us,stages[1].B_matrix,\
+                stages[1].C_matrix@Us,stages[1].D_matrix)
+    ]
+    return stages_n,s
+
+def transform_input_normal_anticausal(stages_anti,epsilon = 1e-16):
+    """
+        Transforms input normal:
+
+        Args:
+            stages (List[Stage]): List with two stages to transform
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two transformed stages
+            s (List[float]):    Singular values
+    """
+    U,s_a,Vt= np.linalg.svd(np.hstack([stages_anti[1].A_matrix,stages_anti[1].B_matrix]),full_matrices=False)
+    n = np.count_nonzero(s_a>epsilon)
+    Us=U[:,:n]*s_a[:n]
+    s_a = s_a[:n]
+
+    stages_anti_n=[
+        Stage(stages_anti[0].A_matrix@Us,stages_anti[0].B_matrix,\
+              stages_anti[0].C_matrix@Us,stages_anti[0].D_matrix),
+        Stage(Vt[:n,:stages_anti[1].A_matrix.shape[1]],Vt[:n,stages_anti[1].A_matrix.shape[1]:],\
+              stages_anti[1].C_matrix,stages_anti[1].D_matrix)
+    ]
+    return stages_anti_n,s_a
+
+def transform_output_normal_causal(stages,epsilon = 1e-16):
+    """
+        Transforms output normal:
+
+        Args:
+            stages (List[Stage]): List with two stages to transform
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two transformed stages
+            s (List[float]):    Singular values
+    """
+    U,s,Vt= np.linalg.svd(np.vstack([stages[1].A_matrix,stages[1].C_matrix]),full_matrices=False)
+    n = np.count_nonzero(s>epsilon)
+    sVt=s[:n].reshape(-1,1)*Vt[:n,:]
+    s = s[:n]
+    stages_n=[
+        Stage(sVt@stages[0].A_matrix,sVt@stages[0].B_matrix,\
+            stages[0].C_matrix,stages[0].D_matrix),
+        Stage(U[:stages[1].A_matrix.shape[0],:n],stages[1].B_matrix,\
+              U[stages[1].A_matrix.shape[0]:,:n],stages[1].D_matrix)
+    ]
+    return stages_n,s
+
+def transform_output_normal_anticausal(stages_anti,epsilon = 1e-16):
+    """
+        Transforms output normal:
+
+        Args:
+            stages_anti (List[Stage]): List with two stages to transform
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two transformed stages
+            s_a (List[float]):    Singular values
+    """
+
+    U,s_a,Vt= np.linalg.svd(np.vstack([stages_anti[0].A_matrix,stages_anti[0].C_matrix]),full_matrices=False)
+    n = np.count_nonzero(s_a>epsilon)
+    sVt=s_a[:n].reshape(-1,1)*Vt[:n,:]
+    s_a = s_a[:n]
+    stages_anti_n=[
+        Stage(U[:stages_anti[0].A_matrix.shape[0],:n],stages_anti[0].B_matrix,\
+              U[stages_anti[0].A_matrix.shape[0]:,:n],stages_anti[0].D_matrix),
+        Stage(sVt@stages_anti[1].A_matrix,sVt@stages_anti[1].B_matrix,\
+              stages_anti[1].C_matrix,stages_anti[1].D_matrix)
+    ]
+    return stages_anti_n,s_a
+
+def move_right_causal(stages,m_r,d_add,epsilon = 1e-16):
+    """
+        Move right:
+        function that moves the boundary to the right by m steps and preserves input normal
+
+        Args:
+            stages (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_r (int):            Distance to move
+            d_add (Matrix):       Matrix to be attached
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_r (List[float]):    Singular values
+    """
+    b = stages[1].B_matrix[:,:m_r]
+    d = stages[1].D_matrix[:,:m_r]
+    #d_add = np.zeros((stages[0].D_matrix.shape[0],1))
+    #d_add = stages_anticausal[i-1].C_matrix@stages_anticausal[i].B_matrix[:,:m_r]
+
+
+    U,s_r,Vt= np.linalg.svd(np.block([[stages[1].A_matrix,b],
+                                  [stages[1].C_matrix,d]]),full_matrices=False)
+    n = np.count_nonzero(s_r>epsilon)
+    Us=U[:,:n]*s_r[:n]
+    s_r = s_r[:n]
+    stages_r=[
+     #Here the A and B are more complicated as we have to stack them
+     Stage(Vt[:n,:]@(np.vstack([stages[0].A_matrix,np.zeros((m_r,stages[0].A_matrix.shape[1]))])),
+          Vt[:n,:]@(np.block([[stages[0].B_matrix,np.zeros((stages[0].B_matrix.shape[0],m_r))],
+                       [np.zeros((m_r,stages[0].B_matrix.shape[1])),np.eye(m_r)]])),
+          stages[0].C_matrix,np.hstack([stages[0].D_matrix,d_add])),
+
+    Stage(Us[:stages[1].A_matrix.shape[0],:],stages[1].B_matrix[:,m_r:],\
+         Us[stages[1].A_matrix.shape[0]:,:],stages[1].D_matrix[:,m_r:])
+         ]
+    return stages_r,s_r
+
+
+def move_right_anticausal(stages_anti,m_r,epsilon = 1e-16):
+    """
+        Move right:
+        function that moves the boundary to the right by m steps and preserves output normal
+
+        Args:
+            stages_anti (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_r (int):            Distance to move
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_ar (List[float]):    Singular values
+    """
+    b = stages_anti[1].B_matrix[:,:m_r]
+    U,s_ar,Vt= np.linalg.svd(np.hstack([stages_anti[1].A_matrix,stages_anti[1].B_matrix[:,m_r:]]),full_matrices=False)
+    n = np.count_nonzero(s_ar>epsilon)
+    sVt=s_ar[:n].reshape(-1,1)*Vt[:n,:]
+    s_ar=s_ar[:n]
+    stages_anti_r = [
+        Stage(stages_anti[0].A_matrix@U[:,:n],np.hstack((stages_anti[0].B_matrix,stages_anti[0].A_matrix@b)),\
+          stages_anti[0].C_matrix@U[:,:n],np.hstack((np.zeros((stages_anti[0].D_matrix.shape[0],m_r)),stages_anti[0].D_matrix))),
+          #D is here 0, instead we have d_add at the causal system. Insted we could use stages_anti_n[0].C_matrix@b
+        Stage(sVt[:,:stages_anti[1].A_matrix.shape[1]],sVt[:,stages_anti[1].A_matrix.shape[1]:],\
+            stages_anti[1].C_matrix,stages_anti[1].D_matrix[:,:-m_r])
+        ]
+    return stages_anti_r,s_ar
+
 def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15,
                 sigmas_causal=None,sigmas_anticausal=None,cost_global=False):
     k = len(stages_causal)
@@ -26,38 +258,22 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
     for i in range(1,len(stages_causal)):#loop over inices of causal states
 
         #no move-> only make R_k input normal
-        U,s,Vt= np.linalg.svd(np.hstack([stages_causal[i-1].A_matrix,stages_causal[i-1].B_matrix]),full_matrices=False)
-        n = np.count_nonzero(s>epsilon)
-        Us=U[:,:n]*s[:n]
-        s = s[:n]
-
-        stages_n=[
-            Stage(Vt[:n,:stages_causal[i-1].A_matrix.shape[1]],Vt[:n,stages_causal[i-1].A_matrix.shape[1]:],\
-                    stages_causal[i-1].C_matrix,stages_causal[i-1].D_matrix),
-            Stage(stages_causal[i].A_matrix@Us,stages_causal[i].B_matrix,\
-                    stages_causal[i].C_matrix@Us,stages_causal[i].D_matrix)
-        ]
+        stages_n,s = transform_input_normal_causal([stages_causal[i-1],stages_causal[i]])
+        stages_anti_n,s_a = transform_output_normal_anticausal([stages_anticausal[i-1],stages_anticausal[i]])
         #move left:
         if m>stages_causal[i-1].B_matrix.shape[1]:
             m_l=stages_causal[i-1].B_matrix.shape[1]
         else:
             m_l=m
         if m_l>0:
-            b = stages_causal[i-1].B_matrix[:,-m_l:]
-            U,s_l,Vt= np.linalg.svd(np.hstack([stages_causal[i-1].A_matrix,stages_causal[i-1].B_matrix[:,:-m_l]]),full_matrices=False)
-            n = np.count_nonzero(s_l>epsilon)
-            Us=U[:,:n]*s_l[:n]
-            s_l = s_l[:n]
-
-            stages_l = [
-                Stage(Vt[:n,:stages_causal[i-1].A_matrix.shape[1]],Vt[:n,stages_causal[i-1].A_matrix.shape[1]:],\
-                    stages_causal[i-1].C_matrix,stages_causal[i-1].D_matrix[:,:-m_l]),
-                Stage(stages_causal[i].A_matrix@Us,np.hstack((stages_causal[i].A_matrix@b,stages_causal[i].B_matrix)),\
-                    stages_causal[i].C_matrix@Us,np.hstack((stages_causal[i].C_matrix@b,stages_causal[i].D_matrix)))
-                    ]
+            stages_l,s_l=move_left_causal([stages_causal[i-1],stages_causal[i]],m_l)
+            d = stages_causal[i-1].D_matrix[:,-m_l:]
+            stages_anti_l,s_al=move_left_anticausal([stages_anticausal[i-1],stages_anticausal[i]],m_l,d)
         else:
             stages_l=stages_n
             s_l=s
+            stages_anti_l=stages_anti_n
+            s_al = s_a
 
         #move right -> base on non move
         if m>stages_n[1].B_matrix.shape[1]:
@@ -65,93 +281,13 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         else:
             m_r=m
         if m_r>0:
-            b = stages_n[1].B_matrix[:,:m_r]
-            d = stages_n[1].D_matrix[:,:m_r]
-            #d_add = np.zeros((stages_n[0].D_matrix.shape[0],1))
             d_add = stages_anticausal[i-1].C_matrix@stages_anticausal[i].B_matrix[:,:m_r]
-
-
-            U,s_r,Vt= np.linalg.svd(np.block([[stages_n[1].A_matrix,b],
-                                          [stages_n[1].C_matrix,d]]),full_matrices=False)
-            n = np.count_nonzero(s_r>epsilon)
-            Us=U[:,:n]*s_r[:n]
-            s_r = s_r[:n]
-            stages_r=[
-             #Here the A and B are more complicated as we have to stack them
-             Stage(Vt[:n,:]@(np.vstack([stages_n[0].A_matrix,np.zeros((m_r,stages_n[0].A_matrix.shape[1]))])),
-                  Vt[:n,:]@(np.block([[stages_n[0].B_matrix,np.zeros((stages_n[0].B_matrix.shape[0],m_r))],
-                               [np.zeros((m_r,stages_n[0].B_matrix.shape[1])),np.eye(m_r)]])),
-                  stages_n[0].C_matrix,np.hstack([stages_n[0].D_matrix,d_add])),
-
-            Stage(Us[:stages_n[1].A_matrix.shape[0],:],stages_n[1].B_matrix[:,m_r:],\
-                 Us[stages_n[1].A_matrix.shape[0]:,:],stages_n[1].D_matrix[:,m_r:])
-                 ]
+            stages_r,s_r=move_right_causal(stages_n,m_r,d_add)
+            stages_anti_r,s_ar =move_right_anticausal(stages_anti_n,m_r)
         else:
             stages_r=stages_n
             s_r=s
 
-
-    # Now calculate the anticausla part:
-
-        #no move-> only make R_k input normal
-        U,s_a,Vt= np.linalg.svd(np.vstack([stages_anticausal[i-1].A_matrix,stages_anticausal[i-1].C_matrix]),full_matrices=False)
-        n = np.count_nonzero(s_a>epsilon)
-        sVt=s_a[:n].reshape(-1,1)*Vt[:n,:]
-        s_a = s_a[:n]
-        stages_anti_n=[
-            Stage(U[:stages_anticausal[i-1].A_matrix.shape[0],:n],stages_anticausal[i-1].B_matrix,\
-                  U[stages_anticausal[i-1].A_matrix.shape[0]:,:n],stages_anticausal[i-1].D_matrix),
-            Stage(sVt@stages_anticausal[i].A_matrix,sVt@stages_anticausal[i].B_matrix,\
-                  stages_anticausal[i].C_matrix,stages_anticausal[i].D_matrix)
-        ]
-
-
-        #move left
-        if m_l>0:
-            b = stages_anticausal[i-1].B_matrix[:,-m_l:]
-            d = stages_causal[i-1].D_matrix[:,-m_l:]
-            d_add = np.zeros((stages_anticausal[i].D_matrix.shape[0],m_l))
-            #d_add = stages_causal[i].C_matrix@stages_causal[i-1].B_matrix[:,-1:]
-
-            U,s_al,Vt= np.linalg.svd(np.block([[b,stages_anticausal[i-1].A_matrix],
-                                           [d,stages_anticausal[i-1].C_matrix]]),full_matrices=False)
-            n = np.count_nonzero(s_al>epsilon)
-            sVt=s_al[:n].reshape(-1,1)*Vt[:n,:]
-            s_al = s_al[:n]
-            stages_anti_l=[
-                Stage(U[:stages_anticausal[i-1].A_matrix.shape[0],:n],stages_anticausal[i-1].B_matrix[:,:-m_l],\
-                  U[stages_anticausal[i-1].A_matrix.shape[0]:,:n],stages_anticausal[i-1].D_matrix[:,:-m_l]),
-             #Here the A and B are more complicated as we have to stack them
-                Stage(sVt@(np.vstack([np.zeros((m_l,stages_anticausal[i].A_matrix.shape[1])),stages_anticausal[i].A_matrix])),
-                  sVt@(np.block([[np.eye(m_l),np.zeros((m_l,stages_anticausal[i].B_matrix.shape[1]))],
-                                 [np.zeros((stages_anticausal[i].B_matrix.shape[0],m_l)),stages_anticausal[i].B_matrix]])),
-                  stages_anticausal[i].C_matrix,np.hstack([d_add,stages_anticausal[i].D_matrix]))
-                  ]
-        else:
-            stages_anti_l=stages_anti_n
-            s_al = s_a
-
-
-
-
-
-        #move right: -> base on non move
-        if m_r>0:
-            b = stages_anti_n[1].B_matrix[:,:m_r]
-            U,s_ar,Vt= np.linalg.svd(np.hstack([stages_anti_n[1].A_matrix,stages_anti_n[1].B_matrix[:,m_r:]]),full_matrices=False)
-            n = np.count_nonzero(s_ar>epsilon)
-            sVt=s_ar[:n].reshape(-1,1)*Vt[:n,:]
-            s_ar=s_ar[:n]
-            stages_anti_r = [
-                Stage(stages_anti_n[0].A_matrix@U[:,:n],np.hstack((stages_anti_n[0].B_matrix,stages_anti_n[0].A_matrix@b)),\
-                  stages_anti_n[0].C_matrix@U[:,:n],np.hstack((np.zeros((stages_anti_n[0].D_matrix.shape[0],m_r)),stages_anti_n[0].D_matrix))),
-                  #D is here 0, instead we have d_add at the causal system. Insted we could use stages_anti_n[0].C_matrix@b
-                Stage(sVt[:,:stages_anti_n[1].A_matrix.shape[1]],sVt[:,stages_anti_n[1].A_matrix.shape[1]:],\
-                    stages_anti_n[1].C_matrix,stages_anti_n[1].D_matrix[:,:-m_r])
-                ]
-        else:
-            stages_anti_r=stages_anti_n
-            s_ar = s_a
 
         dims_in = [stage.D_matrix.shape[1] for stage in stages_causal]
         dims_out = [stage.D_matrix.shape[0] for stage in stages_causal]
@@ -178,7 +314,7 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                             cost(s_l,(d_out,d_in-1),s_al,(d_out_a,d_in_a+1)),\
                             cost(s_r,(d_out,d_in+1),s_ar,(d_out_a,d_in_a-1))])
         #print("costs_lnr:",costs)
-        if dir_preset==-1:
+        if dir_preset==-1: #mainly for debugging and testing
             direction = np.argmin(costs)
         else:
             direction = dir_preset
@@ -207,6 +343,142 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
             sigmas_anticausal[i-1]=s_ar
     return sigmas_causal,sigmas_anticausal
 
+
+def move_up_causal(stages,m_u,d_add,epsilon = 1e-16):
+    """
+        Move right:
+        function that moves the boundary to the right by m steps and preserves input normal
+
+        Args:
+            stages (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_u (int):            Distance to move
+            d_add (Matrix):       Matrix to be attached
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_r (List[float]):    Singular values
+    """
+    c = stages[0].C_matrix[-m_u:,:]
+    d = stages[0].D_matrix[-m_u:,:]
+    #d_add = np.zeros((1,stages_n[1].D_matrix.shape[1]))
+    #d_add = stages_anticausal[i-1].C_matrix[-m_u:,:]@stages_anticausal[i].B_matrix
+
+
+    U,s_u,Vt= np.linalg.svd(np.block([[c,d],
+                                  [stages[0].A_matrix,stages[0].B_matrix]]),full_matrices=False)
+    n = np.count_nonzero(s_u>epsilon)
+    sVt=s_u[:n].reshape(-1,1)*Vt[:n,:]
+    s_u = s_u[:n]
+    stages_u=[
+        Stage(sVt[:,:stages[0].A_matrix.shape[1]],sVt[:,stages[0].A_matrix.shape[1]:],\
+            stages[0].C_matrix[:-m_u,:],stages[0].D_matrix[:-m_u,:]),
+            #Here the A and C are more complicated as we have to stack them
+        Stage(np.hstack([np.zeros((stages[1].A_matrix.shape[0],m_u)),stages[1].A_matrix])@U[:,:n],
+          stages[1].B_matrix,\
+          np.block([[np.eye(m_u),np.zeros((m_u,stages[1].C_matrix.shape[1]))],
+                    [np.zeros((stages[1].C_matrix.shape[0],m_u)),stages[1].C_matrix]])@U[:,:n],
+          np.vstack([d_add,stages[1].D_matrix]))
+        ]
+    return stages_u,s_u
+
+def move_up_anticausal(stages_anti,m_u,epsilon = 1e-16):
+    """
+        Move right:
+        function that moves the boundary to the right by m steps and preserves input normal
+
+        Args:
+            stages_anti (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_u (int):            Distance to move
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_r (List[float]):    Singular values
+    """
+    c = stages_anti[0].C_matrix[-m_u:,:]
+    U,s_au,Vt= np.linalg.svd(np.vstack([stages_anti[0].A_matrix,stages_anti[0].C_matrix[:-m_u,:]]),full_matrices=False)
+    n = np.count_nonzero(s_au>epsilon)
+    Us=U[:,:n]*s_au[:n]
+    s_au =s_au[:n]
+
+    stages_anti_u = [
+        #D is here 0, instead we have d_add at the causal system. Insted we could use stages_anti[0].C_matrix@b
+        Stage(Us[:stages_anti[0].A_matrix.shape[0],:],stages_anti[0].B_matrix,\
+          Us[stages_anti[0].A_matrix.shape[0]:,:],stages_anti[0].D_matrix[:-m_u,:]),
+        Stage(Vt[:n,:]@stages_anti[1].A_matrix,Vt[:n,:]@stages_anti[1].B_matrix,\
+          np.vstack((c@stages_anti[1].A_matrix,stages_anti[1].C_matrix)),\
+          np.vstack((np.zeros((m_u,stages_anti[1].D_matrix.shape[1])),stages_anti[1].D_matrix)))
+        ]
+    return stages_anti_u,s_au
+
+
+def move_down_causal(stages,m_d,epsilon = 1e-16):
+    """
+        Move left:
+        function that moves the boundary down by m steps and transform it to output normal
+
+        Args:
+            stages (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_d (int):            Distance to move
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_d (List[float]):    Singular values
+    """
+    c = stages[1].C_matrix[:m_d,:]
+    U,s_d,Vt= np.linalg.svd(np.vstack([stages[1].A_matrix,stages[1].C_matrix[m_d:,:]]),full_matrices=False)
+    n = np.count_nonzero(s_d>epsilon)
+    sVt=s_d[:n].reshape(-1,1)*Vt[:n,:]
+    s_d = s_d[:n]
+    stages_d = [
+        Stage(sVt@stages[0].A_matrix,sVt@stages[0].B_matrix,\
+            np.vstack([stages[0].C_matrix,c@stages[0].A_matrix]),
+            np.vstack([stages[0].D_matrix,c@stages[0].B_matrix])),
+        Stage(U[:stages[1].A_matrix.shape[0],:n],stages[1].B_matrix,\
+          U[stages[1].A_matrix.shape[0]:,:n],stages[1].D_matrix[m_d:,:])
+        ]
+    return stages_d,s_d
+
+
+def move_down_anticausal(stages_anti,m_d,d,epsilon = 1e-16):
+    """
+        Move left:
+        function that moves the boundary down by m steps and transform it to output normal
+
+        Args:
+            stages (List[Stage]): List with two stages, boundary inbetween will be moved
+            m_d (int):            Distance to move
+            d (Matrix):       Matrix to be attached
+            epsilon (float):      epsilon to cut states
+
+        Returns:
+            stages (List[Stage]): List with two stages with moved boundaries,
+            s_d (List[float]):    Singular values
+    """
+    c = stages_anti[1].C_matrix[:m_d,:]
+    #d = stages_causal[i].D_matrix[:m_d,:]
+    d_add = np.zeros((m_d,stages_anti[0].D_matrix.shape[1]))
+    #d_add = stages_causal[i].C_matrix@stages_causal[i-1].B_matrix[:,-1:]
+
+    U,s_ad,Vt= np.linalg.svd(np.block([[stages_anti[1].A_matrix,stages_anti[1].B_matrix],
+                                   [c,d]]),full_matrices=False)
+    n = np.count_nonzero(s_ad>epsilon)
+    Us=U[:,:n]*s_ad[:n]
+    s_ad = s_ad[:n]
+    stages_anti_d=[
+     #Here the A and B are more complicated as we have to stack them
+        Stage((np.hstack([stages_anti[0].A_matrix,np.zeros((stages_anti[0].A_matrix.shape[0],m_d))]))@Us,
+          stages_anti[0].B_matrix,
+          np.block([[stages_anti[0].C_matrix,np.zeros((stages_anti[0].C_matrix.shape[0],m_d))],
+                    [np.zeros((m_d,stages_anti[0].C_matrix.shape[1])),np.eye(m_d)]])@Us,
+          np.vstack([stages_anti[0].D_matrix,d_add])),
+        Stage(Vt[:n,:stages_anti[1].A_matrix.shape[1]],Vt[:n,stages_anti[1].A_matrix.shape[1]:],\
+          stages_anti[1].C_matrix[m_d:,:],stages_anti[1].D_matrix[m_d:,:])
+        ]
+    return stages_anti_d,s_ad
+
 def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilon=1e-15,
             sigmas_causal=None,sigmas_anticausal=None,cost_global=False):
     k = len(stages_causal)
@@ -221,39 +493,23 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
 
     for i in range(k-1, 0,-1):
         #no move-> only make O_k normal
-        U,s,Vt= np.linalg.svd(np.vstack([stages_causal[i].A_matrix,stages_causal[i].C_matrix]),full_matrices=False)
-        n = np.count_nonzero(s>epsilon)
-        sVt=s[:n].reshape(-1,1)*Vt[:n,:]
-        s = s[:n]
-        stages_n=[
-            Stage(sVt@stages_causal[i-1].A_matrix,sVt@stages_causal[i-1].B_matrix,\
-                stages_causal[i-1].C_matrix,stages_causal[i-1].D_matrix),
-            Stage(U[:stages_causal[i].A_matrix.shape[0],:n],stages_causal[i].B_matrix,\
-                  U[stages_causal[i].A_matrix.shape[0]:,:n],stages_causal[i].D_matrix)
-        ]
 
-
+        stages_n,s = transform_output_normal_causal([stages_causal[i-1],stages_causal[i]])
+        stages_anti_n,s_a = transform_input_normal_anticausal([stages_anticausal[i-1],stages_anticausal[i]])
         #move down:
         if m>stages_causal[i].C_matrix.shape[0]:
             m_d=stages_causal[i].C_matrix.shape[0]
         else:
             m_d=m
         if m_d>0:
-            c = stages_causal[i].C_matrix[:m_d,:]
-            U,s_d,Vt= np.linalg.svd(np.vstack([stages_causal[i].A_matrix,stages_causal[i].C_matrix[m_d:,:]]),full_matrices=False)
-            n = np.count_nonzero(s_d>epsilon)
-            sVt=s_d[:n].reshape(-1,1)*Vt[:n,:]
-            s_d = s_d[:n]
-            stages_d = [
-                Stage(sVt@stages_causal[i-1].A_matrix,sVt@stages_causal[i-1].B_matrix,\
-                    np.vstack([stages_causal[i-1].C_matrix,c@stages_causal[i-1].A_matrix]),
-                    np.vstack([stages_causal[i-1].D_matrix,c@stages_causal[i-1].B_matrix])),
-                Stage(U[:stages_causal[i].A_matrix.shape[0],:n],stages_causal[i].B_matrix,\
-                  U[stages_causal[i].A_matrix.shape[0]:,:n],stages_causal[i].D_matrix[m_d:,:])
-                ]
+            stages_d,s_d = move_down_causal([stages_causal[i-1],stages_causal[i]],m_d)
+            d = stages_causal[i].D_matrix[:m_d,:]
+            stages_anti_d,s_ad = move_down_anticausal([stages_anticausal[i-1],stages_anticausal[i]],m_d,d)
         else:
             stages_d=stages_n
             s_d = s
+            stages_anti_d=stages_anti_n
+            s_ad = s_a
 
         #move up
         if m>stages_n[0].C_matrix.shape[0]:
@@ -261,90 +517,12 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         else:
             m_u=m
         if m_u>0:
-            c = stages_n[0].C_matrix[-m_u:,:]
-            d = stages_n[0].D_matrix[-m_u:,:]
-            #d_add = np.zeros((1,stages_n[1].D_matrix.shape[1]))
             d_add = stages_anticausal[i-1].C_matrix[-m_u:,:]@stages_anticausal[i].B_matrix
-
-
-            U,s_u,Vt= np.linalg.svd(np.block([[c,d],
-                                          [stages_n[0].A_matrix,stages_n[0].B_matrix]]),full_matrices=False)
-            n = np.count_nonzero(s_u>epsilon)
-            sVt=s_u[:n].reshape(-1,1)*Vt[:n,:]
-            s_u = s_u[:n]
-            stages_u=[
-                Stage(sVt[:,:stages_n[0].A_matrix.shape[1]],sVt[:,stages_n[0].A_matrix.shape[1]:],\
-                    stages_n[0].C_matrix[:-m_u,:],stages_n[0].D_matrix[:-m_u,:]),
-                    #Here the A and C are more complicated as we have to stack them
-                Stage(np.hstack([np.zeros((stages_n[1].A_matrix.shape[0],m_u)),stages_n[1].A_matrix])@U[:,:n],
-                  stages_n[1].B_matrix,\
-                  np.block([[np.eye(m_u),np.zeros((m_u,stages_n[1].C_matrix.shape[1]))],
-                            [np.zeros((stages_n[1].C_matrix.shape[0],m_u)),stages_n[1].C_matrix]])@U[:,:n],
-                  np.vstack([d_add,stages_n[1].D_matrix]))
-                ]
+            stages_u,s_u = move_up_causal(stages_n,m_u,d_add)
+            stages_anti_u,s_au = move_up_anticausal(stages_anti_n,m_u)
         else:
             stages_u=stages_n
             s_u = s
-
-    # Now calculate the anticausal part:
-
-        #no move-> only make R_k input normal
-        U,s_a,Vt= np.linalg.svd(np.hstack([stages_anticausal[i].A_matrix,stages_anticausal[i].B_matrix]),full_matrices=False)
-        n = np.count_nonzero(s_a>epsilon)
-        Us=U[:,:n]*s_a[:n]
-        s_a = s_a[:n]
-
-        stages_anti_n=[
-            Stage(stages_anticausal[i-1].A_matrix@Us,stages_anticausal[i-1].B_matrix,\
-                  stages_anticausal[i-1].C_matrix@Us,stages_anticausal[i-1].D_matrix),
-            Stage(Vt[:n,:stages_anticausal[i].A_matrix.shape[1]],Vt[:n,stages_anticausal[i].A_matrix.shape[1]:],\
-                  stages_anticausal[i].C_matrix,stages_anticausal[i].D_matrix)
-        ]
-
-
-        if m_d>0:
-            c = stages_anticausal[i].C_matrix[:m_d,:]
-            d = stages_causal[i].D_matrix[:m_d,:]
-            d_add = np.zeros((m_d,stages_anticausal[i-1].D_matrix.shape[1]))
-            #d_add = stages_causal[i].C_matrix@stages_causal[i-1].B_matrix[:,-1:]
-
-            U,s_ad,Vt= np.linalg.svd(np.block([[stages_anticausal[i].A_matrix,stages_anticausal[i].B_matrix],
-                                           [c,d]]),full_matrices=False)
-            n = np.count_nonzero(s_ad>epsilon)
-            Us=U[:,:n]*s_ad[:n]
-            s_ad = s_ad[:n]
-            stages_anti_d=[
-             #Here the A and B are more complicated as we have to stack them
-                Stage((np.hstack([stages_anticausal[i-1].A_matrix,np.zeros((stages_anticausal[i-1].A_matrix.shape[0],m_d))]))@Us,
-                  stages_anticausal[i-1].B_matrix,
-                  np.block([[stages_anticausal[i-1].C_matrix,np.zeros((stages_anticausal[i-1].C_matrix.shape[0],m_d))],
-                            [np.zeros((m_d,stages_anticausal[i-1].C_matrix.shape[1])),np.eye(m_d)]])@Us,
-                  np.vstack([stages_anticausal[i-1].D_matrix,d_add])),
-                Stage(Vt[:n,:stages_anticausal[i].A_matrix.shape[1]],Vt[:n,stages_anticausal[i].A_matrix.shape[1]:],\
-                  stages_anticausal[i].C_matrix[m_d:,:],stages_anticausal[i].D_matrix[m_d:,:])
-                ]
-        else:
-            stages_anti_d=stages_anti_n
-            s_ad = s_a
-
-
-
-        if m_u>0:
-            c = stages_anti_n[0].C_matrix[-m_u:,:]
-            U,s_au,Vt= np.linalg.svd(np.vstack([stages_anti_n[0].A_matrix,stages_anti_n[0].C_matrix[:-m_u,:]]),full_matrices=False)
-            n = np.count_nonzero(s_au>epsilon)
-            Us=U[:,:n]*s_au[:n]
-            s_au =s_au[:n]
-
-            stages_anti_u = [
-                #D is here 0, instead we have d_add at the causal system. Insted we could use stages_anti_n[0].C_matrix@b
-                Stage(Us[:stages_anti_n[0].A_matrix.shape[0],:],stages_anti_n[0].B_matrix,\
-                  Us[stages_anti_n[0].A_matrix.shape[0]:,:],stages_anti_n[0].D_matrix[:-m_u,:]),
-                Stage(Vt[:n,:]@stages_anti_n[1].A_matrix,Vt[:n,:]@stages_anti_n[1].B_matrix,\
-                  np.vstack((c@stages_anti_n[1].A_matrix,stages_anti_n[1].C_matrix)),\
-                  np.vstack((np.zeros((m_u,stages_anti_n[1].D_matrix.shape[1])),stages_anti_n[1].D_matrix)))
-                ]
-        else:
             stages_anti_u=stages_anti_n
             s_au = s_a
 
