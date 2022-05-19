@@ -45,3 +45,15 @@ system_rand = MixedSystem(S)
 
 print("test start with 0 dim--------------------------------")
 move.test_moves(system_rand,4,epsilon=1e-15)
+
+in_start = 11
+out_start = 11
+matrix = np.random.rand(N*out_start,N*in_start)
+dims_in =  np.array([in_start]*N+[0])
+dims_out = np.array([out_start]*N+[0])
+T = ToeplitzOperator(matrix, dims_in, dims_out)
+S = SystemIdentificationSVD(T,epsilon=1e-12)
+system_rand = MixedSystem(S)
+
+print("test start with 0 dim--------------------------------")
+move.test_moves(system_rand,4,epsilon=1e-15)

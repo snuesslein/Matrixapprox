@@ -287,6 +287,8 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
         else:
             stages_r=stages_n
             s_r=s
+            stages_anti_r = stages_anti_n
+            s_ar = s_a
 
 
         dims_in = [stage.D_matrix.shape[1] for stage in stages_causal]
@@ -305,14 +307,9 @@ def transform_rl(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                             cost(sigmas_causal[:i-1]+[s_r]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_ar]+sigmas_anticausal[i:],dims_in+move_r,dims_out)])
 
         else:
-            d_in = np.sum(dims_in[:i])
-            d_out = np.sum(dims_out[i:])
-
-            d_in_a = np.sum(dims_in[i:])
-            d_out_a = np.sum(dims_out[:i])
-            costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
-                            cost(s_l,(d_out,d_in-1),s_al,(d_out_a,d_in_a+1)),\
-                            cost(s_r,(d_out,d_in+1),s_ar,(d_out_a,d_in_a-1))])
+            costs = np.array([cost(s,s_a),\
+                            cost(s_l,s_al),\
+                            cost(s_r,s_ar)])
         #print("costs_lnr:",costs)
         if dir_preset==-1: #mainly for debugging and testing
             direction = np.argmin(costs)
@@ -541,14 +538,9 @@ def transform_ud(stages_causal,stages_anticausal,cost,m=1,dir_preset = -1,epsilo
                             cost(sigmas_causal[:i-1]+[s_d]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_ad]+sigmas_anticausal[i:],dims_in,dims_out+move_d),\
                             cost(sigmas_causal[:i-1]+[s_u]+sigmas_causal[i:],sigmas_anticausal[:i-1]+[s_au]+sigmas_anticausal[i:],dims_in,dims_out+move_u)])
         else:
-            d_in = np.sum(dims_in[:i])
-            d_out = np.sum(dims_out[i:])
-
-            d_in_a = np.sum(dims_in[i:])
-            d_out_a = np.sum(dims_out[:i])
-            costs = np.array([cost(s,(d_out,d_in),s_a,(d_out_a,d_in_a)),\
-                            cost(s_d,(d_out-1,d_in),s_ad,(d_out_a+1,d_in_a)),\
-                            cost(s_u,(d_out+1,d_in),s_au,(d_out_a-1,d_in_a))])
+            costs = np.array([cost(s,s_a),\
+                            cost(s_d,s_ad),\
+                            cost(s_u,s_au)])
         #print("costs_dnu:",costs)
         if dir_preset==-1:
             direction = np.argmin(costs)
@@ -594,6 +586,8 @@ def move(system,N,cost,m_in = 1,m_out=1,cost_global= False):
     get an output normal anticausal system and caculate the epsilons
     """
 
+    if N is None:
+        N = len(m_in)
     approx =Approximation(system)
     sys_move = approx.get_approxiamtion(1e-15)
 
@@ -604,6 +598,12 @@ def move(system,N,cost,m_in = 1,m_out=1,cost_global= False):
     output_dims=np.zeros((len(sys_move.causal_system.stages),N+1))
     input_dims[:,0] = sys_move.dims_in
     output_dims[:,0] = sys_move.dims_out
+    costs = np.zeros(N+1)
+    if cost_global:
+        costs[0]= cost(sigmas_causal,sigmas_anticausal,sys_move.dims_in,sys_move.dims_out)
+    else:
+        costs[0] = np.sum([cost(s,s_a)\
+                    for (s,s_a) in zip(sigmas_causal,sigmas_anticausal)])
     for n in range(N):
         if type(m_in)==int:
             m_in_ = m_in
@@ -621,12 +621,19 @@ def move(system,N,cost,m_in = 1,m_out=1,cost_global= False):
                                                  sys_move.anticausal_system.stages,cost,m=m_in_,cost_global= cost_global,
                                                  sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal)
 
+        #compute objective function
+        if cost_global:
+            costs[n+1]= cost(sigmas_causal,sigmas_anticausal,sys_move.dims_in,sys_move.dims_out)
+        else:
+            costs[n+1] = np.sum([cost(s,s_a)\
+                        for (s,s_a) in zip(sigmas_causal,sigmas_anticausal)])
+
         input_dims[:,n+1] = sys_move.dims_in
         output_dims[:,n+1] = sys_move.dims_out
         print("Dims_in: ",sys_move.dims_in)
         print("Dims_out:",sys_move.dims_out)
 
-    return sys_move,input_dims,output_dims
+    return sys_move,input_dims,output_dims,costs
 
 
 def test_moves(system,m,epsilon=1e-15):

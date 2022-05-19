@@ -1157,7 +1157,7 @@ C_k' = \da_{k-1}(2\da_k-1) + \da_{k-1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
 When considering mixed systems the cost for the causal and the anticausal system are added.
 As the $D$-matrices for the anticausal part are not needed the according FLOPs are irrelevant.
 This gives the cost for a mixed stage
-\begin{equation}
+\begin{equation}\label{eq:cost_mixed}
 C_k = d_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
 .
 \end{equation}
@@ -1199,7 +1199,7 @@ Usually the state dimensions are small for the first and last states and larger 
 Here different approximations of the state dimensions have to be used.
 
 I used an approximation based on the properties of the singular values and their relation to the Frobenius norm.
-The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \sigma_i^2}$.\todo{Bronstein}
+The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \sigma_i^2}$ \cite[p.~67]{bai_matrix_2021}.
 If we suppose that the elements of $H$ have a constant absolute value, then $\|H\|_F \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, which in turn should also result in increasing singular values.
 Finally $d_k$ is the number of singular values larger than a certain threshold value.
@@ -1924,27 +1924,39 @@ This means
 \end{proof}
 
 \paragraph{Objective function}
-As an objective function I used the number of multiplications.
-Here the number of state is determined by counting the Hankel singular values bigger than a certain threshold value. 
-This threshold value has to be known in advance.
-
-If this value is not known a priori, we want to reduce the rank of the Hankel matrices.
-The rank is usually not a good objective function, as the Hankelmatrices of the weight matrices often always have full rank.
+When we want to recover the segmentation, the goal is to reduce the rank of the Hankel matrices.
+The rank itself is not a suitable objective function, as the algorithm has to exactly meet the segmentation.
 Therefore we use the nuclear norm $\|H\|_*$.
-The Nuclear norm is defined as the sum of the singualr values
+The Nuclear norm is defined as the sum of the singular values
 \begin{equation}
 	\|X\|_* = \sum_{i=1}^r \sigma_i
 	.
 \end{equation}
-The norm also depends on the size of the Hankelmatrices.
-As we do not want to reduce the size of the hankel matrices, we have to control for the size of the matrix.
-This is done by dividing with the operator norm$\|H\|$. 
+The nuclear norm can be used to get low rank solutions in optimization problems \cite{liu_interior-point_2010}.
+We get a lower bound of the rank by dividing with the operator norm $\|H\|$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
+This results in the objective function
 \begin{equation}\label{eq:objective_nuc}
-	\f_{\text{nuc}}(H)= \frac{\|H\|_*}{\|H\|}
+	\f_{\text{nuc}}(\Sigma)= \sum_{\text{all } H} \frac{\|H\|_*}{\|H\|}
 	.
 \end{equation}
-This function is also a lower bound of $\rank(H)$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
+%As we want to both reduce the rank of the causal and anticausal Hankel matrices we add $\f_{\text{nuc}}(H)$ for the causal and the anticausal Hankel matrices.
+%As we only change one causal and one anticausal Hankel matrix at each step, we only have to compute the objective for these two Hankel matrices.
+When we compute $\f_{\text{nuc}}$ for Hankel matrices taken out of weight matrices, we can see that $\f_{\text{nuc}}(H) \approx \sqrt{\text{size}(H)}$.
+This means that the algorithm would minimize the size of the Hankel matrices.
+In this case, the boundaries tend to move outwards, as this minimizes the size of the Hankel matrices.
+%If the Hankel matrices are not low rank, Equation\,\ref{eq:objective_nuc} might represent\todo{better word} the size of the Hankel matrices. 
 
+%This leads to high 
+%\todo[inline]{Independently, matrices that have higher rank lead to problems, also depend on the fact that}
+
+As a different objective function I used the number of multiplications required to calculate the Matrix vector product $y=Tu$ in the state space.
+Based on the Equation\,\ref{eq:cost_mixed}, this gives the objective function
+\begin{equation}\label{eq:objective_flop}
+\f_{\text{FLOP}}\sum_{k=1}^K = d_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
+\end{equation}
+Here the number of states is determined by counting the Hankel singular values bigger than a certain threshold value. 
+The threshold value has to be known in advance.
+This objective function does not minimize the approximation Error, but \todo{equation} gives an upper bound as the truncated singular values are lower than the threshold.
 
  
 %\todo[inline]{something on the objective functions}
@@ -2029,6 +2041,40 @@ The algorithm does not always converge to the original segmentation if the Hanke
 \item Have a look at the representation error in different norms for different algorithms
 \end{itemize}
 \section{Weight Matrix Approximation}
+Now we try to represent a weight matrix form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019}.
+The matrix is $A \in \mathbb{R}^{1000 \times 1280}$.
+I choose to use $K=15$ based on the approximations done in Section\,\ref{sec:Choose_K}.
+%First I try $\f_{\text{nuc}}(\Sigma)$ as defined in Equation\,\ref{eq:objective_nuc} as objective function.
+%As search sequence I use $l = [120,  80,  54,  36,  24,  16,  11,   8,   5,   4]$
+%The result is illustrated in Figure\,\ref{fig:mobilenet_seperation_nuc}.
+%We can see that the boundaries do not converge. 
+%The boundaries keep moving towards the edges of the matrix.
+%This results in a large $D$-Matrices.
+%\begin{figure}[!htb]
+%	\centering
+%	\includegraphics[width=0.682\textwidth]{Plots/move_example_mobilenet_nuc.pdf}
+%	\caption{Illustration of the change of the segmentation with Nuclear norm optimization.
+%		Note the large shaded areas that represent the $D$-matrices.
+%	}
+%	\label{fig:mobilenet_seperation_nuc}
+%\end{figure}
+%Therefore $\f_{\text{nuc}}(\Sigma)$ is not a suitable objective function.
+As the objective function I use the number of multiplications as defined in Equation\,\ref{eq:objective_flop}.
+I use the search sequence $l = [30, 20, 14,  9,  6,  4,  3,  2,  2,  1]$.
+The threshold value is set to $\epsilon = 0.35 \|A\|_H$, based on the initial segmentation.
+The result is illustrated in Figure\,\ref{fig:mobilenet_seperation_comp}.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=\textwidth]{Plots/move_example_mobilenet_comp.pdf}
+	\caption{Illustration of the change of the segmentation. 
+	}
+	\label{fig:mobilenet_seperation_comp}
+\end{figure}
+Note that some input and output dimensions vanish. 
+In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging to the same point. This also leads to the effect that only a small part of the matrix is represented with the $D$-matrices.
+It is not clear to why this happens.
+It might be interesting to explore time varying systems that do not have $D$-matrices.
+
 %\section{Setups}
 eventually split this up in subsections
 
