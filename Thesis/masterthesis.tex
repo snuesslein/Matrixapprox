@@ -1203,7 +1203,7 @@ The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \
 If we suppose that the elements of $H$ have a constant absolute value, then $\|H\|_F \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, which in turn should also result in increasing singular values.
 Finally $d_k$ is the number of singular values larger than a certain threshold value.
-The number of states is not directly related to the two norm of the singular values as it depends on their distribution and the threshold value.% that depends on wanted accuracy.
+The number of states is not directly related to the two norm of the singular values as it depends on their distribution and the threshold value.% that depends on wanted accuracy. 
 Regardless the approximation $\breve{d}_k \propto \|H_k\|_F$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
 \begin{figure}[htb]
 	\centering
@@ -2043,7 +2043,31 @@ The algorithm does not always converge to the original segmentation if the Hanke
 \section{Weight Matrix Approximation}
 Now we try to represent a weight matrix form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019}.
 The matrix is $A \in \mathbb{R}^{1000 \times 1280}$.
-I choose to use $K=15$ based on the approximations done in Section\,\ref{sec:Choose_K}.
+I choose to use some $K = 10$ based on the approximations done in Section\,\ref{sec:Choose_K}.
+As the input and output dimensions are not constant as presumed in Section\,\ref{sec:Choose_K}. I tried different $K$ and adapted the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
+As the objective function I use the number of multiplications as defined in Equation\,\ref{eq:objective_flop}.
+I use the search sequence $l = [30, 20, 14,  9,  6,  4,  3,  2,  2,  1]$.
+The threshold value is set to $\epsilon = 0.5 \|A\|_H$, based on the initial segmentation.
+\begin{figure}[!htb]
+	%\centering
+	\includegraphics[trim=0.4cm 0.9cm 0 0, clip,width=\textwidth]{Plots/Mobilenet_diff_K.pdf}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\caption{$K=5$  $\f_{\text{FLOP}}=561549$}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.34\textwidth}
+		\caption{$K=10$  $\f_{\text{FLOP}}=480573$}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.34\textwidth}
+	\caption{$K=17$ $\f_{\text{FLOP}}=494119$}
+	\end{subfigure}
+	\caption{Matrix segmentation for different numbers of Stages.
+	The areas shaded in gray represent the $D$-matrices.
+	For higher numbers of stages the portion represented by the $D$-Matrices gets lower}
+	\label{fig:Mobilenet_diff_Ks}
+\end{figure}
+The results are illustrated in Figure\,\ref{fig:Mobilenet_diff_Ks}.
+Different numbers of stages result in different numbers of multiplications.
+For $K=10$ we get the lowest number of multiplications.
 %First I try $\f_{\text{nuc}}(\Sigma)$ as defined in Equation\,\ref{eq:objective_nuc} as objective function.
 %As search sequence I use $l = [120,  80,  54,  36,  24,  16,  11,   8,   5,   4]$
 %The result is illustrated in Figure\,\ref{fig:mobilenet_seperation_nuc}.
@@ -2059,10 +2083,7 @@ I choose to use $K=15$ based on the approximations done in Section\,\ref{sec:Cho
 %	\label{fig:mobilenet_seperation_nuc}
 %\end{figure}
 %Therefore $\f_{\text{nuc}}(\Sigma)$ is not a suitable objective function.
-As the objective function I use the number of multiplications as defined in Equation\,\ref{eq:objective_flop}.
-I use the search sequence $l = [30, 20, 14,  9,  6,  4,  3,  2,  2,  1]$.
-The threshold value is set to $\epsilon = 0.35 \|A\|_H$, based on the initial segmentation.
-The result is illustrated in Figure\,\ref{fig:mobilenet_seperation_comp}.
+The change of the segmentation for $K=10$ is illustrated in Figure\,\ref{fig:mobilenet_seperation_comp}.
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=\textwidth]{Plots/move_example_mobilenet_comp.pdf}
@@ -2072,11 +2093,23 @@ The result is illustrated in Figure\,\ref{fig:mobilenet_seperation_comp}.
 \end{figure}
 Note that some input and output dimensions vanish. 
 In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging to the same point. This also leads to the effect that only a small part of the matrix is represented with the $D$-matrices.
-It is not clear to why this happens.
-It might be interesting to explore time varying systems that do not have $D$-matrices.
-
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Plots/move_example_mobilenet_error.pdf}
+	\caption{The black line indicates the number of multiplications for the regular matrix vector product. 
+	}
+	\label{fig:mobilenet_err_cost}
+\end{figure}
+In Figure\,\ref{fig:mobilenet_err_cost} the approximation error $\| A-\tilde{A} \|$ is plotted against the number of multiplications for different approximation parameters $\epsilon$.
+This done with balanced truncation.
+The results for the original and the adapted segmentation is shown.
+We can see that the adaptation of the segmentation does not yield big changes.
+For the case $\epsilon = \frac{1}{4} \|A\|_H$ we can see that the number of multiplications 
+did decrease as shown in Figure\,\ref{fig:mobilenet_seperation_comp}
 %\section{Setups}
-eventually split this up in subsections
+
+
+
 
 Setup: 
 \begin{itemize}
@@ -2090,6 +2123,12 @@ Tests:
 \item Test the different approaces in neural nets.
 \end{itemize}
 \chapter{Discussion}
+
+Vanishing $D$-matrices:\\
+It is not clear to why this happens.
+It might be interesting to explore time varying systems that do not have $D$-matrices.
+
+
 4-5 4pages
 
 \chapter{Conclusion}
