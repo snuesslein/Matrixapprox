@@ -26,7 +26,7 @@ def testSplit():
     sys = Split.initial_sigmas_mixed(T)
     Split.split_sigmas_mixed(sys,0,8,8)
     Split.split_sigmas_mixed(sys,0,4,4)
-    Split.split_sigmas_mixed(sys,2,4,4)
+    Split.split_sigmas_mixed(sys,2,3,4)
 
     correct,rep = utils.check_dims(sys,text_output=False,return_report=True)
     assert correct, rep

@@ -231,7 +231,7 @@ def split_stage_sigmas(stage,i_in,i_out):
     return stage_alpha,stage_beta
 
 def split_stage_sigmas_anti(stage,i_in,i_out,D):
-    #we need thsi stage such that previous is input normal and later is output normal
+    #we need this stage such that previous is input normal and later is output normal
     s_in = stage.s_in
     s_out= stage.s_out
     stage_tr = stage.output_input_normal()
@@ -249,13 +249,13 @@ def split_stage_sigmas_anti(stage,i_in,i_out,D):
                  Vt[:,:d_statei]/s_in.reshape(1,-1),\
                  Vt[:,d_statei:],\
                  stage.C_tilde[i_out:,:],\
-                 np.zeros_like(D[:i_out,:i_in]),\
+                 np.zeros_like(D[i_out:,i_in:]),\
                  s,s_in)
     stage_beta=Stage_sigmas(
                U[U.shape[0]-d_stateo:,:]/s_out.reshape(-1,1),\
                stage.B_tilde[:,:i_in],\
                U[:U.shape[0]-d_stateo,:],\
-               np.zeros_like(D[i_out:,i_in:]),
+               np.zeros_like(D[:i_out,:i_in]),
                s_out,s)
     return stage_alpha,stage_beta
 
