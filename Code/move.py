@@ -11,6 +11,7 @@ from tvsclib.transformations.input_normal import InputNormal
 from tvsclib.transformations.reduction import Reduction
 import tvsclib.utils as utils
 import tvsclib.math as math
+import traceback
 
 
 def move_left_causal(stages,m_l,epsilon = 1e-16):
@@ -612,38 +613,40 @@ def move(system,N,cost,m_in = 1,m_out=1,cost_global= False,return_sigmas=False,p
     else:
         costs[0] = np.sum([cost(s,s_a)\
                     for (s,s_a) in zip(sigmas_causal,sigmas_anticausal)])
-    for n in range(N):
-        if type(m_in)==int:
-            m_in_ = m_in
-        else:
-            m_in_ = m_in[n]
-        if type(m_out)==int:
-            m_out_ = m_out
-        else:
-            m_out_ = m_out[n]
+    try:
+        for n in range(N):
+            if type(m_in)==int:
+                m_in_ = m_in
+            else:
+                m_in_ = m_in[n]
+            if type(m_out)==int:
+                m_out_ = m_out
+            else:
+                m_out_ = m_out[n]
 
-        if print_progress:
-            print("Starting iteration ",n+1)
-        sigmas_causal,sigmas_anticausal=transform_ud(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=m_out_,cost_global= cost_global,
-                                                 sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal,print_progress=print_progress)
+            if print_progress:
+                print("Starting iteration ",n+1)
+            sigmas_causal,sigmas_anticausal=transform_ud(sys_move.causal_system.stages,
+                                                     sys_move.anticausal_system.stages,cost,m=m_out_,cost_global= cost_global,
+                                                     sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal,print_progress=print_progress)
 
-        sigmas_causal,sigmas_anticausal=transform_rl(sys_move.causal_system.stages,
-                                                 sys_move.anticausal_system.stages,cost,m=m_in_,cost_global= cost_global,
-                                                 sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal,print_progress=print_progress)
+            sigmas_causal,sigmas_anticausal=transform_rl(sys_move.causal_system.stages,
+                                                     sys_move.anticausal_system.stages,cost,m=m_in_,cost_global= cost_global,
+                                                     sigmas_causal=sigmas_causal,sigmas_anticausal=sigmas_anticausal,print_progress=print_progress)
 
-        #compute objective function
-        if cost_global:
-            costs[n+1]= cost(sigmas_causal,sigmas_anticausal,sys_move.dims_in,sys_move.dims_out)
-        else:
-            costs[n+1] = np.sum([cost(s,s_a)\
-                        for (s,s_a) in zip(sigmas_causal,sigmas_anticausal)])
+            #compute objective function
+            if cost_global:
+                costs[n+1]= cost(sigmas_causal,sigmas_anticausal,sys_move.dims_in,sys_move.dims_out)
+            else:
+                costs[n+1] = np.sum([cost(s,s_a)\
+                            for (s,s_a) in zip(sigmas_causal,sigmas_anticausal)])
 
-        input_dims[:,n+1] = sys_move.dims_in
-        output_dims[:,n+1] = sys_move.dims_out
-        print("Dims_in: ",sys_move.dims_in)
-        print("Dims_out:",sys_move.dims_out)
-
+            input_dims[:,n+1] = sys_move.dims_in
+            output_dims[:,n+1] = sys_move.dims_out
+            print("Dims_in: ",sys_move.dims_in)
+            print("Dims_out:",sys_move.dims_out)
+    except:
+         traceback.print_exc()
     if return_sigmas:
         return sys_move,input_dims,output_dims,costs,(sigmas_causal,sigmas_anticausal)
     else:
