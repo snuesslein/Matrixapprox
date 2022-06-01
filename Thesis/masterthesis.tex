@@ -2113,35 +2113,62 @@ In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging t
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Plots/move_example_mobilenet_error.pdf}
-	\caption{The black line indicates the number of multiplications for the regular matrix vector product. 
+	\caption{Plot of the approximation error with respect to the number of multiplications for different $\epsilon$. 
+	The black line indicates the number of multiplications for the regular matrix vector product. 
 	}
 	\label{fig:mobilenet_err_cost}
 \end{figure}
 In Figure\,\ref{fig:mobilenet_err_cost} the approximation error $\| A-\tilde{A} \|$ is plotted against the number of multiplications for different approximation parameters $\epsilon$.
-This done with balanced truncation.
+This is done with balanced truncation.
 The results for the original and the adapted segmentation is shown.
 We can see that the adaptation of the segmentation does not yield big changes.
 For the case $\epsilon = \frac{1}{4} \|A\|_H$ we can see that the number of multiplications 
-did decrease as shown in Figure\,\ref{fig:mobilenet_seperation_comp}
-%\section{Setups}
+did decrease by $6\%$ as shown in Figure\,\ref{fig:mobilenet_seperation_comp}.
+The approximation error $\| A-\tilde{A} \|$ did not change due to the adaption of the segmentation.
 
 
+Now we try a weight matrix form the \emph{AlexNet} neural net \cite{krizhevsky_one_2014}.
+This matrix is $A \in \mathbb{R}^{4096 \times 9216}$.
+For this matrix I use $K=15$.
+As the matrix is not wide, I use different search sequences for the inputs and outputs.
+For the output $l =\lceil  120 \cdot  1.4^{[0,-1,\dots,-9]} \rceil =  [120,  86,  62,  44,  32,  23,  16,  12,   9,   6]$.
+And for the input $l =\lceil 270 \cdot 1.4^{[0,-1,\dots,-9]} \rceil=  [270, 193, 138,  99,  71,  51,  36,  26,  19,  14]$.
+Here the threshold value is again $\epsilon = \frac{1}{4} \|A\|_H$, based on the initial segmentation.
+To speed up the computation, the system is first approximated before adapting the boundaries.
+This is done using balanced truncation with $\epsilon_{\text{apr}}=\frac{1}{2} \epsilon$.
+Here it is important to choose an smaller epsilon for the approximation.
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=\textwidth]{Plots/move_example_alexnet_comp.pdf}
+	\caption{Illustration of the change of the segmentation for the weight matrix from \emph{AlexNet} model.
+	}
+	\label{fig:alexnet_seperation_comp}
+\end{figure}
+Then I adapted the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
+The result is shown in Figure\,\ref{fig:alexnet_seperation_comp}.
+To avoid approximation errors that got amplified \todo{wording} by changing the input and output dimensions, a new time varying system is  computed based on the new adapted segmentation.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Plots/move_example_alexnet_error.pdf}
+	\caption{Plot of the approximation error with respect to the number of multiplications for different $\epsilon$. 
+	The black line indicates the number of multiplications for the regular matrix vector product. 
+	}
+	\label{fig:allexnet_err_cost}
+\end{figure}
+Here we can see that the approximation error increased after applying Algorithm\,\ref{alg:optimize segemtnation}.
+The recomputed system with the new borders has the lowest approximation error.
+The number of multiplications increases slightly for the recomputed system.
+After moving the bounds and recomputing the system the number of multiplications is reduced by $31\%$.
+We can also observe that the approximation error for the adapted system does not vanish for an balanced truncation with $\epsilon = 0$ as the information has been discarded.
+The number with the new segmentation is lower than for initial segmentation if $\epsilon \geq \frac{1}{4} \|A\|_H$.
+The reidentified system has requires an equal or higher number of multiplications if $\epsilon < \frac{1}{4} \|A\|_H$.
+This is due to the fact that in this case the necessary information has been removed before the running Algorithm\,\ref{alg:optimize segemtnation}.
 
 
-Setup: 
-\begin{itemize}
-	\item Some general notes on the tests.
-	\item How define loss, images to features etc. 
-	\item How measure accuracy
-\end{itemize}
-
-Tests:
-\begin{itemize}
-\item Test the different approaces in neural nets.
-\end{itemize}
 \chapter{Discussion}
 
-Vanishing $D$-matrices:\\
+Vanishing  input and output dimensions. Also vanishing $D$-matrices\\
 It is not clear to why this happens.
 It might be interesting to explore time varying systems that do not have $D$-matrices.
 
