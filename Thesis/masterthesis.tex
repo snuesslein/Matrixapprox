@@ -202,61 +202,16 @@ Section contains the results for test cases and in section the algorithm are use
 ´
 
 \chapter{Literature Review}
-\todo[inline]{Some text missing here}
+In the next section different matrix structures are described.
+These are matrices that have certain properties.
+In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neural nets are presented.
 
-\section{Neural Nets}
-%Special matrix structures are been explored for the use in neural nets.
-%Here different matrices structures are used to improve the performance. 
-In this section different approaches that use structured matrices in neural nets are shortly introduced.
-There are two main approaches to obtain structured matrices:
-In one case the structure is predetermined and the parameters of the structure are trained by a regular training process \cite{fan_multiscale_2019,dao_kaleidoscope_2020,li_butterfly_2015,ailon_sparse_2021,ioannou_training_2016}.
-Or the neural net is trained without a predetermined matrix structure and the matrices are later approximated with structured matrices \cite{wu_hybrid_2020,hassibi_optimal_1993,jaderberg_speeding_2014,rigamonti_learning_2013}. In \cite{yu_compressing_2017} the model was retrained after the approximation. 
-There are also approaches where the approximation is done during the training procedure like \cite{dettmers_sparse_2019} or a structure is created using regularization \cite{louizos_learning_2018,wen_learning_2016}.
-
-
-One widely known approach to reduce the complexity of neural nets is pruning. 
-These are processes that set elements in neural net matrices to zero to reduce the computational cost \cite{blalock_what_2020}.
-This is equivalent to removing connections between neurons.
-An approach to remove connections from a trained net based on the Hessian of the loss function was proposed by Hassibi \cite{hassibi_optimal_1993}.
-It is also possible to obtain sparse matrices while training.
-Dettmers and Zettlemoyer use an algorithm that includes pruning steps during the training after every epoch \cite{dettmers_sparse_2019}.
-A different approach to obtain sparse matrices is including a regularization term.
-As an example Louizos et al. use $L_0$ regularization  \cite{louizos_learning_2018} and Wen et al. use LASSO regularization \cite{wen_learning_2016}.
-
-Low Rank approximations for filters in convolutional layers were proposed by Rigamonti et al. \cite{rigamonti_learning_2013}. These use combinations of separable filters. Jaderberg et al. approximate existing filters using low rank filters \cite{jaderberg_speeding_2014}. 
-Ioannou et al. directly learn low rank filters and combine them later \cite{ioannou_training_2016}.
-In low rank and sparse decomposition a matrix is approximated with a low rank and a sparse matrix. 
-Yu et al. represented matrices in deep models as a sum of low rank and sparse matrices \cite{yu_compressing_2017}.
-The computation of the decomposition is based on an algorithm to calculate a low rank and sparse decomposition by Zhou and Tao \cite{zhou_greedy_2013}.
-To avoid an accumulation of errors due to the compression of multiple layers, the decomposition are not done independently.
-This is achieved by defining the objective function as the difference between the outputs of the approximation for a collection of approximated input vectors and the corresponding output vectors.
-
-The structure of Hierarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
-Fan et al. used the structure of $\mathcal{H}$-Matrices in neural nets to solve PDEs \cite{fan_multiscale_2019}. There the structure of the neural net makes use of the different scales in the system.
-Hierarchical tensor decompositions were used by Wu et al. to represent weight matrices and convolutional kernels \cite{wu_hybrid_2020}.
-Ithapu used hierarchical factorization of covariance matrices to explore relationships between classes \cite{ithapu_decoding_2017}.
-
-A different matrix structure explored in neural nets are butterfly matrices.
-These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}. Ailon et al. used this matrix structure to represent dense layers \cite{ailon_sparse_2021}.
-The butterfly structure was combined with CNNs by Li et al. \cite{li_butterfly-net_2020}. This structure can be used to efficiently represent Fourier kernels.
-An extension of butterfly matrices are Kaleidoscope matrices (K-matrices). These were introduced by Dao et al. in \cite{dao_kaleidoscope_2020}.
-K-Matrices are the product of factors of the shape $B_aB_b^\top$, where $B_a$ and $B_b$ are butterfly matrices. These can be used to represent a wide class of structured matrices.
-The patterns in the factors are fixed. Therefore the parameters can be learned using gradient descent.
-K-matrices can also be used to represent linear hand crafted structures like reprocessing steps. %example fft 
-
-\todo[inline]{
-Properties of dense matrices
-Approxiamtions of dense Layer matricies}
-
-
+\todo[color=blue!40]{changed ordering and new introduction}
 
 \section{Matrix structures}
-\todo[inline]{eventually move this section to Background}
-
-\subsection{Matrix structures}
-In the following certain matrix structures are presented.
+In the following several matrix structures are presented.
 These have in common that they have low rank sub-matrices.
-Here, Semiseperable, Hierarchical and Sequentially Semiseparable matrices are presented.
+These are Semiseperable, Hierarchical and Sequentially Semiseparable matrices.
 
 \subsection{Semiseperable matricies}
 Semiseperable matrices are not consistently defined in the literature. 
@@ -381,6 +336,52 @@ This is illustrated in Figure\,\ref{fig:sequentiallysep}.
 
 This segmentation in blocks makes similar to the hirarchical Matrices that also have a segmentation.
 Unlike semiseperable matrices the sequentially semiseperable matrices do not have to be quadratic. 
+
+\section{Neural Nets}\label{sec:AI_weight}
+%Special matrix structures are been explored for the use in neural nets.
+%Here different matrices structures are used to improve the performance. 
+In this section different approaches that use structured matrices in neural nets are shortly introduced.
+There are two main approaches to obtain structured matrices:
+In one case the structure is predetermined and the parameters of the structure are trained by a regular training process \cite{fan_multiscale_2019,dao_kaleidoscope_2020,li_butterfly_2015,ailon_sparse_2021,ioannou_training_2016}.
+Or the neural net is trained without a predetermined matrix structure and the matrices are later approximated with structured matrices \cite{wu_hybrid_2020,hassibi_optimal_1993,jaderberg_speeding_2014,rigamonti_learning_2013}. In \cite{yu_compressing_2017} the model was retrained after the approximation. 
+There are also approaches where the approximation is done during the training procedure like \cite{dettmers_sparse_2019} or a structure is created using regularization \cite{louizos_learning_2018,wen_learning_2016}.
+
+
+One widely known approach to reduce the complexity of neural nets is pruning. 
+These are processes that set elements in neural net matrices to zero to reduce the computational cost \cite{blalock_what_2020}.
+This is equivalent to removing connections between neurons.
+An approach to remove connections from a trained net based on the Hessian of the loss function was proposed by Hassibi \cite{hassibi_optimal_1993}.
+It is also possible to obtain sparse matrices while training.
+Dettmers and Zettlemoyer use an algorithm that includes pruning steps during the training after every epoch \cite{dettmers_sparse_2019}.
+A different approach to obtain sparse matrices is including a regularization term.
+As an example Louizos et al. use $L_0$ regularization  \cite{louizos_learning_2018} and Wen et al. use LASSO regularization \cite{wen_learning_2016}.
+
+Low Rank approximations for filters in convolutional layers were proposed by Rigamonti et al. \cite{rigamonti_learning_2013}. These use combinations of separable filters. Jaderberg et al. approximate existing filters using low rank filters \cite{jaderberg_speeding_2014}. 
+Ioannou et al. directly learn low rank filters and combine them later \cite{ioannou_training_2016}.
+In low rank and sparse decomposition a matrix is approximated with a low rank and a sparse matrix. 
+Yu et al. represented matrices in deep models as a sum of low rank and sparse matrices \cite{yu_compressing_2017}.
+The computation of the decomposition is based on an algorithm to calculate a low rank and sparse decomposition by Zhou and Tao \cite{zhou_greedy_2013}.
+To avoid an accumulation of errors due to the compression of multiple layers, the decomposition are not done independently.
+This is achieved by defining the objective function as the difference between the outputs of the approximation for a collection of approximated input vectors and the corresponding output vectors.
+
+The structure of Hierarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
+Fan et al. used the structure of $\mathcal{H}$-Matrices in neural nets to solve PDEs \cite{fan_multiscale_2019}. There the structure of the neural net makes use of the different scales in the system.
+Hierarchical tensor decompositions were used by Wu et al. to represent weight matrices and convolutional kernels \cite{wu_hybrid_2020}.
+Ithapu used hierarchical factorization of covariance matrices to explore relationships between classes \cite{ithapu_decoding_2017}.
+
+A different matrix structure explored in neural nets are butterfly matrices.
+These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}. Ailon et al. used this matrix structure to represent dense layers \cite{ailon_sparse_2021}.
+The butterfly structure was combined with CNNs by Li et al. \cite{li_butterfly-net_2020}. This structure can be used to efficiently represent Fourier kernels.
+An extension of butterfly matrices are Kaleidoscope matrices (K-matrices). These were introduced by Dao et al. in \cite{dao_kaleidoscope_2020}.
+K-Matrices are the product of factors of the shape $B_aB_b^\top$, where $B_a$ and $B_b$ are butterfly matrices. These can be used to represent a wide class of structured matrices.
+The patterns in the factors are fixed. Therefore the parameters can be learned using gradient descent.
+K-matrices can also be used to represent linear hand crafted structures like reprocessing steps. %example fft 
+
+%\todo[inline]{
+%	Properties of dense matrices
+%	Approxiamtions of dense Layer matricies}
+
+
 
 \chapter{Background}\label{chap:background}
 
@@ -778,7 +779,6 @@ This gives the balanced system $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D}
 
 A ordered system can be reduced using the same segmentation as used for the balanced truncation.
 \begin{proof}
-	\todo{suitable?}
 	The reduction of the ordered system is equivalent to the reduction of the balanced system if both reduced systems are equivalent.  
 	As the state transformations are diagonal matrices, the result of first transforming it to a balanced system and then reducing it using balanced truncation is equivalent to directly reducing the ordered system. %and then applying the reduced state transformation to the system. %is equivalent to applying the state transformation and later reducing the system.
 	
