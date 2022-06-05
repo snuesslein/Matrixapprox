@@ -1,7 +1,7 @@
-﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=11mm]
+\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=11mm]
 %violet!80!red!90
-\tikzstyle{colmarking} = [magenta!50!violet!100,line width=1.5pt]
-\def\colortext{magenta!50!violet!100}
+%\tikzstyle{colmarking} = [magenta!50!violet!100,line width=1.5pt]
+%\def\colortext{magenta!50!violet!100}
 
 
 \def\distorig{\rel_i_stage*\pgfkeysvalueof{/tikz/boxsize}}

@@ -1,0 +1,131 @@
+\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=11mm]
+%violet!80!red!90
+%\tikzstyle{colmarking} = [C0,line width=1.5pt]
+%\def\colortext{magenta!50!violet!100}
+
+
+\def\distorig{\rel_i_stage*\pgfkeysvalueof{/tikz/boxsize}}
+\def\distvert{2.7mm}
+%\def
+
+
+
+
+
+
+
+\def\distorigb{1.4*\distorig}
+
+
+
+
+	\matrix (m1) [row sep={1.5cm,between origins}, column sep={2.7cm,between origins}] at (-3.2,0) %col 2.5
+	{
+		&		\node[coordinate]  (xin) {}; & \\[1.2cm,between origins]
+		%--------------------------------------------------------------------
+		\node[]                  (u) {$u_{k}$};          &
+		\node[style_stage, stagebox, name=sys,boxsize=14.5mm] {};&
+		\node[]                  (y) {$y_{k}$};          \\[1.4cm,between origins]
+
+		 &		\node[coordinate]  (xout) {}; & \\
+	};
+	\node[shape=rectangle,minimum height=2*14.5mm,minimum width=2*14.5mm] (sys_a) at (sys) {};
+	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_{k}$} (sys_a.north);
+	\draw[signalflow] (sys_a.south)                -- node[anchor=west]            {$x_{k+1}$} (xout);
+
+%split in
+\draw[signalflow,posarr=0.7] (u) to [out=0,in=180] node[anchor = south] {$u_\alpha\quad$} ($(sys_a.west)+(0,+\distvert)$);
+\draw[signalflow,posarr=0.7] (u) to [out=0,in=180] node[anchor = north] {$u_\beta\quad$} ($(sys_a.west)+(0,-\distvert)$);
+
+%split out
+\draw[signalflow,posarr=0.3] ($(sys_a.east)+(0,+\distvert)$) to [out=0,in=180] node[anchor = south] {$y_\alpha$} (y);
+\draw[signalflow,posarr=0.3] ($(sys_a.east)+(0,-\distvert)$) to [out=0,in=180] node[anchor = north] {$y_\beta$} (y);
+
+
+
+%horizontal
+\draw[signalflow,posarr=0.6] ($(sys_a.west)+(0,+\distvert)$) -- node[anchor = west] {$$} ($(sys_a.east)+(0,+\distvert)$);
+\draw[signalflow,posarr=0.6] ($(sys_a.west)-(0,+\distvert)$) -- node[anchor = north west] {$D_k$} ($(sys_a.east)-(0,+\distvert)$);
+
+%A
+\draw[white,line width=1.5mm,opacity=0.8] (sys.north) -- (sys.south);
+\draw[signalflow,posarr=0.3] (sys_a.north) -- node[anchor = east,pos=0.3] {$A_k$} (sys_a.south);
+
+%D_splits
+\draw[signalflow,posarr=0.4,C2,line cap=round] ($(sys_a.west)-(-0.5,-\distvert)$) to [out=0,in=180] node[anchor = west] {$$} ($(sys_a.east)-(0.5,+\distvert)$);
+\draw[signalflow,posarr=0.4,C2,dotted] ($(sys_a.west)-(-0.5,\distvert)$) to [out=0,in=180]  ($(sys_a.east)-(0.5,-\distvert)$);
+
+%C
+\draw[signalflow,posarr=0.56,colmarking] ($(sys_a.center)+(0,\distvert+\distorigb)$) -- node[anchor = west] {$C_k$} ($(sys_a.center)+(\distorigb,\distvert)$);
+\draw[signalflow,posarr=0.3,colmarking,line cap=round] ($(sys_a.center)+(0,-\distvert+\distorigb)$) -- node[anchor = west] {$$} ($(sys_a.center)+(\distorigb,-\distvert)$);
+
+
+%B
+\draw[signalflow,posarr=0.8,C1,line cap=round] ($(sys_a.center)+(-\distorigb,\distvert)$) -- node[anchor = west] {$$} ($(sys_a.center)+(0,\distvert-\distorigb)$);
+\draw[signalflow,posarr=0.54,C1] ($(sys_a.center)+(-\distorigb,-\distvert)$) -- node[anchor = east] {$B_k$} ($(sys_a.center)+(0,-\distvert-\distorigb)$);
+
+\draw[signal,colmarking] (sys_a.north) -- ($(sys.center)-(0,-\distorig)$);
+\draw[signal,C1] (sys_a.south) -- +(0,\distorig);
+
+\draw[signal,colmarking] ($(sys_a.east)+(0,-\distvert)$) -- ($(sys_a.center)+(\distorig+\distvert,-\distvert)$);
+\draw[signal,colmarking] ($(sys_a.east)+(0,+\distvert)$) -- ($(sys_a.center)+(\distorig+\distvert,+\distvert)$);
+\draw[signal,C1] ($(sys_a.west)+(0,-\distvert)$) -- ($(sys_a.center)-(\distorig+\distvert,+\distvert)$);
+\draw[signal,C1] ($(sys_a.west)+(0,+\distvert)$) -- ($(sys_a.center)-(\distorig+\distvert,-\distvert)$);
+
+
+	\matrix (m1) [row sep=5.mm, column sep=9mm] at (3.2,0)
+	{
+		&		\node[coordinate]  (xin) {}; & \\[1.2cm,between origins]
+		%--------------------------------------------------------------------
+		\node[]                  (u_1) {$u_{\alpha}$};          &
+		\node[style_stage, stage, name=sys_1,A=$$,B=$$,C=$$,D=$$] {};&
+		\node[]                  (y_1) {${y}_\alpha$};          \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_2) {$u_{\beta}$};          &
+		\node[style_stage, stage, name=sys_2,A=$$,B=$$,C=$$,D=$$] {};&
+		\node[]                  (y_2) {${y}_{\beta}$};          \\[1.4cm,between origins]
+
+		 &		\node[coordinate]  (xout) {}; & \\
+	};
+
+
+	\foreach \i in {1,2}
+		{
+		  \draw[signalflow] (u_\i) -- (sys_\i.u);
+	  	\draw[signalflow] (sys_\i.y) -- (y_\i);
+		}
+	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_k$} (sys_1.xin);
+	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$\quad x_{\beta}$} (sys_2.xin);
+	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor = west] {$x_{k+1}$} (xout);
+
+%shader
+%\draw[white,line width=2.5mm,opacity=0.8] ($(sys_2.center)+(-\distvert,\distorig)$) -- ($(sys_2.center)+(\distorig-\distvert,0)$)  ;
+
+%D
+\draw[signalflow,C2] ($(sys_1.center)+(-\distorig,0)$) -- ($(sys_1.center)+(\distvert-\distorig,0)$)-- ($(sys_1.center)+(-0.5*\distvert,1.5*\distvert-\distorig)$) -- ($(sys_1.center)+(-0.5*\distvert,-\distorig)$) to [out=270,in=90] ($(sys_2.center)-(-0.5*\distvert,-\distorig)$) -- ($(sys_2.center)-(-0.5*\distvert,1.5*\distvert-\distorig)$) -- ($(sys_2.center)-(\distvert-\distorig,0)$)-- ($(sys_2.center)+(\distorig,0)$);
+
+%B
+\draw[signalflow,posarr=0.963,C1,line cap=round] ($(sys_1.center)+(-\distorig,0)$) --  ($(sys_1.center)+(-\distvert,-\distorig+\distvert)$)  ;
+\draw[signalflow,C1,posarr=0.985] ($(sys_1.center)+(-\distvert,-\distorig+\distvert)$) -- ($(sys_2.xin)+(-\distvert,\distvert)$);
+\draw[signalflow,C1,posarr=0.4359] ($(sys_2.xin)+(-\distvert,\distvert)$) to [out=270,in=90]  ($(sys_2.center)+(-0,\distorig)$) -- (sys_2.xout);
+
+\draw[signalflow,C1,posarr=0.6,line cap=round] ($(sys_2.center)+(-\distorig,0)$) -- node[anchor = west] {$$} ($(sys_2.center)+(0,-\distorig)$);
+\draw[signal,C1] ($(sys_2.center)-(\distorig,0)$) -- (sys_2.u) ;
+
+%C
+\draw[signalflow,colmarking,posarr=0.306] (sys_1.xin) -- ($(sys_1.xout)+(-0,\distorig)$) to [out=270,in=90]  ($(sys_1.xout)+(\distvert,-\distvert)$);
+\draw[signalflow,colmarking,posarr=0.01] ($(sys_1.xout)+(\distvert,-\distvert)$) -- ($(sys_2.center)+(\distvert,\distorig-\distvert)$);
+\draw[signalflow,posarr=0.353,colmarking,line cap=round] ($(sys_2.center)+(\distvert,\distorig-\distvert)$) -- ($(sys_2.center)+(\distorig,0)$);
+
+\draw[signalflow,colmarking,posarr=0.6,line cap=round] ($(sys_1.center)+(0,\distorig)$) -- node[anchor = west] {$$} ($(sys_1.center)+(\distorig,0)$);
+\draw[signal,colmarking] ($(sys_1.center)+(\distorig,0)$) -- (sys_1.y) ;
+
+
+%in
+\draw[signal,C1] (sys_1.west) -- ($(sys_1.center)+(-\distorig,0)$);
+%out
+\draw[colmarking] ($(sys_2.center)+(\distorig,0)$) -- (sys_2.east);
+
+
+
+\end{tikzpicture}

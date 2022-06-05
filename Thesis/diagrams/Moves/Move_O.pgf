@@ -1,4 +1,4 @@
-﻿\makeatletter
+\makeatletter
 \DeclareRobustCommand{\rvdots}{%
   \vbox{
     \baselineskip4\p@\lineskiplimit\z@
@@ -34,7 +34,7 @@ arrow_ud/.pic={
      };
 
 		\node[name=s_line,shape=coordinate] at ($(y-2-1.west)!0.5!(y-3-1.west)$) {};
-		\draw[border,blue] (s_line) -- ($(s_line)!(y-3-1.east)!($(s_line)+(1,0)$)$);
+		\draw[border,C1] (s_line) -- ($(s_line)!(y-3-1.east)!($(s_line)+(1,0)$)$);
     \pic at ($(s_line)+(9mm,0)$){arrow_ud};
    \end{tikzpicture} \end{bmatrix}
 =
@@ -52,7 +52,7 @@ arrow_ud/.pic={
 
 		\node[name=s_line,shape=coordinate] at ($($(T-2-1.west)!0.5!(T-3-1.west)$)+(0,0.1em)$) {};
     \node[name=e_line,shape=coordinate] at ($(s_line)!(T-4-4.east)!($(s_line)+(1,0)$)$) {};
-		\draw[border,blue] (s_line) -- (e_line);
+		\draw[border,C1] (s_line) -- (e_line);
     \pic at ($(e_line)-(1.5mm,0)$){arrow_ud};
 
 

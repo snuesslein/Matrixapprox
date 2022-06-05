@@ -31,6 +31,22 @@
 \usetikzlibrary{ decorations.markings}
 \usetikzlibrary {decorations.shapes}
 
+\usepackage{xcolor}
+
+\definecolor{C0}{HTML}{1f77b4}
+\definecolor{C1}{HTML}{ff7f0e}
+\definecolor{C2}{HTML}{2ca02c}
+\definecolor{C3}{HTML}{d62728}
+\definecolor{C4}{HTML}{9467bd}
+\definecolor{C5}{HTML}{8c564b}
+\definecolor{C6}{HTML}{e377c2}
+\definecolor{C7}{HTML}{7f7f7f}
+\definecolor{C8}{HTML}{bcbd22}
+\definecolor{C9}{HTML}{17becf}
+
+\tikzstyle{colmarking} = [C0,line width=1.5pt]
+\def\colortext{C0}
+
 \input{diagrams/systems.tex}
 
 \usepackage[boxed]{algorithm}
@@ -1982,13 +1998,290 @@ This objective function does not minimize the approximation error, but \todo{equ
 %\todo[inline]{maybee some example}
 
 \section{Permutations}
-if time allows add some notes on permutations here
+In this section I introduce an algorithm that makes it possible to permute the rows and columns of the represented matrix, such that number of state dimensions is reduced.
+The algorithm does not recover the whole permutation in one step but uses dynamic programming and recovers the permutation by solving separate subproblems.
+This is done by recursively splitting the stages of the system into two stages each.
+The state dimensions depend on the singular value decomposition of $H_k$.
+The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and permutation of the columns with $\Pi_C$ as the new decomposition
+\begin{equation}
+	\Pi_R U \Sigma V^\top \Pi_C = \tilde{U} \Sigma \tilde{V}^\top 
+\end{equation}
+is again a singular value decomposition.
+\begin{proof}
+	To be an valid SVD, we have to prrof that $\tilde{U}$ and $\tilde{V}$ are orthogonal.
+	This is shown by the forward multiplication
+	\begin{equation}
+		\tilde{U}^\top \tilde{U} = U^\top \Pi_C^\top \Pi_C U = U^\top U = \eye 
+		.
+	\end{equation}
+This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
+	Analogously 
+	\begin{equation}
+	\tilde{V}^\top \tilde{V} = V^\top \Pi_C \Pi_C^\top V = V^\top V = \eye
+	\end{equation}
+	is true.
+\end{proof}
+This means that all permutations of rows and columns of the matrix $A$ are equivalent as long as only the inputs are only permuted inside the input vectors $u_k$ and the output vectors $y_k$.
+
+This means that all permutations of the inputs and outputs that only differ in the orderings inside the $u_k$ and $y_k$ are equivalent. 
+
+\todo{formal blockdiagonal $\Pi$}
+
+
+Therefore the Algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
+
+The algorithm splits the stages into two stages. This is described in Subsection\,\ref{subsec:split_stage}.
+For this the inputs and outputs of the stage have to be grouped.
+This is done by segmenting a matrix. 
+An algorithm to do this is presented in Subsection\,\ref{subsec:segment_matrix}.
+
+
+\subsection{Split Stage}\label{subsec:split_stage}
+
+
+
+
+
+
+
+
+
+We want to spit the stage $k$ into the stages $\alpha$ and $\beta$.
+This is illustrated in Figure\,\ref{fig:split_up}.
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Moves/Move_split.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_split_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_split_b}
+	\end{subfigure}
+	\caption{Illustration of splitting a stage.}
+	\label{fig:split_up}
+\end{figure}
+Again we have connections that are no longer possible in a causal system. 
+These have to be included in the anticausal part. These are again represented using a dotted line.
+The resulting system should have the same input-output behavior. Therefore the relations
+\begin{subequations}
+\begin{align}
+	A_k&=A_\beta A_\alpha & B_k&=\begin{bmatrix}A_\beta B_\alpha &
+	B_\beta \end{bmatrix}\\
+	C_k&=\begin{bmatrix}C_\alpha \\ C_\beta A_\alpha \end{bmatrix}&
+	D_k&= \begin{bmatrix} D_\alpha & 0 \\ C_\beta A_\alpha & D_\beta \end{bmatrix}
+\end{align}\label{eq:relations}
+\end{subequations}
+have to be fulfilled.
+This immediately gives us most of the matrices for the new stages
+
+Now we want to compute these matrices.
+For this we consider the Hankel matrix associated with the new intermediate stage $x_\beta$.
+
+This is 
+\begin{equation}
+	H_\beta = \Ob_\beta \R_\beta 
+	= \begin{bmatrix} C_\beta \\ C_{k+1} A_\beta \\ C_{k+2} A_{k+1} A_\beta \\ \vdots \end{bmatrix}
+	\begin{bmatrix} \cdots& A_\alpha A_{k-1}B_{k-2} & A_\alpha B_{k-1}&  B_\alpha  \end{bmatrix}
+\end{equation}
+By factoring $ \Ob_\beta $ and $\R_\beta $ using Equations\,\ref{eq:decomp_O} and \ref{eq:decomp_R} respectively we obtain
+\begin{equation}
+	H_\beta
+	= \begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix} \begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
+\end{equation}
+Multiplying the inner of the three products results in the matrix
+\begin{equation}
+	\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
+	=
+	\begin{bmatrix}
+		C_\beta A_\alpha & C_\beta B_\alpha\\
+		A_\beta A_\alpha & A_\beta B_\alpha
+	\end{bmatrix}
+\end{equation}
+With the Equation\,\ref{eq:relations} we can equate this matrix to 
+\begin{equation}
+	\begin{bmatrix}
+	C_\beta A_\alpha & C_\beta B_\alpha\\
+	A_\beta A_\alpha & A_\beta B_\alpha
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	C_{k[2]} & D_{k[2,1]}\\
+	A_k & B_{k[1]}
+	\end{bmatrix}
+	.
+\end{equation}
+By computing the SVD we can now get the matrices
+\begin{equation}
+	\begin{bmatrix}
+	C_k & D_{k[1,0]}\\
+	A_k & B_k
+	\end{bmatrix} = U \Sigma V^\top = \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
+	.
+\end{equation}
+Based on this we get the missing matrices for the new stages.
+\begin{equation}
+	\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix} = U \Sigma^{1/2}
+\end{equation}
+and
+\begin{equation}
+\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix} = \Sigma^{1/2} V^\top
+.
+\end{equation}
+If $O_{k+1}^\top O_{k+1} = 1$ and $R_k  R_k^\top = 1$ the singular values calculated by the SVD are also the Hankel singular values.
+\begin{proof}
+	The SVD of the Hankel matrix is
+	\begin{align}
+	H_\beta
+	&= \begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix} \begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}\\
+	&=\underbrace{\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} U}_{\tilde{U}} 
+	\Sigma 
+	\underbrace{V^\top \begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}}_{\tilde{V}^\top}
+	.
+	\end{align}
+	with the property that
+	\begin{equation}
+		\tilde{U}^\top \tilde{U}
+		= 
+		\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} 
+		\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1}^\top \end{bmatrix} 
+		=
+		\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
+		=
+		\eye
+	\end{equation}
+	and 
+	\begin{equation}
+		\tilde{V}^\top \tilde{V}
+		=
+		\begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
+		\begin{bmatrix} \mathcal{R}_k^\top\\&\eye \end{bmatrix}
+		=
+		\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
+		=
+		\eye
+	\end{equation}
+\end{proof}
+
+To run efficiently, the Algorithm requires a way to store the system in such a way that we can easily compute the different normal forms.
+For this we store the Hankel Singular values separately form the reduced matrices $\tilde{A},\tilde{B}$ and $\tilde{C}$.
+
+If we have a balanced system $\Sigma_{[A,B,C,D]}$ the matrices $\tilde{A},\tilde{B},\tilde{C}$ and $\tilde{D}$ are constructed such that 
+\begin{subequations}
+\begin{align}
+	A_k &= \Sigma_{k+1}^{1/2} \tilde{A}_k \Sigma_k^{1/2} &
+	B_k &= \Sigma_{k+1}^{1/2} \tilde{B}_k \\
+	C_k &= \tilde{A}_k \Sigma_k^{1/2} & 
+	D&=\tilde{D}
+	.
+\end{align}\label{eq:stages_sigma}
+\end{subequations}
+As $\Sigma_k$ is a diagonal matrix we only need to store the vector of the diagonal entries.
+Also products with $\Sigma_k$ can be simply computed by scaling the columns if the matrix is multiplied from the right or scaling the columns if the matrix is multiplied from the right.
+Analogously the products with the inverses or the square roots can be computed.
+Then the input normal system can be computed according to
+\begin{subequations}
+\begin{align}
+\breve{A}_k &=  \tilde{A}_k \Sigma_k &
+\breve{B}_k &=  \tilde{B}_k \\
+\breve{C}_k &= \tilde{C}_k \Sigma_k & 
+\breve{D}_k &= D
+.
+\end{align}
+\end{subequations}
+\begin{proof}
+We have to prove that $\breve{\R}_k \breve{\R}_k^\top = \eye$ for all $k$.
+As the original system is balanced we know that $\R_k = \Sigma_k^{1/2} V_k^\top$.
+The new reachability matrix is $\breve{\R} = \Sigma^{-1/2} \R_{k} = V_k^\top$.
+As $V_k$ is orthogonal, $\breve{\R}_k \breve{\R}_k^\top = \eye$.
+\end{proof}
+Analogously the output normal system is
+\begin{subequations}
+\begin{align}
+\breve{A}_k &= \Sigma_{k+1} \tilde{A}_k  &
+\breve{B}_k &= \Sigma_{k+1} \tilde{B}_k \\
+\breve{C}_k &= \tilde{C}_k  & 
+\breve{D}_k &=D
+.
+\end{align}
+\end{subequations}
+\begin{proof}
+We have to prove that $\breve{\Ob}_k^\top \breve{\Ob}_k = \eye$ for all $k$.
+As the original system is balanced we know that $\Ob_k = U_k \Sigma_k^{1/2}$.
+The new observability matrix is $\breve{\Ob} = \Ob_{k} \Sigma^{-1/2} = U_k$.
+As $U_k$ is orthogonal, $\breve{\Ob}_k^\top \breve{\Ob}_k = \eye$.
+\end{proof}
+
+This makes it possible to get transform the stage $k$ such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_k^\top \Ob = \eye$ are fulfilled at the same time.
+The matrices $A_k,B_k,C_k$ and $D$ are
+\begin{subequations}
+\begin{align} \label{eq:make_in_out}
+	A_k &= \Sigma_{k+1} \tilde{A} \Sigma_k &
+	B_k &= \Sigma_{k+1} \tilde{B}\\
+	C_k &= \tilde{C_k} \Sigma_k&
+	D_k &= \tilde{D}
+	.
+\end{align}
+\end{subequations}
+To make it possible to later split the resulting stages, the $\Sigma$s have to be removed after splitting the stage.
+To obtain $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the matrices $\tilde{C}_k$ and $\tilde{B}_k$ as starting point.
+
+
+\begin{algorithm}[htb]
+	\begin{algorithmic}
+		\Input{Stage with $\tilde{A}_k,\tilde{B}_k,\tilde{C}_k$ and $\tilde{D}_k$ as well as $\Sigma_{k}$ and $\Sigma_{k+1}$\\
+		\spaceIO index $i_{\text{in}}$ to split inputs\\
+		\spaceIO index $i_{\text{out}}$ to split outputs\\}
+		\Output{Stages $\alpha$ and $\beta$ also intermediate $\Sigma_\beta$}
+		\State $	A_k \gets \Sigma_{k+1} \tilde{A}_k \Sigma_k $
+		\Comment transform stage such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_k^\top \Ob = \eye$
+		\State $ B_k \gets \Sigma_{k+1} \tilde{B}_k $
+		\State $ C_k \gets \tilde{C}_k \Sigma_k $
+
+		
+		%(d_stateo,d_statei)=A.shape
+		\State $U,s,V^\top \gets \text{SVD}\left(\begin{bmatrix}
+			C[i_\text{out}:,:]&D[i_\text{out}:,:i_\text{in}]\\A&B[:,:i_\text{in}]
+		\end{bmatrix}\right)  $
+		\\
+		\State $\tilde{A}_\alpha \gets V^\top[:,:d_k] \Sigma_k^{-1}$
+		\State $\tilde{B}_\alpha \gets V^\top[:,d_k:]$
+		\State $\tilde{C}_\alpha \gets \tilde{C}_k[:i_\text{out},:] $
+		\State $\tilde{D}_\alpha \gets \tilde{D}_k[:i_\text{out},:i_\text{in}]$
+		\\
+		\State $\tilde{A}_\beta \gets \Sigma_{k+1}^{-1} U[-d_{k+1}:,:]$
+		\State $\tilde{B}_\beta \gets \tilde{B}_k[:,i_\text{in}:]$
+		\State $\tilde{C}_\beta \gets  U[:-d_{k+1},:] $
+		\State $\tilde{D}_\beta \gets D[i_\text{out}:,i_\text{in}:] $		
+		\\
+		\State $\Sigma_\beta \gets \diag(s)$
+	\end{algorithmic}
+	\caption{Algorithm to move the split the stage $k$ into the stages $\alpha$ and $\beta$}\label{alg:split}
+\end{algorithm}
+
+The Pseudocode is given in Algorithm\,\ref{alg:split}.
+The Algorithm takes the stage in the form described in Equation\,\ref{eq:stages_sigma}.
+Then the SVD of the combined matrices are computed and the results are used to construct the new stages $\alpha$ and $\beta$.
+These can then replace the stage $k$.
+These are again in the form described in Equation\,\ref{eq:stages_sigma}.
+For this the algorithm also returns the intermediate singular values $\Sigma_\beta$.
+
+
+
+
+\subsection{Segment Matrix}\label{subsec:segment_matrix}
+
+
 
 
 
 \chapter{Experiments}
-
-
 
 \section{Matrix Approximation}
 
