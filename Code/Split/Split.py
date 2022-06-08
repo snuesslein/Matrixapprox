@@ -200,7 +200,7 @@ class Stage_sigmas:
         return self.A_tilde.shape[1]
 
 
-def split_stage_sigmas(stage,i_in,i_out):
+def split_stage_sigmas(stage,i_in,i_out,epsilon=1e-12):
     #we need this stage such that previous is input normal and later is output normal
     s_in = stage.s_in
     s_out= stage.s_out
@@ -213,7 +213,10 @@ def split_stage_sigmas(stage,i_in,i_out):
 
     (d_stateo,d_statei)=A.shape
     U,s,Vt = np.linalg.svd(np.block([[C[i_out:,:],D[i_out:,:i_in]],[A,B[:,:i_in]]]),full_matrices=False)
-
+    n = np.count_nonzero(s>epsilon)
+    U = U[:,:n]
+    s = s[:n]
+    Vt = Vt[:n]
 
     stage_alpha=Stage_sigmas(
                  Vt[:,:d_statei]/s_in.reshape(1,-1),\
@@ -230,7 +233,7 @@ def split_stage_sigmas(stage,i_in,i_out):
 
     return stage_alpha,stage_beta
 
-def split_stage_sigmas_anti(stage,i_in,i_out,D):
+def split_stage_sigmas_anti(stage,i_in,i_out,D,epsilon=1e-12):
     #we need this stage such that previous is input normal and later is output normal
     s_in = stage.s_in
     s_out= stage.s_out
@@ -243,7 +246,10 @@ def split_stage_sigmas_anti(stage,i_in,i_out,D):
 
     (d_stateo,d_statei)=A.shape
     U,s,Vt = np.linalg.svd(np.block([[C[:i_out,:],D[:i_out,i_in:]],[A,B[:,i_in:]]]),full_matrices=False)
-
+    n = np.count_nonzero(s>epsilon)
+    U = U[:,:n]
+    s = s[:n]
+    Vt = Vt[:n]
 
     stage_alpha=Stage_sigmas(
                  Vt[:,:d_statei]/s_in.reshape(1,-1),\
