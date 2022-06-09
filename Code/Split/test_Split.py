@@ -61,5 +61,10 @@ def testSplit():
         assert np.allclose(sig_anticausal,sigmas_anticausal_refer[i]),\
                 "Anticausal sigmas do not match"+str(i)+str(sigmas_anticausal_c[i])+str(sigmas_anticausal_refer[i])
 
+    #test identification
+    sys = Split.identification_split_system(T,3)
+
+    assert np.allclose(T,sys.to_matrix()), "identified system not correct"
+
 testSplit()
 print("Splitting tested")

@@ -265,22 +265,21 @@ def split_stage_sigmas_anti(stage,i_in,i_out,D,epsilon=1e-12):
                s_out,s)
     return stage_alpha,stage_beta
 
-def split_sigmas(system,k,i_in,i_out):
-    stage_alpha,stage_beta = split_stage_sigmas(system.stages[k],i_in,i_out)
+def split_sigmas(system,k,i_in,i_out,epsilon=1e-12):
+    stage_alpha,stage_beta = split_stage_sigmas(system.stages[k],i_in,i_out,epsilon=epsilon)
     system.stages[k]=stage_alpha
     system.stages.insert(k+1,stage_beta)
 
-def split_sigmas_anti(system,k,i_in,i_out,D):
-    stage_alpha,stage_beta = split_stage_sigmas_anti(system.stages[k],i_in,i_out,D)
+def split_sigmas_anti(system,k,i_in,i_out,D,epsilon=1e-12):
+    stage_alpha,stage_beta = split_stage_sigmas_anti(system.stages[k],i_in,i_out,D,epsilon=epsilon)
     system.stages[k]=stage_beta
     system.stages.insert(k+1,stage_alpha)
 
-def split_sigmas_mixed(system,k,i_in,i_out):
-    split_sigmas_anti(system.anticausal_system,k,i_in,i_out,system.causal_system.stages[k].D_matrix)
-    split_sigmas(system.causal_system,k,i_in,i_out)
+def split_sigmas_mixed(system,k,i_in,i_out,epsilon=1e-12):
+    split_sigmas_anti(system.anticausal_system,k,i_in,i_out,system.causal_system.stages[k].D_matrix,epsilon=epsilon)
+    split_sigmas(system.causal_system,k,i_in,i_out,epsilon=epsilon)
 
 
-# In[ ]:
 
 
 def initial_sigmas(T):
@@ -324,3 +323,41 @@ def get_system(system,canonical_form=CanonicalForm.OUTPUT):
 def get_system_mixed(system,canonical_form=CanonicalForm.OUTPUT):
     return MixedSystem(causal_system=get_system(system.causal_system,canonical_form=canonical_form),\
             anticausal_system=get_system(system.anticausal_system,canonical_form=canonical_form))
+
+
+def identification_split_system(T,N,epsilon=1e-12,canonical_form=None,compute_sigmas=False):
+    """identify creates a mixed system to represent the matrix T using splitting
+
+    Args:
+        T (np.ndarray):                     Transfer Operator
+        N (int):                            number of splittings. Final system will have 2^N stages
+        epsilon (float,optional):           epsilon for balanceed truncation, Default is 1e-15
+        canonical_form (tvsclib.CanonicalForm,optional):  Cannonical form of system, Default is None
+        compute_sigmas (bool,optional):     If True, the function returns the Hankel singular values, default is False
+    Returns:
+        system (StrictSystem):              Time varying system
+        sigmas ():                          Tupels with sigmas for causal and anticasual Hankel matrices
+    """
+    sys = initial_sigmas_mixed(T)
+
+    P_col = np.arange(np.sum(sys.dims_in) ,dtype=int)
+    P_row = np.arange(np.sum(sys.dims_out),dtype=int)
+
+    Ps_col =np.zeros((N,P_col.size),dtype=int)
+    Ps_row =np.zeros((N,P_row.size),dtype=int)
+    for n in range(N):
+        for k in range(len(sys.causal_system.stages)-1,-1,-1): #reverse ordering makes indexing easier
+            i_in =sys.causal_system.stages[k].dim_in//2
+            i_out=sys.causal_system.stages[k].dim_out//2
+            split_sigmas_mixed(sys,k,i_in,i_out,epsilon=epsilon)
+
+    if compute_sigmas:
+        sigmas_causal =[stage.s_in for stage in sys.causal_system.stages][1:]
+        sigmas_anticausal =[stage.s_in for stage in sys.anticausal_system.stages][:-1]
+    if not canonical_form is None:
+        raise NotImplementedError("Not implmented yet use convert functions form file")
+
+    if compute_sigmas:
+        return sys,(sigmas_causal,sigmas_anticausal)
+    else:
+        return sys
