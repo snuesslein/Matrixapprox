@@ -1986,7 +1986,7 @@ In this case, the boundaries tend to move outwards, as this minimizes the size o
 As a different objective function I used the number of multiplications required to calculate the Matrix vector product $y=Tu$ in the state space.
 Based on the Equation\,\ref{eq:cost_mixed}, this gives the objective function
 \begin{equation}\label{eq:objective_flop}
-\f_{\text{FLOP}}\sum_{k=1}^K = d_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
+\f_{\text{FLOP}} = \sum_{k=1}^Kd_{k+1}d_k + \da_{k-1}\da_k + (d_{k+1}+\da_{k-1})m_k +(d_k+\da_k)p_k +p_km_k 
 .
 \end{equation}
 Here the number of states is determined by counting the Hankel singular values bigger than a certain threshold value. 
@@ -2276,10 +2276,111 @@ For this the algorithm also returns the intermediate singular values $\Sigma_\be
 
 
 \subsection{Segment Matrix}\label{subsec:segment_matrix}
+Every time we split up a stage we have to determine which inputs and outputs of the current stage correspond to the stage $\alpha$ and which one correspond to the stage $\beta$.
+We want to do this in such a way that the Hankel ranks of the causal and the anticausal systems are reduced.
+This is again nontrivial as we have to solve a discrete optimization problem. 
+
+We need to group the rows and columns of the matrix
+\begin{equation}
+X=
+\begin{bmatrix}
+	0   &B_k^* & A_k^*\\
+	C_k & D_k & C_k^*\\
+	A_k & B_k & 0
+\end{bmatrix}
+.
+\end{equation}
+into two groups each.
+
+When permuting the rows and columns of the $B_k$, $C_k$, $B_k^*$, $C_k^*$ and $D_k$ we obtain the matrices $\tilde{B}_k$, $\tilde{C}_k$, $\tilde{B}_k^*$, $\tilde{C}_k^*$ and $\tilde{D}_k$.
+Then we can segment the resulting matrix according to 
+
+\input{diagrams/Moves/Split_X.pgf}
+
+The input $u_k$ and the output $y_k$ are also permuted accordingly.
+Here $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ have the same singular values as the Hankel matrices $H_\beta$ and $H_\alpha^*$.
+These singular values determine the state dimensions $d_\beta$ and $d_\alpha^*$.
+When we represent a system we want both of them to be minimal.
+Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$. 
+The properties of the remaining parts of the matrix $X$ are nor relevant, as they do not influence the state dimensions.
+
+We can use two strategies to reduce the state dimensions.
+The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
+This can be used if the resulting matrix is low rank.
+In the case of weight matrices all sub matrices usually have full rank.
+Here we try to reduce the squared sum of the singular values.
+This is equivalent to minimizing the Frobenius norms of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
 
 
-
-
+\paragraph{Rank reduction}
+Reducing the rank of the Hankel matrices is equivalent to reducing the dimensions of the range of $H$.
+We could also reduce the range of range of $H^\top$.
+For a matrix $A\in \mathbb{R}^{m\times n}$ these are all equivalent as 
+\begin{equation}
+\rank(A) = \dim(\range(A)) = \dim(\range(A^\top))
+\end{equation}
+This makes it possible to reduce the rank by choosing the columns of $X$ such that 
+\begin{equation}
+	\dim\range(\tilde{H_\beta}) + \dim\range(\tilde{H_\alpha^*})
+\end{equation}
+is reduced. At the same time we have to choose the rows such that 
+\begin{equation}
+\dim\range(\tilde{H^\top_\beta}) + \dim\range(\tilde{H_\alpha^{*\top}})
+\end{equation}
+is reduced.
+Both problems influence each other.
+%Here we consider the problem as solving two coupled clustering problems.
+%One the one side we have to cluster the inputs into two clusters and cluster the rows into two clusters.
+%\todo[inline]{Here we consider the rows as nodes that are connected by edges. Analogous we consider the }
+%Here we consider the rows as nodes that are connected by edges. Analogous we consider the columns as nodes connected by edges.
+%The clustering of the rows influences the weight matrices for the columns and vice versa.
+As we want to reduce the dimension of the range we want to make sure that the angle between the columns of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ are small.
+Therefore we want to reduce the angle between the columns.
+For this the function 
+\begin{equation}
+	\chi(u,v) =  1-\sin(\sphericalangle(u,v)) =1-\frac{|u^\top v|}{\|u\|_2\|v\|_2}
+	.
+\end{equation}
+is used.
+If $u$ and $v$ are colinear $\chi(u,v) = 0$.
+\begin{proof}
+	If $u$ and $v$ are colinear then $u = \alpha v$. Therefore
+	\begin{equation}
+		\chi(\alpha v,v) = 1-\frac{|\alpha| |v^\top v|}{|\alpha|\|v\|_2\|v\|_2}= 1-\frac{|\alpha| \|v\|_2^2}{|\alpha| \|v\|_2^2} = 0
+	\end{equation}
+\end{proof}
+if $u$ and $v$ are orthogonal $\chi(u,v) = 1$.
+\begin{proof}
+	If $u$ and $v$ are colinear then $u^\top v =0$. Therefore
+	\begin{equation}
+	\chi(u,v) = 1-\frac{0}{\|u\|_2\|v\|_2}= 1
+	\end{equation}
+\end{proof}
+%The squared Sine of the angle between the vectors $u$ and $v$ can be calculated using
+%\begin{equation}
+%	\sin(\sphericalangle(u,v))^2 = 1-\left(\frac{u^\top v}{\|u\|_2\|v\|_2}\right)
+%\end{equation}
+This gives the objective function
+\begin{equation}
+	f_{col} = \sum_{u,v \text{ collumns of }  \tilde{H}_\beta}\!\!\!\!\!\!\chi(u,v)
+	+\sum_{u,v \text{ collumns of } \tilde{H}_\alpha^*}\!\!\!\!\!\!\chi(u,v)
+	.
+\end{equation}
+An analogous derivation results in the objective function for the tows
+\begin{equation}
+	f_{row} = \sum_{u,v \text{ rows of }  \tilde{H}_\beta}\!\!\!\chi(u,v)
+	+\sum_{u,v \text{ rows of }  \tilde{H}_\alpha^*}\!\!\!\chi(u,v)
+.
+\end{equation}
+This results in the two coupled optimizations problems
+\begin{equation}
+	\argmin_{\text{segemnt columns}} f_{col}
+\end{equation}
+and 
+\begin{equation}
+	\argmin_{\text{segemnt rows}} f_{row}
+\end{equation}
+\todo{evtl Aus Mengelehre irgendeine notation für alle mengen die menge in zwei teile teilt}
 
 \chapter{Experiments}
 
