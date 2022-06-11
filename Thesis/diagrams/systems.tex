@@ -20,6 +20,9 @@
 %psoition of arrow
 \tikzset{posarr/.initial=0.5}
 
+%fractional distance of connections
+\tikzset{distconn/.initial=0.65}
+
 %line style for the signals
 \tikzstyle{signal} = [line width=1.5pt]%[very thick]
 
@@ -35,7 +38,7 @@
 
 
 %Some internal definitions
-\def\rel_i_stage{0.65} %distance of the connections for B and C, is a fraction of boxsize
+\def\rel_i_stage{\pgfkeysvalueof{/tikz/distconn}} %distance of the connections for B and C, is a fraction of boxsize
 \def\shadesize{2pt}
 
 %some shorthanfds for convenience

@@ -1,0 +1,79 @@
+﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=6.5mm,distconn=0.85]
+%violet!80!red!90
+%\tikzstyle{colmarking} = [C0,line width=1.5pt]
+%\def\colortext{magenta!50!violet!100}
+
+
+\def\distorig{\rel_i_stage*\pgfkeysvalueof{/tikz/boxsize}}
+\def\distvert{2.7mm}
+%\def
+
+
+\def\distorigb{1.4*\distorig}
+
+	\matrix (m1) [row sep={1.5cm,between origins}, column sep={2.3cm,between origins}] at (-3.2,0) %col 2.5
+	{
+		&		\node[coordinate]  (xin) {}; & \\[0.4cm,between origins]
+		%--------------------------------------------------------------------
+		\node[]                  (u) {$u_{k}$};          &
+		\node[style_stage, stage, name=sys,boxsize=11mm,distconn=0.65] {};&
+		\node[]                  (y) {$y_{k}$};          \\[0.4cm,between origins]
+
+		 &		\node[coordinate]  (xout) {}; & \\
+	};
+	\node[shape=rectangle,minimum size=2*11mm] (sys_a) at (sys) {};
+	\draw[signalflow] (u) -- (sys_a.west);
+	\draw[signalflow] (sys_a.east) -- (y);
+	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_{k}$} (sys_a.north);
+	\draw[signalflow] (sys_a.south)                -- node[anchor=west]            {$x_{k+1}$} (xout);
+
+%split in
+%\draw[signalflow,posarr=0.7] (u) to [out=0,in=180] node[anchor = south] {$u_\alpha\quad$} ($(sys_a.west)+(0,+\distvert)$);
+%\draw[signalflow,posarr=0.7] (u) to [out=0,in=180] node[anchor = north] {$u_\beta\quad$} ($(sys_a.west)+(0,-\distvert)$);
+
+%split out
+%\draw[signalflow,posarr=0.3] ($(sys_a.east)+(0,+\distvert)$) to [out=0,in=180] node[anchor = south] {$y_\alpha$} (y);
+%\draw[signalflow,posarr=0.3] ($(sys_a.east)+(0,-\distvert)$) to [out=0,in=180] node[anchor = north] {$y_\beta$} (y);
+
+
+
+
+\tikzset{per/.style={rectangle,draw=black!50,fill=black!20,thick,inner sep=0pt,minimum height=12.5mm,minimum width=8.5mm}}
+
+	\matrix (m1) [row sep=3.mm, column sep=5mm] at (3.2,0)
+	{
+		&&		\node[coordinate]  (xin) {}; & \\[0.7cm,between origins]
+		%--------------------------------------------------------------------
+		\node[]                  (u_1) {$u_1$};          &
+		\node[per]               (pl1) { };&
+		\node[style_stage, stage, name=sys_1,A=$$,B=$$,C=$$,D=$$] {};&
+		\node[per]               (pr1) { };&
+		\node[]                  (y_1) {$y_1$};          \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_2) {$u_2$};          &
+		\node[per]               (pl2) { };&
+		\node[style_stage, stage, name=sys_2,A=$$,B=$$,C=$$,D=$$] {};&
+		\node[per]               (pr2) { };&
+		\node[]                  (y_2) {$y_2$};          \\[0.7cm,between origins]
+		%--------------------------------------------------------------------
+		 &&		\node[coordinate]  (xout) {}; & \\
+	};
+
+
+
+	\foreach \i in {1,2}
+		{
+		  \draw[signalflow] (u_\i) -- (pl\i);
+	  	\draw[signalflow] (pl\i) -- (sys_\i.u);
+		  \draw[signalflow] (sys_\i.y) -- (pr\i);
+     \draw[signalflow] (pr\i) -- (y_\i);
+		}
+	\draw[signalflow] (xin)                      -- node[anchor = west]          { } (sys_1.xin);
+	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            { } (sys_2.xin);
+	\draw[signalflow,posarr=0.7] (sys_2.xout)    -- node[near end,anchor = west] { } (xout);
+
+\draw[style_stage] (pl1.north west) rectangle (pl2.south east);
+\draw[style_stage] (pr1.north west) rectangle (pr2.south east);
+
+\node (Pi) at ($(pl1.north)!0.5!(pl2.south)$) {$\Pi_i$};
+\node (Pi) at ($(pr1.north)!0.5!(pr2.south)$) {$\Pi_o$};\end{tikzpicture}

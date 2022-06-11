@@ -1,4 +1,4 @@
-\makeatletter
+﻿\makeatletter
 \DeclareRobustCommand{\rvdots}{%
   \vbox{
     \baselineskip4\p@\lineskiplimit\z@
@@ -11,11 +11,11 @@
 
 
 \begin{equation}
-	\begin{bmatrix}\begin{tikzpicture}
+	\begin{bmatrix}\!\begin{tikzpicture}
      \matrix [%
        matrix of math nodes,
        column sep=0em,
-       row sep=0.8em,
+       row sep=0.9em,
      ] (y) {%
 				x^*_{k-1}\\
        y_{k} \\
@@ -28,13 +28,13 @@
      \matrix [%
        matrix of math nodes,
        column sep=0em,
-       row sep=0.8em,
+       row sep=0.9em,
      ] (y) {%
 				x^*_{k-1}\\
        y_{k} \\
        x_{k+1}\\
      };
-   \end{tikzpicture} \end{bmatrix}
+   \end{tikzpicture}\! \end{bmatrix}
 =
 \begin{matrix}\begin{tikzpicture}
      \matrix [%
@@ -43,13 +43,9 @@
        row sep=0.7em,
 				left delimiter=\lbrack,right delimiter=\rbrack
      ] (T) {
-%	0   &B_k^* & B_k^*& A_k^*\\
-%	C_k & D_k & D_k &C_k^*\\
-%  C_k & D_k & D_k &C_k^*\\
-%	A_k & B_k &B_\beta & 0 \\
-	0   &B_k^* & A_k^*\\
-	C_k & D_k & C_k^*\\
-	A_k & B_k & 0 \\
+	0   &\tilde{B}_k^* & \tilde{A}_k^*\\
+	\tilde{C}_k & \tilde{D}_k & \tilde{C}_k^*\\
+	\tilde{A}_k & \tilde{B}_k & 0 \\
      };
 
 \filldraw[name = Hrect, fill=C0!40, draw=white] (T-2-1.west) rectangle  ($(T-3-2.south)-(0.15em,0)$); 
@@ -62,13 +58,9 @@
        column sep=0.8em,
        row sep=0.7em
      ] (T) {
-%	0   &B_k^* & B_k^*& A_k^*\\
-%	C_k & D_k & D_k &C_k^*\\
-%  C_k & D_k & D_k &C_k^*\\
-%	A_k & B_k &B_\beta & 0 \\
-	0   &B_k^* & A_k^*\\
-	C_k & D_k & C_k^*\\
-	A_k & B_k & 0 \\
+	0   &\tilde{B}_k^* & \tilde{A}_k^*\\
+	\tilde{C}_k & \tilde{D}_k & \tilde{C}_k^*\\
+	\tilde{A}_k & \tilde{B}_k & 0 \\
      };
 
 \node[name=Hcausakpos,shape=coordinate] at ($(T-3-1.south east)+(-0.2em,-1em)$) {};
@@ -84,19 +76,20 @@
      \matrix [%
        matrix of math nodes,
        column sep=0em,
-       row sep=0.9em,
+       row sep=0.99em,
+				minimum width=1.8em
      ] (u) {%
 				x^*_{k}\\
        u_{k} \\
        x_{k}\\
      };
-		\node[name=s_line,shape=coordinate] at ($(y-1-1.west)!0.5!(y-3-1.west)$) {};
-		\draw[border,C0] (s_line) -- ($(s_line)!(y-3-1.east)!($(s_line)+(1,0)$)$);
+		\node[name=s_line,shape=coordinate] at ($(u-1-1.west)!0.5!(u-3-1.west)$) {};
+		\draw[border,C0] (s_line) -- ($(s_line)!(u-3-1.east)!($(s_line)+(1,0)$)$);
 
      \matrix [%
        matrix of math nodes,
        column sep=0em,
-       row sep=0.9em,
+       row sep=0.99em,
      ] (u) {%
 				x^*_{k}\\
        u_{k} \\

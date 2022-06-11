@@ -756,7 +756,8 @@ In Section\,\ref{sec:Segmentation} methods to change the segmentation are presen
 
 \todo[inline]{Maybee I will add soemthing about the Frobenius norm... Also I need to make the structure consistent}
 
-
+\todo[inline]{Maybee something on error.
+one possible way would be using the proof from Chandrasekaran 2002 that there exists an SSS for any matrix ant then use the existing error bounds}
 \paragraph{Balanced truncation of ordered systems}
 In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
 These have the property that $\Ob_k = U_k \Sigma_{\Ob k}$ and $\R_k = \Sigma_{\R k} V_k^\top$ where $\Sigma_{\Ob k} = \Sigma_{\R k}=\Sigma_k^{1/2}$.
@@ -1220,12 +1221,12 @@ Usually the state dimensions are small for the first and last states and larger 
 Here different approximations of the state dimensions have to be used.
 
 I used an approximation based on the properties of the singular values and their relation to the Frobenius norm.
-The singular values are related to the Frobenius norm by $\|H\|_F = \sqrt{\sum \sigma_i^2}$ \cite[p.~67]{bai_matrix_2021}.
-If we suppose that the elements of $H$ have a constant absolute value, then $\|H\|_F \propto \text{size(H)}$.
+The singular values are related to the Frobenius norm by $\|H\|_\text{F} = \sqrt{\sum \sigma_i^2}$ \cite[p.~67]{bai_matrix_2021}.
+If we suppose that the elements of $H$ have a constant absolute value, then $\|H\|_\text{F} \propto \text{size(H)}$.
 This means that the Frobenius norm increases with the size of the matrix, which in turn should also result in increasing singular values.
 Finally $d_k$ is the number of singular values larger than a certain threshold value.
 The number of states is not directly related to the 2-norm of the singular values as it depends on their distribution and the threshold value.% that depends on wanted accuracy. 
-Regardless the approximation $\breve{d}_k \propto \|H_k\|_F$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
+Regardless the approximation $\breve{d}_k \propto \|H_k\|_\text{F}$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
@@ -1998,11 +1999,45 @@ This objective function does not minimize the approximation error, but \todo{equ
 %\todo[inline]{maybee some example}
 
 \section{Permutations}
-In this section I introduce an algorithm that makes it possible to permute the rows and columns of the represented matrix, such that number of state dimensions is reduced.
-The algorithm does not recover the whole permutation in one step but uses dynamic programming and recovers the permutation by solving separate subproblems.
-This is done by recursively splitting the stages of the system into two stages each.
-The state dimensions depend on the singular value decomposition of $H_k$.
-The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and permutation of the columns with $\Pi_C$ as the new decomposition
+In this section the matrix is represented as a an permutation of the input $\Pi_i$ a Time varying system $\Sigma$ and a permutation of the output.
+This means that the matrix $A$ is represented as the product
+\begin{equation}
+	A = \Pi_o T \Pi_i
+\end{equation}
+Here $T$ is the transfer operator of the Time Varying system and $\Pi_i$ and $\Pi_o$ are Permutations.
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/system_permute.pgf}
+	\caption{Illustration of system with permuted inputs and outputs.}
+	\label{fig:system_permuted}
+\end{figure}
+In this section I introduce an algorithm that makes it possible to permute the rows and columns of the represented matrix, such that state dimensions are reduced.
+The algorithm does not recover the whole permutation in one step but uses dynamic programming \todo{is there a good definition of dynamic programming} and recovers the permutation by solving individual subproblems.
+First an initial system consisting of only one stage is created.
+In this case $T = D_1$.
+Then the Algorithm splits the stages into two stages  as illustrated in Figure\,\ref{fig:split_permute}.
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Split_permutation.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original stage}
+		\label{fig:split_permute_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Split stage with permutations}
+		\label{fig:split_permute_b}
+	\end{subfigure}
+	\caption{Illustration of splitting a stage.}
+	\label{fig:split_permute}
+\end{figure}
+When this is done the inputs and outputs are permuted and segmented.
+These new stages are later split using the same strategy.
+The permutations can be combined, resulting in the permutation matrices $\Pi_i$ and $\Pi_o$.
+
+The order of the inputs inside the input vectors $u_k$ and the order of the outputs inside the output vectors $y_k$ is not important.
+The states of the balanced realization depend on the singular value decomposition of $H_k$.
+The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and permutation of the columns with $\Pi_C$ as the new factorization
 \begin{equation}
 	\Pi_R U \Sigma V^\top \Pi_C = \tilde{U} \Sigma \tilde{V}^\top 
 \end{equation}
@@ -2021,16 +2056,14 @@ This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
 	\end{equation}
 	is true.
 \end{proof}
-This means that all permutations of rows and columns of the matrix $A$ are equivalent as long as only the inputs are only permuted inside the input vectors $u_k$ and the output vectors $y_k$.
+This means that all permutations of rows and columns of the matrix $A$ are equivalent as long as the inputs and outputs remain inside the same input vectors $u_k$ and the output vectors $y_k$.
 
-This means that all permutations of the inputs and outputs that only differ in the orderings inside the $u_k$ and $y_k$ are equivalent. 
-
-\todo{formal blockdiagonal $\Pi$}
-
-
+%This means that all permutations of the inputs and outputs that only differ in the orderings inside the $u_k$ and $y_k$ are equivalent. 
+%\todo{formal blockdiagonal $\Pi$}
 Therefore the Algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
 
-The algorithm splits the stages into two stages. This is described in Subsection\,\ref{subsec:split_stage}.
+The algorithm to split a stage is described in Subsection\,\ref{subsec:split_stage}.
+The algorithm uses the same strategy as described in \cite{chandrasekaran_fast_2005}.
 For this the inputs and outputs of the stage have to be grouped.
 This is done by segmenting a matrix. 
 An algorithm to do this is presented in Subsection\,\ref{subsec:segment_matrix}.
@@ -2052,12 +2085,12 @@ This is illustrated in Figure\,\ref{fig:split_up}.
 	\centering
 	\input{diagrams/Moves/Move_split.pgf}
 	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Original system}
+		\caption{Original stage}
 		\label{fig:move_split_a}
 	\end{subfigure}
 	\hspace{0.8cm}
 	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Moved system}
+		\caption{Split stage}
 		\label{fig:move_split_b}
 	\end{subfigure}
 	\caption{Illustration of splitting a stage.}
@@ -2237,18 +2270,20 @@ To obtain $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the m
 	\begin{algorithmic}
 		\Input{Stage with $\tilde{A}_k,\tilde{B}_k,\tilde{C}_k$ and $\tilde{D}_k$ as well as $\Sigma_{k}$ and $\Sigma_{k+1}$\\
 		\spaceIO index $i_{\text{in}}$ to split inputs\\
-		\spaceIO index $i_{\text{out}}$ to split outputs\\}
+		\spaceIO index $i_{\text{out}}$ to split outputs\\
+		\spaceIO Tolerance $\text{tol}$}
 		\Output{Stages $\alpha$ and $\beta$ also intermediate $\Sigma_\beta$}
 		\State $	A_k \gets \Sigma_{k+1} \tilde{A}_k \Sigma_k $
 		\Comment transform stage such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_k^\top \Ob = \eye$
 		\State $ B_k \gets \Sigma_{k+1} \tilde{B}_k $
 		\State $ C_k \gets \tilde{C}_k \Sigma_k $
 
+
 		
 		%(d_stateo,d_statei)=A.shape
-		\State $U,s,V^\top \gets \text{SVD}\left(\begin{bmatrix}
+		\State $U,s,V^\top \gets \text{reducedSVD}\left(\begin{bmatrix}
 			C[i_\text{out}:,:]&D[i_\text{out}:,:i_\text{in}]\\A&B[:,:i_\text{in}]
-		\end{bmatrix}\right)  $
+		\end{bmatrix}, \epsilon=\text{tol}\right)  $
 		\\
 		\State $\tilde{A}_\alpha \gets V^\top[:,:d_k] \Sigma_k^{-1}$
 		\State $\tilde{B}_\alpha \gets V^\top[:,d_k:]$
@@ -2381,6 +2416,25 @@ and
 	\argmin_{\text{segemnt rows}} f_{row}
 \end{equation}
 \todo{evtl Aus Mengelehre irgendeine notation für alle mengen die menge in zwei teile teilt}
+
+\paragraph{Frobenius norm reduction}
+Next we consider the case where the Hankel matrices have close to full rank.
+Here balanced truncation is used to approximate the system.
+To reduce the number of states, the number of singular values grater than some threshold have to be reduced.
+To achieve this I reduce the sum of the squared singular values.
+This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$ \cite[p.~67]{bai_matrix_2021}. \todo{This was already used in this thesis. I think it is easier if i state it a second time here instead of giving a }
+As $\|A\|_\text{F}^2 = \sum_{i=1}^{m}\sum_{j=1}^{n} a_{ij}^2$ this results in the problem of partitioning the inputs and outputs such that the sum over the squared entries of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ is minimal.
+As $\|A\|_\text{F}^2 \approx \text{size}(A)$ holds for the weight matrices tested, this would  to minimizing the size of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$.
+\todo[inline]{not really correct... get some formal definition
+To avoid the trivial solutions, where $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ are empty the objective function 
+\begin{equation}
+	f_{\text{frob}} = \frac{\|\tilde{H}_\beta\|_\text{F}}{\text{size}(\tilde{H}_\beta)}
+	+
+	\frac{\|\tilde{H}_\alpha^*\|_\text{F}}{\text{size}(\tilde{H}_\alpha^*)} 
+\end{equation}
+is used.
+}
+
 
 \chapter{Experiments}
 
