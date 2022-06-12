@@ -18,7 +18,7 @@ def get_permutations(s_c,s_r):
     p_col = np.hstack([np.nonzero(s_c),np.nonzero(~s_c)]).reshape(-1)
     p_row = np.hstack([np.nonzero(~s_r),np.nonzero(s_r)]).reshape(-1)
     i_in =np.count_nonzero(s_c)
-    i_out=np.count_nonzero(s_r)
+    i_out=np.count_nonzero(~s_r)
     return p_col,p_row,i_in,i_out
 
 def permute_stage(stage,p_col,p_row):
@@ -162,18 +162,63 @@ def segment_matrix_rank(stage_causal,stage_anticausal,N=70,initla_spectral=True,
         S_col = np.sum(W_t[~s_c],axis=0) -np.sum(W_b[s_c],axis=0)
         S_row = np.sum(W_r[~s_r],axis=0) -np.sum(W_l[s_r],axis=0)
 
-        ord_c = d_in_c +np.argsort(S_col[d_in_c:X.shape[1]-d_in_a])
-        ord_r = d_out_a+np.argsort(S_row[d_out_a:X.shape[0]-d_out_c])
+        #ord_c = d_in_c +np.argsort(S_col[d_in_c:X.shape[1]-d_in_a])
+        #ord_r = d_out_a+np.argsort(S_row[d_out_a:X.shape[0]-d_out_c])
 
 
-        v_c = ord_c[v_reg_col<S_col[ord_c]]
-        v_r = ord_r[v_reg_row<S_row[ord_r]]
+        #only the ones we can change
+        s_c_int = s_c[d_in_c:X.shape[1]-d_in_a]
+        s_r_int = s_r[d_out_a:X.shape[0]-d_out_c]
 
-        s_c[d_in_c:s_c.size-d_in_a]=0
-        s_r[d_out_a:s_r.size-d_out_c]=0
+        S_col_int = S_col[d_in_c:X.shape[1]-d_in_a]
+        S_row_int = S_row[d_out_a:X.shape[0]-d_out_c]
 
-        s_c[v_c] = 1
-        s_r[v_r] = 1
+        i_n = -1
+        i_p = -1
+        v_reg_ac = gamma*(((np.count_nonzero(s_c_int)+1)/len(s_c_int)-0.5)**2\
+                                -((np.count_nonzero(s_c_int))/len(s_c_int)-0.5)**2)
+        v_reg_ca = gamma*(((np.count_nonzero(s_c_int)-1)/len(s_c_int)-0.5)**2\
+                                -((np.count_nonzero(s_c_int))/len(s_c_int)-0.5)**2)
+        if np.any(S_col_int[s_c_int]+v_reg_ca<0):
+            i_n= np.nonzero(s_c_int)[0][np.argmin(S_col_int[s_c_int])]
+            s_c[d_in_c+i_n]=0
+        if np.any(S_col_int[~s_c_int]-v_reg_ac>0):
+            i_p= np.nonzero(~s_c_int)[0][np.argmax(S_col_int[~s_c_int])]
+            s_c[d_in_c+i_p]=1
+        if i_n==-1 and i_p==-1:
+            print("flip n =",n)
+            i_n= np.nonzero(s_c_int)[0][np.argmin(S_col_int[s_c_int])]
+            s_c[d_in_c+i_n]=0
+            i_p= np.nonzero(~s_c_int)[0][np.argmax(S_col_int[~s_c_int])]
+            s_c[d_in_c+i_p]=1
+
+        i_n = -1
+        i_p = -1
+        v_reg_ac = gamma*(((np.count_nonzero(s_r_int)+1)/len(s_r_int)-0.5)**2\
+                                -((np.count_nonzero(s_r_int))/len(s_r_int)-0.5)**2)
+        v_reg_ca = gamma*(((np.count_nonzero(s_r_int)-1)/len(s_r_int)-0.5)**2\
+                                -((np.count_nonzero(s_r_int))/len(s_r_int)-0.5)**2)
+        if np.any(S_row_int[s_r_int]+v_reg_ca<0):
+            i_n = np.nonzero(s_r_int)[0][np.argmin(S_row_int[s_r_int])]
+            s_r[d_out_a+i_n]=0
+        if np.any(S_row_int[~s_r_int]-v_reg_ac>0):
+            i_p = np.nonzero(~s_r_int)[0][np.argmax(S_row_int[~s_r_int])]
+            s_r[d_out_a+i_p]=1
+        if i_n==-1 and i_p==-1:
+            print("flip n =",n)
+            i_n = np.nonzero(s_r_int)[0][np.argmin(S_row_int[s_r_int])]
+            s_r[d_out_a+i_n]=0
+            i_p = np.nonzero(~s_r_int)[0][np.argmax(S_row_int[~s_r_int])]
+            s_r[d_out_a+i_p]=1
+
+        #v_c = ord_c[v_reg_col<S_col[ord_c]]
+        #v_r = ord_r[v_reg_row<S_row[ord_r]]
+
+        #s_c[d_in_c:s_c.size-d_in_a]=0
+        #s_r[d_out_a:s_r.size-d_out_c]=0
+
+        #s_c[v_c] = 1
+        #s_r[v_r] = 1
 
 
         #fs[n+1] = f(X,s_c,s_r)
@@ -189,37 +234,66 @@ def segment_matrix_rank(stage_causal,stage_anticausal,N=70,initla_spectral=True,
     return s_c[d_in_c:X.shape[1]-d_in_a],s_r[d_out_a:X.shape[0]-d_out_c],report
 
 def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimize frobenius norm
+    Ac = stage_causal.A_matrix**2
+    Bc = stage_causal.B_matrix**2
+    Cc = stage_causal.C_matrix**2
 
-    f_reg_row = lambda x: -gamma*x**3
-    f_reg_col = lambda x: -gamma*x**3
+    Aa = stage_anticausal.A_matrix**2
+    Ba = stage_anticausal.B_matrix**2
+    Ca = stage_anticausal.C_matrix**2
 
-    Ac = stage_causal.A_matrix
-    Bc = stage_causal.B_matrix
-    Cc = stage_causal.C_matrix
+    D = stage_causal.D_matrix**2
 
-    Aa = stage_anticausal.A_matrix
-    Ba = stage_anticausal.B_matrix
-    Ca = stage_anticausal.C_matrix
 
-    D = stage_causal.D_matrix
+    (d_out_c_i,d_in_c_i) = Ac.shape
+    (d_out_a_i,d_in_a_i) = Aa.shape
 
-    #regularization vector
-    v_reg_col = f_reg_col(np.linspace(-1,1,D.shape[1]))
-    v_reg_row = f_reg_row(np.linspace(-1,1,D.shape[0]))
+    Ac = np.array([[np.sum(Ac)]])
+    Bc = np.sum(Bc,axis=0)
+    Cc = np.sum(Cc,axis=1)
+    Aa = np.array([[np.sum(Aa)]])
+    Ba = np.sum(Ba,axis=0)
+    Ca = np.sum(Ca,axis=1)
+
+    s = np.sum(Cc)
+    if s ==0:
+        Cc = np.zeros((Cc.size,1))
+    else:
+        Cc = Cc.reshape(-1,1)
+
+    s = np.sum(Ca)
+    if s ==0:
+        Ca = np.zeros((Ca.size,1))
+    else:
+        Ca = Ca.reshape(-1,1)
+
+    s = np.sum(Bc)
+    if s ==0:
+        Bc = np.zeros((1,Bc.size))
+    else:
+        Bc = Bc.reshape(1,-1)
+
+    s = np.sum(Ba)
+    if s ==0:
+        Ba = np.zeros((1,Ba.size))
+    else:
+        Ba = Ba.reshape(1,-1)
+
+    D = D*(D.size/np.sum(D))
 
     #dims of states
     (d_out_c,d_in_c) = Ac.shape
     (d_out_a,d_in_a) = Aa.shape
 
     #setup matrix
-    X = np.block([[np.zeros((d_out_a,d_in_c)),Ba,Aa ],
+    Xs = np.block([[np.zeros((1,1)),Ba,Aa ],
                   [Cc,D,Ca],
-                  [Ac,Bc,np.zeros((d_out_c,d_in_a))]
+                  [Ac,Bc,np.zeros((1,1))]
 
     ])
 
-    s_c = np.zeros(X.shape[1],dtype=bool)
-    s_r = np.zeros(X.shape[0],dtype=bool)
+    s_c = np.zeros(Xs.shape[1],dtype=bool)
+    s_r = np.zeros(Xs.shape[0],dtype=bool)
 
     #initialize based on the Bs and Cs
     order = np.argsort(np.linalg.norm(Bc,axis=0)-np.linalg.norm(Ba,axis=0))
@@ -230,54 +304,68 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
 
     #set the fixed
     s_c[:d_in_c]=1
-    s_c[X.shape[1]-d_in_a:]=0
+    s_c[Xs.shape[1]-d_in_a:]=0
     s_r[:d_out_a]=0
-    s_r[X.shape[0]-d_out_c:]=1
+    s_r[Xs.shape[0]-d_out_c:]=1
 
 
 
     fs = np.zeros(N+1)
-    s_cols=np.zeros((N+1,X.shape[1]),dtype=bool)
-    s_rows=np.zeros((N+1,X.shape[0]),dtype=bool)
+    s_cols=np.zeros((N+1,Xs.shape[1]),dtype=bool)
+    s_rows=np.zeros((N+1,Xs.shape[0]),dtype=bool)
 
 
-    Xs = X**2
+    #Xs = X**2
 
     s_cols[0]=s_c
     s_rows[0]=s_r
     fs[0]=np.sum(Xs[s_r][:,s_c])+ np.sum(Xs[~s_r][:,~s_c])
 
-    q = int(np.ceil(min(D.shape)/2e2)) #TODO make these parameters or something
+    q = int(np.ceil(min(D.shape)/1e2))
     n_restart = -1e5
 
+    gamma_prime = np.mean(D.shape)*gamma
+    #gamma_prime = D.size*gamma
+    print("g_prime =",gamma_prime)
+    print("gamma = ",gamma)
+
     for n in range(N):
+
+        #columns:
         n_xt = np.sum(Xs[~s_r],axis=0)
         n_xb = np.sum(Xs[s_r],axis=0)
 
+        #rows:
         n_xr = np.sum(Xs[:,~s_c],axis=1)
         n_xl = np.sum(Xs[:,s_c],axis=1)
 
         #only the ones we can change
-        s_c_int = s_c[d_in_c:X.shape[1]-d_in_a]
-        s_r_int = s_r[d_out_a:X.shape[0]-d_out_c]
+        s_c_int = s_c[d_in_c:Xs.shape[1]-d_in_a]
+        s_r_int = s_r[d_out_a:Xs.shape[0]-d_out_c]
 
-        S_col = n_xt/np.count_nonzero(~s_r_int) -n_xb/np.count_nonzero(s_r_int)
-        S_row = n_xr/np.count_nonzero(~s_c_int) -n_xl/np.count_nonzero(s_c_int)
+        S_col = n_xt -n_xb
+        S_row = n_xr -n_xl
 
-        S_col_int = S_col[d_in_c:X.shape[1]-d_in_a]
-        S_row_int = S_row[d_out_a:X.shape[0]-d_out_c]
+        S_col_int = S_col[d_in_c:Xs.shape[1]-d_in_a]
+        S_row_int = S_row[d_out_a:Xs.shape[0]-d_out_c]
+
+
 
         if q ==1:
             i_n = -1
             i_p = -1
-            v_reg = gamma*(np.count_nonzero(s_c_int)/len(s_c_int)-0.5)**3
-            if np.any(S_col_int[s_c_int]<v_reg):
+            v_reg_ac = gamma_prime*(((np.count_nonzero(s_c_int)+1)/len(s_c_int)-0.5)**2\
+                                    -((np.count_nonzero(s_c_int))/len(s_c_int)-0.5)**2)
+            v_reg_ca = gamma_prime*(((np.count_nonzero(s_c_int)-1)/len(s_c_int)-0.5)**2\
+                                    -((np.count_nonzero(s_c_int))/len(s_c_int)-0.5)**2)
+            if np.any(S_col_int[s_c_int]+v_reg_ca<0):
                 i_n= np.nonzero(s_c_int)[0][np.argmin(S_col_int[s_c_int])]
                 s_c[d_in_c+i_n]=0
-            if np.any(S_col_int[~s_c_int]>v_reg):
+            if np.any(S_col_int[~s_c_int]-v_reg_ac>0):
                 i_p= np.nonzero(~s_c_int)[0][np.argmax(S_col_int[~s_c_int])]
                 s_c[d_in_c+i_p]=1
             if i_n==-1 and i_p==-1:
+                print("flip n =",n)
                 i_n= np.nonzero(s_c_int)[0][np.argmin(S_col_int[s_c_int])]
                 s_c[d_in_c+i_n]=0
                 i_p= np.nonzero(~s_c_int)[0][np.argmax(S_col_int[~s_c_int])]
@@ -285,14 +373,19 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
 
             i_n = -1
             i_p = -1
-            v_reg = gamma*(np.count_nonzero(s_r_int)/len(s_r_int)-0.5)**3
-            if np.any(S_row_int[s_r_int]<v_reg):
+            v_reg = gamma_prime*(np.count_nonzero(s_r_int)/len(s_r_int)-0.5)**3
+            v_reg_ac = gamma_prime*(((np.count_nonzero(s_r_int)+1)/len(s_r_int)-0.5)**2\
+                                    -((np.count_nonzero(s_r_int))/len(s_r_int)-0.5)**2)
+            v_reg_ca = gamma_prime*(((np.count_nonzero(s_r_int)-1)/len(s_r_int)-0.5)**2\
+                                    -((np.count_nonzero(s_r_int))/len(s_r_int)-0.5)**2)
+            if np.any(S_row_int[s_r_int]+v_reg_ca<0):
                 i_n = np.nonzero(s_r_int)[0][np.argmin(S_row_int[s_r_int])]
                 s_r[d_out_a+i_n]=0
-            if np.any(S_row_int[~s_r_int]>v_reg):
+            if np.any(S_row_int[~s_r_int]-v_reg_ac>0):
                 i_p = np.nonzero(~s_r_int)[0][np.argmax(S_row_int[~s_r_int])]
                 s_r[d_out_a+i_p]=1
             if i_n==-1 and i_p==-1:
+                print("flip n =",n)
                 i_n = np.nonzero(s_r_int)[0][np.argmin(S_row_int[s_r_int])]
                 s_r[d_out_a+i_n]=0
                 i_p = np.nonzero(~s_r_int)[0][np.argmax(S_row_int[~s_r_int])]
@@ -300,7 +393,7 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
 
 
         else:
-            v_reg = gamma*(np.count_nonzero(s_c_int)/len(s_c_int)-0.5)**3
+            v_reg = gamma_prime*(np.count_nonzero(s_c_int)/len(s_c_int)-0.5)**3
 
             #if np.any(S_col_int[s_c_int]<v_reg):
             i_n= np.arange(len(s_c_int))[s_c_int][np.argsort(S_col_int[s_c_int])[:q]]#arange ist trick to recover index
@@ -316,7 +409,7 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
                 s_c[d_in_c+i_n[0]]=0
                 s_c[d_in_c+i_p[-1]]=1
 
-            v_reg = gamma*(np.count_nonzero(s_r_int)/len(s_r_int)-0.5)**3
+            v_reg = gamma_prime*(np.count_nonzero(s_r_int)/len(s_r_int)-0.5)**3
             #if np.any(S_row_int[s_r_int]<v_reg):
             i_n = np.arange(len(s_r_int))[s_r_int][np.argsort(S_row_int[s_r_int])[:q]]
             i_nf = i_n[S_row_int[i_n]<v_reg]
@@ -327,13 +420,13 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
             s_r[d_out_a+i_pf]=1
 
             if len(i_nf)==0 and len(i_pf)==0:
-                print("flip")
+                print("flip n =",n)
                 s_r[d_out_a+i_n[0]]=0
                 s_r[d_out_a+i_p[-1]]=1
 
 
         f = np.sum(Xs[s_r][:,s_c])+ np.sum(Xs[~s_r][:,~s_c])
-        if f > fs[0] and n > n_restart + 50: #worse than initial -> do restart with other initial
+        if False:#f > fs[0] and n > n_restart + 50: #worse than initial -> do restart with other initial
             print("restart at n=",n)
             n_restart= n
             i_min = np.argmin(fs[:n+1])
@@ -358,12 +451,13 @@ def segment_matrix_frob(stage_causal,stage_anticausal,N=70,gamma = 1e1): #minimi
     i_min = np.argmin(fs[:n+2])
     s_c = s_cols[i_min]
     s_r = s_rows[i_min]
-    print("frac cols:",np.count_nonzero(s_c[d_in_c:X.shape[1]-d_in_a])/D.shape[1])
-    print("frac rows:",np.count_nonzero(s_r[d_out_a:X.shape[0]-d_out_c])/D.shape[0])
+    print("frac cols:",np.count_nonzero(s_c[d_in_c:Xs.shape[1]-d_in_a])/D.shape[1])
+    print("frac rows:",np.count_nonzero(s_r[d_out_a:Xs.shape[0]-d_out_c])/D.shape[0])
 
     report ={"s_cols":s_cols[:n+2],"s_rows":s_rows[:n+2],"X":0,"f":fs[:n+2],"q":q}
 
-    return s_c[d_in_c:X.shape[1]-d_in_a],s_r[d_out_a:X.shape[0]-d_out_c],report
+    return s_c[d_in_c:Xs.shape[1]-d_in_a],s_r[d_out_a:Xs.shape[0]-d_out_c],report
+
 
 
 
@@ -397,13 +491,17 @@ def identification_split_permute(T,N,epsilon=1e-12,canonical_form=None,compute_s
     reports = []
     for n in range(N):
         print(n)
+        if type(opts) == list:
+            opt = opts[n]
+        else:
+            opt = opts
         for k in range(len(sys.causal_system.stages)-1,-1,-1): #reverse ordering makes indexing easier
             stage_c=sys.causal_system.stages[k]
             stage_a=sys.anticausal_system.stages[k]
             if strategy == "rank":
-                s_c,s_r,report = segment_matrix_rank(stage_c,stage_a,**opts)
+                s_c,s_r,report = segment_matrix_rank(stage_c,stage_a,**opt)
             elif strategy == "fro":
-                s_c,s_r,report = segment_matrix_frob(stage_c,stage_a,**opts)
+                s_c,s_r,report = segment_matrix_frob(stage_c,stage_a,**opt)
             else:
                 raise ValueError('Unknown strategy use "rank" or "fro"')
             reports.append(report)
