@@ -1,4 +1,4 @@
-﻿\makeatletter
+\makeatletter
 \DeclareRobustCommand{\rvdots}{%
   \vbox{
     \baselineskip4\p@\lineskiplimit\z@
@@ -38,15 +38,14 @@
 =
 \begin{matrix}\begin{tikzpicture}
      \matrix [%
-       matrix of math nodes,
-       column sep=0.8em,
-       row sep=0.7em,
-				left delimiter=\lbrack,right delimiter=\rbrack
-     ] (T) {
-	0   &\tilde{B}_k^* & \tilde{A}_k^*\\
-	\tilde{C}_k & \tilde{D}_k & \tilde{C}_k^*\\
-	\tilde{A}_k & \tilde{B}_k & 0 \\
-     };
+		matrix of math nodes,
+		column sep=0.8em,
+		row sep=0.7em
+		] (T) {
+		0   &\tilde{F}_k & \tilde{E}_k\\
+		\tilde{C}_k & \tilde{D}_k & \tilde{G}_k\\
+		\tilde{A}_k & \tilde{B}_k & 0 \\
+	};
 
 \filldraw[name = Hrect, fill=C0!40, draw=white] (T-2-1.west) rectangle  ($(T-3-2.south)-(0.15em,0)$); 
 \filldraw[name = Harect,fill=C0!40, draw=white] (T-2-3.east) rectangle  ($(T-1-2.north)-(0.15em,0)$); 
@@ -57,17 +56,17 @@
        matrix of math nodes,
        column sep=0.8em,
        row sep=0.7em
-     ] (T) {
-	0   &\tilde{B}_k^* & \tilde{A}_k^*\\
-	\tilde{C}_k & \tilde{D}_k & \tilde{C}_k^*\\
-	\tilde{A}_k & \tilde{B}_k & 0 \\
+    	] (T) {
+		0   &\tilde{F}_k & \tilde{E}_k\\
+		\tilde{C}_k & \tilde{D}_k & \tilde{G}_k\\
+		\tilde{A}_k & \tilde{B}_k & 0 \\
      };
 
 \node[name=Hcausakpos,shape=coordinate] at ($(T-3-1.south east)+(-0.2em,-1em)$) {};
-\node[anchor = east,C0] (Hcausal) at (Hcausakpos) {$H$};
-\draw[->,C0,border] ($(Hcausakpos)+(-1.5mm,0)$) to [out=0,in=270] (T-3-1.south east);
+\node[anchor = east,C0] (Hcausal) at (Hcausakpos) {$\tilde{H}_\beta$};
+\draw[->,C0,border] ($(Hcausakpos)+(-1.mm,0)$) to [out=0,in=270] (T-3-1.south east);
 \node[name=Hanticausakpos,shape=coordinate] at ($(T-1-3.north west)+(0.2em,1.35em)$) {};
-\node[anchor = west,C0] (Hanticausal) at (Hanticausakpos) {$H^*$};
+\node[anchor = west,C0] (Hanticausal) at (Hanticausakpos) {$\tilde{H}_\alpha^*$};
 \draw[->,C0,border] ($(Hanticausakpos)+(1.5mm,0)$) to [out=180,in=90] (T-1-3.north west);
 
 \end{tikzpicture} 
