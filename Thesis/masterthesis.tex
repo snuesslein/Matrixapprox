@@ -226,12 +226,12 @@ In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neur
 
 \todo[color=blue!40]{changed ordering and new introduction}
 
-\section{Matrix structures}
+\section{Matrix Structures}
 In the following several matrix structures are presented.
 These have in common that they have low rank sub-matrices.
 These are Semiseperable, Hierarchical and Sequentially Semiseparable matrices.
 
-\subsection{Semiseperable matricies}
+\subsection{Semiseperable Matrices}
 Semiseperable matrices are not consistently defined in the literature. 
 In this thesis the definitions described by Vandebril \cite{vandebril_bibliography_2005,vandebril_matrix_2007} are used.
 An important differentiation are generator representable semiseparable matrices and semiseparable matrices.
@@ -246,7 +246,7 @@ Where $\triu$ is the upper triangular matrix and $\tril$ is the lower triangular
 It is important to note here that the diagonal of $S$ is both included in the lower and upper triangular matrix.
 
 \paragraph{Semiseparable Matrix}
-In a semiseperable matrix every subblock selected from the lower triangular part of $S$ have rank 1. The analogous statement has to be fulfilled for the upper triangular part.
+In a semiseperable matrix every subblock selected from the lower triangular part of $S$ has rank 1. The analogous statement has to be fulfilled for the upper triangular part.
 This can be formalized as 
 \begin{align}
 	\rank(S_{i:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
@@ -255,7 +255,7 @@ This can be formalized as
 An extension of this matrix class are the semiseparable plus diagonal matrices.
 
 \paragraph{Quasiseparable Matrix}
-The quasiseparable matrices are similar to the semiseperable matries. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ have rank 1. 
+The quasiseparable matrices are similar to the semiseperable matrices. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ has rank 1. 
 This can be formalized as 
 \begin{align}
 \rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
@@ -269,12 +269,12 @@ A quasiseperable matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All 
 	\caption{Illustration of a quasiseperable matrix}
 	\label{fig:quasiseperable}
 \end{figure}
-As the quasiseperable structure does not impose conditions on the diagonal it is more general as the semiseperable matrices.
+As the quasiseperable structure does not impose conditions on the diagonal it is more general than the semiseperable matrices.
 
 There is a relation between invertible semiseperable matrices and invertible tridiagonal matrices.
 The inverses of a generator representable semiseparable matrix is a irreducible tridiagonal matrix and vice versa. 
 The inverse of a semiseparable matrix is a tridiagonal matrix and vice versa.
-If a invertible quasiseparable matrix is inverted, the inverse is again a quasiseparable matrix.
+If an invertible quasiseparable matrix is inverted, the inverse is again a quasiseparable matrix.
 
 These matrix classes can also be extended for higher ranks.
 A matrix $S$ is a generator representable semiseparable matrix of semiseparability rank $r$ if there exist the matrices $R_1$ and $R_2$ with $\rank(R_1)=r$ and $\rank(R_2)=r$ such that
@@ -290,10 +290,10 @@ A similar definition for semiseparable matrices of semiseparability rank $r$ is 
 \subsection{Hierarchical Matrices}\label{subsec:H-mat}
 The Hierarchical matrices ($\mathcal{H}$-Matrices) are a matrix structure to approximate large matrices. These were mainly introduced by Hackbusch \cite{hackbusch_hierarchische_2009} and Grasedyck \cite{grasedyck_theorie_2001}.
 A short introduction can also be found in \cite{grasedyck_adaptive_2004}.
-The $\mathcal{H}$-Matrices where developed for the solution of PDEs.
+The $\mathcal{H}$-Matrices were developed for the solution of PDEs.
 If a PDEs is solved numerically, it has to be discretized in order to obtain an approximated solution.
 As the discretization already introduces errors, it is advantageous to drop the requirement that the matrix representation is exact, if this results in a reduction of the computational cost.
-This can be done by partitioning the matrix in segments. These blocks are represented by low rank matrices. It the rank is far smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
+This can be done by partitioning the matrix in segments. These blocks are represented by low rank matrices. If the rank is far smaller than the size of the matrix this representation is cheaper in terms of storage and in terms of computational cost.
 The partitioning is done by hierarchically dividing blocks that cannot be represented using a low rank representation.
 To decide if a block has to be divided, an admissabillity condition is introduced.
 This is a way to predict the representability of a matrix block.
@@ -323,19 +323,19 @@ For other applications different admissibility conditions have to be derived.
 
 An $\mathcal{H}$-Matrix is shown in Figure\,\ref{fig:strukturh-matrix}a. 
 In this case the matrix is divided in four blocks.
-If a block is admissible, it is stored as a low rank representations. These are illustrated as the white rectangles.
+If a block is admissible, it is stored as a low rank representation. These are illustrated as the white rectangles.
 If a block is not admissible, the block is divided in smaller subblocks.
 If matrices are already small and still not admissible the matrices are stored directly. In Figure\,\ref{fig:strukturh-matrix}a these blocks are colored red.
 As the partition is done in a hierarchical fashion the matrices can be represented in a block-tree. 
-The bock-tree for the matrix in Figure\,\ref{fig:strukturh-matrix_a} is illustrated in Figure\,\ref{fig:strukturh-matrix_b}.
+The block-tree for the matrix in Figure\,\ref{fig:strukturh-matrix_a} is illustrated in Figure\,\ref{fig:strukturh-matrix_b}.
 The Hierarchical matrices make it possible to compute different matrix operations efficiently. %\todo[inline]{some detailed statement on complexity}
 %The need for efficient operations also constraints the possible sizes of the blocks as these should be compatible.
 
-\subsection{Sequentially semiseperable}
+\subsection{Sequentially Semiseperable Matrices}
 %\todo[inline]{Quellen, also which notation, note that book is on the transposed...}
 Sequentially semiseperable matrices are described in detail in the book by Dewilde and van der Veen\cite{dewilde_time-varying_1998}.
 These matrices can represent time varying systems.
-As the Sequentially semiseperable maticies will be used in this thesis an introduction will be given in Chapter\,\ref{chap:background}. 
+As the sequentially semiseperable matrices will be used in this thesis an introduction will be given in Chapter\,\ref{chap:background}. 
 %Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
 
 %The sequentially semiseperable matrices have the properties that submatrices have a low rank.
@@ -348,11 +348,11 @@ This is illustrated in Figure\,\ref{fig:sequentiallysep}.
 \begin{figure}[htb]
 	\centering
 	\input{diagrams/sequentially_sep}
-	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segemntation of the matrix. The colored lines represent submatrices with low rank.}
+	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segmentation of the matrix. The colored lines represent submatrices with low rank.}
 	\label{fig:sequentiallysep}
 \end{figure}
 
-This segmentation in blocks makes similar to the hirarchical Matrices that also have a segmentation.
+This segmentation in blocks makes similar to the hierarchical matrices that also have a segmentation.
 Unlike semiseperable matrices the sequentially semiseperable matrices do not have to be quadratic. 
 
 \section{Neural Nets}\label{sec:AI_weight}
@@ -406,7 +406,7 @@ K-matrices can also be used to represent linear hand crafted structures like rep
 
 Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.\footnote{
 The naming and structure of the matrices is not consistent in the literature.
-Here we will use the notation used in \cite{tong_blind_2003}. 
+In this thesis I will use the notation used in \cite{tong_blind_2003}. 
 In \cite{dewilde_time-varying_1998} a similar notation is used, but the transfer operator is transposed.
 In other works like \cite{rice_efficient_2010,chandrasekaran_fast_2002} the causal and anticausal parts are considered jointly.
 }
@@ -494,10 +494,10 @@ We can see that the causal system results in a lower triangular blockmatrix wher
 If we want to represent the whole Matrix we can use mixed systems.
 Mixed Systems can be defined as the sum of a causal and an anticausal system.
 These usually have the same input and output dimensions, while the state dimensions can de different for the causal and anticausal part.
-When adding the systems,  the $D$ matrices have to be added.
-As the use of two seperate $D$ does usually not have any benefits, the $D$ matrices for the anticausal system are usually set to 0 and can therefore be ignored.
+When adding the systems,  the $D_k$ matrices have to be added.
+As the use of two separate $D_k$ does usually not have any benefits, the $D$ matrices for the anticausal system are usually set to 0 and can therefore be ignored.
 When representing matrices the first state $x_1$ and the last state $x_{n+1}$ of the causal system are usually zero dimensional.
-This means that the the system does not have an initial or remaining state.
+This means that the system does not have an initial or remaining state.
 For the anticausal system this is analogous.
 
 \paragraph{Hankel Operator and Minimality}
@@ -558,7 +558,7 @@ If the system is minimal we have
 	\rank(H_k) = rank(\Ob_k) = \rank(\R_k) = d_k
 \end{equation}
 for every $k$.
-Usually the Hankel matrices ale low rank matrices..
+Usually the Hankel matrices are low rank matrices..
 This allows us to factor the $H_k$ in a tall and a wide matrix. 
 This results in the factorization $H_k = \Ob_k\R_k$
 
@@ -580,15 +580,15 @@ or moving a matrix form the observability matrix to the reachability matrix.
 If one uses an algorithm, that is able to work directly on the state space model, this also makes it possible to reduce the state dimension of nonminimal systems as the resulting state transformation matrix $S_k$ does not need to be nonsingular.
 
 There are three particular types of factorization that are called canonical forms.
-An input-normal realization has the property that the columns of each $\Ob_k$ are orthormormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
-The balanced realization results form the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
+An input-normal realization has the property that the columns of each $\Ob_k$ are orthonormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
+The balanced realization results from the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
 In a balanced realization $\Ob_k = U_k \Sigma^{1/2}_k$ and $\R_k = \Sigma^{1/2}_k V_k^\top$.
 These canonical forms usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is nontrivial to define for systems where the singular values decay slowly. If minimality is required, it will be explicitly stated.
 
 \paragraph{Matrix Factorization}
-The sequentially semisperable matrices can also be considered as a matrix factorization.
+The sequentially semiseperable matrices can also be considered as a matrix factorization.
 For a causal system, the matrix $T$ can be expressed as a product $T = T_n T_{n-1} \dots T_2 T_1$
-Where every $T_k$ represents a stage. The matrices $T_k$ is constructed according to 
+where every $T_k$ represents a stage. The matrices $T_k$ is constructed according to 
 
 \begin{equation}
 \newcommand{\sddots}{\hspace{-6pt}\ddots}
@@ -623,7 +623,7 @@ For a system with 3 stages this gives the factorization
 As $A_1$ has zero columns and $A_3$ has zero rows, the first block-column and the top block-row disappear and we get the familiar structure from Equation\,\ref{eq:T_causal}.
 
 An analogous factorization is possible for anticausal systems.
-Here the ordering is reversed an we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
+Here the ordering is reversed and we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
 
 We can also represent mixed systems as factorization, if we insert the factorizations for the causal part $T_{\text{causal}}$ and the anticausal parts $T_{\text{anticausal}}$ in the formula
 \begin{equation}
@@ -654,14 +654,14 @@ The Hankel-Norm is defined as
 \begin{equation}
 	\|T\|_H = \sup_{i}\|H_i\|.
 \end{equation}
-This norm is the supremeum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
-In \cite{dewilde_time-varying_1998} an algorithm is given for the hankel norm approximation that computes an approximated $\tilde{T}$.  
+This norm is the supremum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
+In \cite{dewilde_time-varying_1998} an algorithm is given for the Hankel norm approximation that computes an approximated $\tilde{T}$.  
 This is based on the results form Adamjan, Arov, and Kreĭn \cite{adamjan_analytic_1971}.
 The approximated system satisfies the condition
 \begin{equation}
 	\| \Gamma^{-1}(T-\tilde{T})\|_H \leq 1.
 \end{equation}
-Where $\Gamma$ is a diagonal and hermition operator. 
+Here $\Gamma$ is a diagonal and hermition operator. 
 If we set $\Gamma = \eye\gamma$ we obtain the simplified condition
 \begin{equation}
 	\|T-\tilde{T}\|_H \leq \gamma.
@@ -671,7 +671,7 @@ This problem has no unique solution, as the smaller singular values can be chang
 A second approach is balanced truncation. 
 This is described in \cite{sandberg_balanced_2004,hinrichsen_improved_1990}. 
 Here the state dimension $d_k$ is reduced to a new dimension $\tilde{d}_k$.
-The main idea of the balanced truncation, is to remove states that result in a small output $y$ or need a big input $u$ to be reached.
+The main idea of the balanced truncation is to remove states that result in a small output $y$ or need a big input $u$ to be reached.
 We can calculate the norm of the output for a state $x$ using
 \begin{equation}
 	\|y\|_2^2 = y^\top y = x^\top \Ob^\top \Ob x
@@ -765,7 +765,7 @@ In Chapter\,\ref{chap:background} the balanced truncation is defined for balance
 These have the property that $\Ob_k = U_k \Sigma_{\Ob k}$ and $\R_k = \Sigma_{\R k} V_k^\top$ where $\Sigma_{\Ob k} = \Sigma_{\R k}=\Sigma_k^{1/2}$.
 The balanced truncation is also possible for a wider class of realizations.
 
-In this thesis these Realizations will be called ordered.
+In this thesis these Realizations will be called  \emph{ordered}.
 \begin{definition}[Ordered Realization]
 	A system is ordered if 
 	\begin{subequations}
@@ -983,7 +983,7 @@ The result is input normal and reachable.
 The algorithm to transform the system into an observable and output normal system is analogous.
 Here all $\Ob_k$ have to fulfill $\Ob_{k} \Ob_{k}^\top=\eye$.
 We use the decomposition given in Equation\,\ref{eq:decomp_O} to avoid a computation of $\Ob_k$.
-If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm makes transforms $\Ob_{k}$ such that $\Ob_{k+1} \Ob_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
+If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm transforms $\Ob_{k}$ such that $\Ob_{k+1} \Ob_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
 
 \begin{equation}
 	\Ob_{k}
@@ -1031,7 +1031,7 @@ This gives the Algorithm\,\ref{alg:out_normal}.
 \end{algorithm}
 The result is output normal and observable.
 \begin{proof}
-	output normality can be proven by induction:
+	Output normality can be proven by induction:
 	
 	\noindent\textbf{Base case:}
 	As $x_{K+1}$ is zero dimensional $\Ob_{k+1}$ vanishes and $\tilde{\Ob}_{K+1}^\top\tilde{\Ob}_{K+1} = \eye$
@@ -1149,10 +1149,10 @@ The proof for this and the algorithms for the anticausal case are omitted for br
 But this is probabyl irrelevant in practice}
 
 %\end{itemize}
-\section{Cost of computation} \label{sec:cost}
+\section{Cost of Computation} \label{sec:cost}
 When using Time Varying Systems to approximate weight matrices, we are mainly interested in the cost of computing the product $y = Tu$ using time varying systems.
 The cost is the number of Floating Point Operations(FLOPs).
-The number of parameters is also important, as this determines the required memory.
+The number of parameters is also important as this determines the required memory.
 
 The cost depends on the state dimensions $d_k$, the input dimensions $m_k$ and the output dimensions $p_k$.
 
@@ -1167,7 +1167,7 @@ We can also include the additions and get the cost
  	C_k' = d_{k+1}(2d_k-1) + d_{k+1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1)
  	.
  \end{equation}
-For anticausal system, the formulas is identical, except for the indexing of the state.
+For anticausal system, the formulas are identical, except for the indexing of the state.
 Here symbols with a $\vphantom{d}^*$ denote quantities for the anticausal system.
 Without additions this gives the cost for one stage
 \begin{equation}
@@ -1178,7 +1178,7 @@ If the additions are included this results in the cost
 \begin{equation}
 C_k' = \da_{k-1}(2\da_k-1) + \da_{k-1}(2m_k-1)+p_k(2d_k-1)+p_k(2m_k-1).
 \end{equation}
-When considering mixed systems the cost for the causal and the anticausal system are added.
+When considering mixed systems the costs for the causal and the anticausal system are added.
 As the $D$-matrices for the anticausal part are not needed the according FLOPs are irrelevant.
 This gives the cost for a mixed stage
 \begin{equation}\label{eq:cost_mixed}
@@ -1218,10 +1218,17 @@ K(d^2 + {\da}^2) + (d+\da)M +(d+\da)P +\frac{1}{K}PM
 .
 \end{align}
 This relation describes how the general computational cost depends on the number of stages.
-This approximation is not helpful if we want to approximate matrices, as in these cases the state dimension are usually not constant.
+This approximation is not helpful if we want to approximate matrices, as in these cases the state dimensions are usually not constant.
 Usually the state dimensions are small for the first and last states and larger for the states in the middle.
 Here different approximations of the state dimensions have to be used.
-
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
+	\caption{Approximated degree of a matrix from the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019}.
+		The actual degree is the number of singular values with $\sigma > \alpha \|A\|_H$ for every causal Hankel matrix. Here $\alpha$ is a hyperparameter that determines the accuracy.
+		Additionally approximations of the rank with suitable parameters $\gamma$ are plotted.}
+	\label{fig:approx_degree}
+\end{figure}
 I used an approximation based on the properties of the singular values and their relation to the Frobenius norm.
 The singular values are related to the Frobenius norm by $\|H\|_\text{F} = \sqrt{\sum \sigma_i^2}$ \cite[p.~67]{bai_matrix_2021}.
 If we suppose that the elements of $H$ have a constant absolute value, then $\|H\|_\text{F} \propto \text{size(H)}$.
@@ -1229,14 +1236,6 @@ This means that the Frobenius norm increases with the size of the matrix, which 
 Finally $d_k$ is the number of singular values larger than a certain threshold value.
 The number of states is not directly related to the 2-norm of the singular values as it depends on their distribution and the threshold value.% that depends on wanted accuracy. 
 Regardless the approximation $\breve{d}_k \propto \|H_k\|_\text{F}$ fits the behavior of the considered matrices fairly well as illustrated in Figure\,\ref{fig:approx_degree}.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
-	\caption{Approximated degree of a matrix from the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019}.
-	The actual degree is the number of singular values with $\sigma > \alpha \|A\|_H$ for every causal Hankel matrix. Here $\alpha$ is a hyperparameter that determines the accuracy.
-	Additionally approximations of the rank with suitable parameters $\gamma$ are plotted.}
-	\label{fig:approx_degree}
-\end{figure}
 I approximate the degree using the relation
 \begin{align}\label{eq:approx_d}
 	\breve{d}_k 
@@ -1254,7 +1253,7 @@ As I suppose that the statedimensions for the anticausal case are equivalent to 
 C = \sum_{k=1}^{K} \left(2 d_{k} d_{k+1} + \frac{2 M d_{k+1}}{K} + \frac{2 P d_{k}}{K} + \frac{M P}{K^{2}}\right)
 .
 \end{equation}
-As the the matrix can be transposed, $\min(P,M)=M$ can be assumed without loss of generality.
+As the matrix can be transposed, $\min(P,M)=M$ can be assumed without loss of generality.
 By inserting the approximation from Equation\,\ref{eq:approx_d} and transforming the sums using Faulhaber's formula \cite{knuth_johann_1993} the cost is transformed to
 \begin{equation}\label{eq:cost_of_K}
 C = \frac{K P^{2} \gamma^{2}}{15} + \frac{M P \gamma}{3} + \frac{P^{2} \gamma}{3} + \frac{M P - \frac{P^{2} \gamma^{2}}{3}}{K} + \frac{- \frac{M P \gamma}{3} - \frac{P^{2} \gamma}{3}}{K^{2}} + \frac{4 P^{2} \gamma^{2}}{15 K^{3}}
@@ -1376,7 +1375,7 @@ Analogously the connection from $u_\m$ to the state $x_{k+2}$ can be incorporate
 After these changes, the mapping from the combined inputs $[u_k^\top \: u_{k+1}^\top]^\top$
 to the state $x_{k+2}$ remains unchanged. Therefore the following states are still reachable and minimal. 
 As the last column of $\R_{k+1}$ is removed, the state $x_{k+1}$ might become non reachable.
-This is the case if the matrix $[A_b \: \breve{B}_k]$ no longer has full rank.
+This is the case if the matrix $[A_b \: \breve{B}_k]$ does no longer has full rank.
 We can check this using the SVD. 
 If the last singular value is equal to zero, one statedimension has to be removed. 
 This can be done using a state transformation based on the reduced SVD. 
@@ -1441,7 +1440,7 @@ The mapping from the state $x_k$ to the combined outputs $[y_k^\top \: y_{k+1}^\
 As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
 This is the case if the kernel of $\Ob_{k+1}$ is not the zero subspace.
 We can check this with the SVD of $[A_{k+1}^\top,\breve{C}_{k+1}^\top]^\top$.
-If the last singular values is equal to zero one state dimension has to be removed.
+If the last singular value is equal to zero one state dimension has to be removed.
 This is done by using a state transformation based on the reduced SVD. 
 Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
 An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
@@ -1511,7 +1510,7 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
 It is also possible to reverse these changes.
 When we move the $k$-th vertical boundary to the right, the input $u_\m$ is moved from $u_{k+1}$ to $\tilde{u}_k$.
 The connection from $u_\m$ is moved from the current stage to the previous stage.
-We can do this by directly routing the input to a an additional state dimension.
+We can do this by directly routing the input to an additional state dimension.
 To attach the input $u_\m$ to the end of the state vector $x_{k+1}$, we set 
 \begin{equation}
 	\breve{B}_k = \begin{bmatrix}
@@ -1521,9 +1520,9 @@ To attach the input $u_\m$ to the end of the state vector $x_{k+1}$, we set
 \end{equation}
 This makes the input $u_\m$ available in the next stage.
 Now the connections can be reconnected.
-For this we remove first row $d$ of $D_{k+1}$ and attach it to to $C_{k+1}$ as the new last row. 
+For this we remove first row $d$ of $D_{k+1}$ and attach it to $C_{k+1}$ as the new last row. 
 Analogously the first row $b$ of $B_{k+1}$ is removed and attached to the end of $A_{k+1}$.
-This is illustrated in Figure\,\ref{fig:move_left}.
+This is illustrated in Figure\,\ref{fig:move_right}.
 
 After these changes, the mapping from the combined inputs $[u_k^\top \: u_{k+1}^\top]^\top$
 to the state $x_{k+2}$ remains unchanged. Therefore the following states are still reachable and minimal.
@@ -1554,7 +1553,7 @@ This is the case if
 	C_{k+1}\\A_{k+1}
 	\end{bmatrix}\right).
 \end{equation}
-If the vector is in the range then, a state $m$ with the property that
+If the vector is in the range then a state $m$ with the property
 \begin{equation}
 	\begin{bmatrix}
 	d\\b
@@ -1565,7 +1564,7 @@ If the vector is in the range then, a state $m$ with the property that
 	\end{bmatrix}
 	m
 \end{equation}
-exist.
+exists.
 This also means that no new state dimension is required.
 In this case the vector $m$ is appended to the matrix $B_{k}$.
 The algorithm uses the SVD of $[C_{k+1}^\top,A_{k+1}^\top]^\top$ to check the relations.
@@ -1737,6 +1736,7 @@ A_{k-1}&B_{k-1}[:,:-(l+1)]
 This is the case as the initial system is output normal and the previous stages were already transformed to input normal form.
 Based on the singular value decomposition, the stage can be transformed such that $\R_{k} \R_{k}^\top = \eye$.
 This also gives an ordered realization.
+The pseudocode can be found in Algorithm\,\ref{alg:move_left_sig}.
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
@@ -1855,37 +1855,37 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 
 Analogous algorithms can be derived for the anticausal part.
 
-\subsection{Algorithm to optimize Input and oputput dims}\label{subsec:optim_segmentation}
+\subsection{Algorithm to optimize Input and Output dims}\label{subsec:optim_segmentation}
 
-\todo[inline]{This subsection still requires some work}
+
 When we want to obtain the optimal segmentation of a system, 
 we want to solve the optimization problem
 \begin{equation}
 \underset{\text{segmentation}}{\min} \f(\Sigma_{[A,B,C,D]})
-.
+,
 \end{equation}
-Where $f(\Sigma_{[A,B,C,D]})$ is some objective function.
+where $f(\Sigma_{[A,B,C,D]})$ is some objective function.
 The problem is discrete and in general nonconvex, which makes it hard for us to solve it.
 
 To get a solution of the optimization problem, an iterative algorithm is used.
 For this, both the input dimensions and the output dimensions have to be changed.
 This algorithm alternately changes the input and output dimensions.
 
-The general strategy is that we start with an input normal causal system in combination with an output normal anticausal system.
+The general strategy is to start with an input normal causal system in combination with an output normal anticausal system.
 First we adapt the dimensions of the outputs.
-For every boundary, the algorithm computes a preliminary system in which the boundary is moved to the down, not moved or moved up.
+For every boundary, the algorithm computes a preliminary system in which the boundary is moved down, not moved or moved up.
 For these three options the objective function is calculated. 
 Then the system with the lowest objective function is adopted.
 This is done for every boundary.
-By doing this using the algorithms described in the previous subsection, the systems are transformed to an causal input normal system and an anticausal output normal system.
-These algorithms also compute the singular values of the Hankel matrices. This makes it possible, to use these in the objective function.
+By doing this using the algorithms described in the previous subsection, the systems are transformed into a causal input normal system and an anticausal output normal system.
+These algorithms also compute the singular values of the Hankel matrices. This makes it possible to use these in the objective function.
 After this, we adapt the input dimensions.
 \todo{reword}
 Again, this is done by computing three preliminary systems were the 
- the bounds are moved to the left, not moved and moved to the right.
+  bounds are moved to the left, not moved and moved to the right.
 Then the option with the lowest objective function is used.
 During this, the system is transformed back to an input normal causal system in combination with an output normal anticausal system.
-This makes it possible to immediately start again with an adaption of the output dimensions.
+This makes it possible to immediately continue with an adaption of the output dimensions.
 
 The pseudocode for the adaptation of the segmentation is given in Algorithm\,\ref{alg:optimize segemtnation}.
 
@@ -1924,7 +1924,7 @@ The pseudocode for the adaptation of the segmentation is given in Algorithm\,\re
 \end{algorithm}
 
 To avoid that the algorithm gets stuck in local minima and to improve the speed, the algorithm does not change the segmentation by a fixed search distance $l$, but uses different search distances for every iteration of the algorithm.
-If the matrices are non square it might also be needed to use a different search distances for the outputs $\lsearchud$ and and the input $\lsearchrl$.
+If the matrices are non square it might also be needed to use a different search distances for the outputs $\lsearchud$ and the input $\lsearchrl$.
 
 For most of the tests I used search distances of the form $l_i = l_02^{-i}$.
 This gives a structure that is similar to a tree.
@@ -1932,7 +1932,7 @@ As the optimal segmentation of the input depends on the segmentation of the outp
 %by gradually changing the segmentation but by facilitating a tree like structure.
 
 
-The objective function for the output form Algorithm\,\ref{alg:optimize segemtnation} $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D},\tilde{E},\tilde{F},\tilde{G}]}$ is lower than or equal to the objective function for the original system $\Sigma_{[A,B,C,D,E,F,G]}$.
+The objective function for the output from Algorithm\,\ref{alg:optimize segemtnation} $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D},\tilde{E},\tilde{F},\tilde{G}]}$ is lower than or equal to the objective function for the original system $\Sigma_{[A,B,C,D,E,F,G]}$.
 For every objective function that is invariant under state transformations.
 This means 
 \begin{equation}
