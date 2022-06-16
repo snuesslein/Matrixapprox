@@ -64,6 +64,8 @@
 % Look for citation sources in the database "diplomarbeit.bib"
 \addbibresource{thesis.bib}
 
+\usepackage{pdfrender}
+\usepackage[mathscr]{eucal}
 
 %operator declarations
 \DeclareMathOperator{\rank}{rank}
@@ -80,7 +82,7 @@
 \newcommand{\R}{\mathcal{R}} %Reachabilityy matrix
 \newcommand{\Ob}{\mathcal{O}} %Observability operator 
 \newcommand{\eye}{I} %identity matrix
-\newcommand{\bigO}{O}
+\newcommand{\bigO}{\mathscr{O}}
 \newcommand{\partition}{\mathcal{P}}
 
 \newcommand{\sys}{\Sigma}
@@ -93,12 +95,16 @@
 \newcommand{\m}{\triangledown} %indexing for moved inputs/outouta
 \newcommand{\da}{d^*} %state dims for anticausal state
 
+\hyphenation{state-dimension}
+
+%\usepackage{setspace}
+%\doublespacing
 
 \begin{document}
 
 % Bibliographic information about the thesis, please change accordingly!
-\title{Combining Matrix Representations for Structured Approximation of Neural Network Weight Matrices}
-%Algorithms for Matrix Representation with Time Varying Systems
+\title{Algorithms for Matrix Representation with Time Varying Systems}
+%
 \author{Stephan Nüßlein}
 \license{CC-BY}
 \supervisor{Matthias Kissel}
@@ -134,99 +140,118 @@
 \todo[inline]{Make the usage of the state transforms consistent}
 \todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
 \todo[inline]{How to denote matrices and $d$ for anticausal systems}
+\todo[inline]{neural networks}
 
 
-\chapter{Introduction} 3p
-\todo[inline]{Only draft so far}
-Motivation Why
 
-What others are dooing
+\chapter{Introduction} 
 
-What has been done here
+The computational complexity for training and evaluation neural networks is steadily increasing \cite{Schwartz_green_2020}.
+As the neural nets get larger, the evaluation of the neural nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
+The linear layers in a neuronal networks are usually represented with matrices.
+When the neural nets is evaluated, one has to compute the matrix vector product.
+For a full unstructured matrix this is of the order $\bigO(n^2)$ \cite{hackbusch_hierarchische_2009}.
+For large $n$ the cost for computing the matrix vector products will therefore dominate over terms with linear growth.
+%This means that the cost for the calculation is quadratic in the number of neurons.
+%This means that a larger number of neurons the cost of the linear layer increases. 
 
-increasing cost
-
-Order of matrix vector product, makes larger systems expensive
-
-\todo{why ML interesting}
-
-As the matrices for fully connected layers get larger the evaluation of the neural nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
-
-
-The linear layers in neural nets can be represented with matrices.
-Usually full matrices are used.
-When evaluation the neural nets one has to compute the matrix vector product.
-For a full unstructured matrix this is of order $O(n^2)$. 
-Whereas the cost for calculating the nonlinear part is usually linear in the number of neurons the cost for the calculation of the liner layers is quadratic in the number of neurons.
-This means that a larger number of neurons the cost of the linear layer inccears 
-\todo{reword}
-
-
-There are also matrix structures where the cost of the matrix vector product is of lower order.
-These have been developed to help solving PDEs like $\mathcal{H}$-Matrices, arise in different circumstances like semiseperabel matrices, %Vander Bib
-
-or are description of time varying systems like sequentially semiseperable matrices.
+In other fields the quadratic growth of the computational cost for a matrix vector product is also an issue.
+These lead to the development of structured matrices, where the cost of the matrix vector product is of lower order.
+Some structured matrices are used to solve partial differential equations like $\mathcal{H}$-Matrices \cite{grasedyck_theorie_2001}, arise in different circumstances like semiseperabel matrices \cite{vandebril_bibliography_2005}, 
+or are description of time varying systems like sequentially semiseperable matrices \cite{dewilde_time-varying_1998}.
 All of them can not only be represented as a matrix but also have a different representation.
 It is possible to use these representations to construct algorithms that can compute the matrix vector product.
-One example of this are circulant matrices. 
-These describe time invariant systems and therefore convolutions \todo{check and reword}
-Using the DFT matrices, circulant matrices can be transformed into diagonal matrices.
-This allows us to obtain a faster algorithm for the product $y=Tu$ by suing the Fast Fourier Trandform(FFT):
+One example of this are circulant matrices that describe cyclic convolutions.
+Using the matrix describing the Discrete Fourier Transform, circulant matrices can be transformed into diagonal matrices.
+This allows us to obtain a faster algorithm for the product $y=Tu$ by using the Fast Fourier Transform(FFT):
 We can first compute the FFT of the input, then multiply the vector element-wise with a weight vector. Finally we use the inverse FFT to obtian the result $y$.
-Instead of of the order $\bigO(n^2)$ we now have $\bigO(n\log(n))$.
-This result is used in widely used in Convolutional Neural Networks (CNN).
-Instead of using a matrix vector products the underlying structure is utilized and convolutions are used.
+Instead of of the order $\bigO(n^2)$ we now have $\bigO(n\log(n))$ \cite{strang_computational_2007}.
+%This result is used in widely used to compute convolutions .
+%Instead of using a matrix vector products the underlying structure is utilized.
 
-One might analogously try to use other structures to represent weight matrices:
-A possible representation are sequentially semiseperable matrices. 
-These matrices represent the input output behaviour of
-Time varing systems.
-These systems consist of  subsystems, so called stages that can change over time.
+One might analogously try to use other structures to represent weight matrices.
+A possible representation are sequentially semiseperable matrices that represent the input-output behaviour of time varing systems.
+These systems consist of subsystems, so called stages that can change over time.
 %Every stage can be described using four small matrices.\todo{reword}
-Therefore we can also use this state space representation of the system to describe the matrix.
+We can create a system that represents the matrix.
 It is also possible to to calculate the matrix-vector product using algorithms based on this representation.
 %The number of inputs and outputs of a system also create a segmentation of the system.
-The definition of the Sequentially semiseperable matrix also results in the fact that these matrices have a underlying segmentation.
-This segmentation is often determined by a known system ot an underlying physical system and therefore known. 
+Sequentially semiseperable matrices have an inherent segmentation of the matrix.
+If certain sub blocks of the matrices are low rank, then computing the matrix-vector product is far cheaper if the system representation is used.
+The segmentation is often determined by an underlying physical system and therefore known. 
 The matrices in neural networks do not necessarily have the same underlying structure.
-Even if the matrix is close to a sequentially semiseperable matrix the structural parameters are usually not know.
-To represent the matrices, one need algorithms to derive these structural parameters.
+Even if the matrix is close to a sequentially semiseperable matrix the structural parameters are usually unknown.
+To represent the matrices, algorithms to derive these structural parameters are needed.
 %This can be split in different sub problems.
 %Firs the number of stages is not known.
-There are existing algorithms to calculate the state space representation for a known segmentation.
-After guessing the structural parameters we use these algorithms to create a system.
-After this we refine the parameters by an algorithm that can change the structural parameters of a system.
-As the weight matrices usually are not sequentuilly semiseperable we also need to approximate the system, if we want to reduce the computational cost.
-This will also be incorporated in the algorithm.
+Existing algorithms to calculate the state space representation for an arbitrary matrix require a prior knowledge of the segmentation \cite{chandrasekaran_fast_2002}.
+As the weight matrices usually are not sequentially semiseperable, the systems are approximated to reduce the computational cost.
+A common approximation algorithm is the balanced truncation, that relies on the Hankel singular values.
 
-In section different approaches to use structured matrices in neural nets are collected.
-In section related matrix structures will be presented.
-After this the Sequentually semiseperable matrices that will be used in this thesis will be explained in more detail in chapter
-In chapter <methods> the methods to create a state space representation for a matrix with unknown structural parameters will be presented.
-%the sequentially semeiseperabel structure will be used to approximate matrices. 
-%For these matrices it the structural parameters are not known a prior.
-In section <approx> an algorithm for the approximation of a system with a different system is explored.
-%In section we give an algorithm, for the approximation of systems.
-Based on this choose the structural parameters are chosen.
-In section <> an approach to determine the number of stages for a system will be presented
-We still have to determine the input and output dimensions.
-%An Algorithm to adapt the input and output dimentiosn of a system will be explained.
-This is done by starting with an initial guess and then refine the structure by adapt the input and output dimensions.
-In section <> an algorithm to change these dimensions is given.
-Additionally this section presents strategies how to use these algorithms in cases where the final structure has to be determined.
-In chapter the algorithms will be tested.
-Section contains the results for test cases and in section the algorithm are used to approxiamte weight matrices.
+The goal of this thesis is to develop algorithms to represent matrices with time varying systems that do not require a prior knowledge of the segmentation.
+These algorithms should be able to reduce the computational cost while not increasing the approximation error.
+For this I guess an initial segmentation and then use a algorithm to refine it.
+Or I start with a initial system that is split recursively.
+In both cases I need to compute the Hankel singular values efficiently.
+%For this some structural parameters have to devised based on estimations.
+%Then algorithms to optimize the segmentation need to be developed.
+%These require the knowlege of the Hankel singular values to allow an efficient approximation.
+%For this strategies to obtian 
 
-´
+%\textcolor{blue}{
+%This thesis will explore two approaches.
+%After guessing the structural parameters we use these algorithms to create a system.
+%After this we refine the parameters by an algorithm that can change the structural parameters of a system.
+%This will also be incorporated in the algorithm.
+%}
 
-\chapter{Literature Review}
+Chapter\,\ref{chap:lit} will give an review of different matrix structures and their use in neural networks.
+In Section\,\ref{sec:mat_structures} different matrix structures related to sequentially semiseperabel matrices are presented
+and in Section\,\ref{sec:AI_weight} approaches to use structured matrices in neural nets are collected.
+Because time varying systems will be used in this thesis, a short intoduction will be given in Chapter\,\ref{chap:background}.
+In Chapter\,\ref{chap:methods} the methods to create system representation for a matrix with unknown structural parameters will be presented.
+First different prerequisites are discussed.
+In Section\,\ref{sec:approx} an algorithm for the approximation of a system is explored
+ and a strategy to efficiently compute the Hankel singular values is presented.
+The number of operations is derived in Section\,\ref{sec:cost}.
+In Section\,\ref{sec:Choose_K} an approach to determine the number of stages for a system will be presented.
+Based on this, the input and output dimensions have to be  determined.
+For this two algorithms are presented.
+The first starts with an initial guess and then refines the structure by adapt the input and output dimensions.
+In section Section\,\ref{sec:Segmentation} an algorithm to change the input and output dimensions of a system is given.
+This Algorithm is then used to optimize the segmentation of the matrix.
+%Additionally this section presents strategies how to use these algorithms in cases where the final structure has to be determined.
+The second algorithm described in Section\,\ref{sec:permutation} starts with a simple system and then recursively refines this structure by splitting up the stages.
+In Chapter\,\ref{chap:experiments} the algorithms will be tested on random sequentially semisepereable matrices and on weight matrices.
+In Chapter\,\ref{chap:discussion} I will discuss the results and in Chapter\,\ref{chap:conclusion} I will give some perspective on them.
+
+As this thesis requires some advanced indexing of matrices it will use a Matlab-like notation.
+Given a vector 
+\begin{equation}
+	a = [a_1, a_2, \dots ,a_n]
+\end{equation}
+The notation $a_{[i]}$ denotes the $i$-th element of $a$.
+Double points are used to denote ranges according to
+\begin{equation}
+a_{[:i]} = [a_1, \dots ,a_{i-1},a_i]\phantom{a_n}
+\end{equation}
+and 
+\begin{equation}
+a_{[i:]} = [a_i, a_{i+1}, \dots ,a_n]\phantom{a_i}
+\end{equation}
+This can analogously be used for a matrix. Here $A_{[i,j]}$ denotes the $j$-th element in the $i$-th row.
+
+
+\chapter{Literature Review}\label{chap:lit}
 In the next section different matrix structures are described.
 These are matrices that have certain properties.
 In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neural nets are presented.
 
 \todo[color=blue!40]{changed ordering and new introduction}
 
-\section{Matrix Structures}
+
+
+\section{Matrix Structures}\label{sec:mat_structures}
 In the following several matrix structures are presented.
 These have in common that they have low rank sub-matrices.
 These are Semiseperable, Hierarchical and Sequentially Semiseparable matrices.
@@ -741,7 +766,7 @@ The error can be bound to two times the cut singular values \cite{lall_error-bou
 A detailed discussion of approxiamtions is given in
 \cite{antoulas_approximation_2005}.
 
-\chapter{Methods}\ref{chap:methods}
+\chapter{Methods}\label{chap:methods}
 In this section the methods and algorithms derived in this thesis are presented.
 First I explain the techniques to calculate the singular values of the Hankel matrices and how to use them to approximate matrices in Section\,\ref{sec:approx}.
 The cost to compute a matrix vector product using a Time Varying system is explained in Section\,\ref{sec:cost} and used in Section\,\ref{sec:Choose_K} to choose a number of stages. 
@@ -889,7 +914,7 @@ With a combination of both algorithms it is also possible to obtain the Hankel s
 %This is similar to the idea used in square root algorithms for the computation of normal forms.
 %\todo{Ref square, but i could only find it in the book draft on page 111}
 The algorithms to convert to input and output normal forms are also given in \cite{chandrasekaran_fast_2005}.
-Here a different derivation will be presented. Additionally a way to use these algorithms to compute the SVD of the Hankel matrix will be explained. 
+Here a different derivation will be presented. Additionally a way to use these algorithms to compute the SVDs of the Hankel matrices will be explained. 
 
 %\todo[inline]{More details on the fact that we do not require mininality and unlike QR based algorithms we can make sure that we do not create spurious observable states....
 %May bee some proof based on the original rank of $\Ob_{k}$ and $\R_k$.
@@ -899,8 +924,9 @@ Here a different derivation will be presented. Additionally a way to use these a
 First an algorithm to transform the system into a reachable and input normal system is given.
 This means that all $R_k$ have to fulfill $\R_{k}^\top \R_{k}=\eye$.
 As we do not want to calculate the reachability matrices directly, the algorithm employs the decomposition given in Equation\,\ref{eq:decomp_R}.
-If $\R_{k-1}^\top \R_{k-1}=\eye$ the next reachability matrix $\R_{k}$ can be transformed such that $\R_{k}^\top \R_{k}=\eye$.
-For this we calculate the SVD of $[A_{k-1} B_{k-1}]$
+If $\R_{k-1}^\top \R_{k-1}=\eye$ the next reachability matrix $\R_{k}$ can be transformed such that $\tilde{\R}_{k}^\top \tilde{\R}_{k}=\eye$.
+For this we calculate the SVD of $[A_{k-1} B_{k-1}]$.
+This can be used to obtain the new reachability matrix $\tilde{\R_{k}}$ according to
 \begin{equation}
 \R_k = 
 %\begin{bmatrix}
@@ -923,7 +949,7 @@ A_{k-1} & B_{k-1}
 .
 \end{equation}
 This gives the state transformation $S_k = U_k\Sigma_k$. 
-The usage of the reduced SVD also removes states that are not reachable by not increasing the rank of $\R_k$.
+The usage of the reduced SVD also removes states that are not reachable.% by not increasing the rank of $\R_k$.
 The product with the inverse $S_k^{-1}$ is implicitly calculated by computing the SVD.
 We can set the matrices $\tilde{A}_k$ and $\tilde{B}_k$ to $[\tilde{A}_k,\tilde{B}_k]=V_k^\top$.
 The matrices $A_{k}$ and $B_{k}$ have to be updated with the state transformation $S_k$.
@@ -983,8 +1009,8 @@ The result is input normal and reachable.
 The algorithm to transform the system into an observable and output normal system is analogous.
 Here all $\Ob_k$ have to fulfill $\Ob_{k} \Ob_{k}^\top=\eye$.
 We use the decomposition given in Equation\,\ref{eq:decomp_O} to avoid a computation of $\Ob_k$.
-If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm transforms $\Ob_{k}$ such that $\Ob_{k+1} \Ob_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
-
+If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm transforms $\Ob_{k}$ such that $\tilde{\Ob}_{k+1} \tilde{\Ob}_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
+By inserting the SVD we can obtain the new observability matrix according to
 \begin{equation}
 	\Ob_{k}
 	=
@@ -1855,7 +1881,7 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 
 Analogous algorithms can be derived for the anticausal part.
 
-\subsection{Algorithm to optimize Input and Output dims}\label{subsec:optim_segmentation}
+\subsection{Algorithm to optimize Input and Output dimensions}\label{subsec:optim_segmentation}
 
 
 When we want to obtain the optimal segmentation of a system, 
@@ -1994,6 +2020,7 @@ This objective function does not minimize the approximation error, but \todo{equ
 %\todo[inline]{maybee some example}
 
 \section{Permutations}\label{sec:permutation}
+\todo{motaivation cite }%\verb|diepold_optic_2004|}
 In this section the matrix is represented as a an permutation of the input $\Pi_i$ a Time varying system $\Sigma$ and a permutation of the output.
 This means that the matrix $A$ is represented as the product
 \begin{equation}
@@ -2338,6 +2365,9 @@ When we represent a system we want both of them to be minimal.
 Therefore we want to optimize in the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ some sense. 
 The properties of the remaining parts of the matrix $X$ are nor relevant, as they do not influence the state dimensions.
 
+\todo[inline]{motivatio, outline previous ideas (nuclear norm with interior points, compute nuclear norm with %\verb|brand_fast_2006| 
+	but expencive )}
+
 We can use two strategies to reduce the state dimensions.
 The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
 This can be used if the resulting matrix is low rank.
@@ -2538,15 +2568,15 @@ This results in the matrix
 
 
 
-\chapter{Experiments}
+\chapter{Experiments}\label{chap:experiments}
 
 In this section I test how the algorithms presented in Chapter\,\ref{chap:methods} behave for different matrices.
 To demonstrate the behavior on structured matrices I use random Hankel matrices.
 After this I test the algorithms on weight matrices form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019} and the \emph{AlexNet} model \cite{krizhevsky_one_2014}.
 When approximating the weight matrices, the goal is to reduce the number of floating point operations.
-The number of floating point operations was described in Section\ref{sec:cost}.
+The number of floating point operations was described in Section\,\ref{sec:cost}.
 At the same time the approximation error should stay small.
-To measure the approximation error I use the operator norm of the difference between the matrix $A$ and the approximated matrix $\tilde{A}$.
+To measure the approximation error I use the operator norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
 
 The code to reproduce the experiments can be found in \todo{Add github}.
 The code uses the library \emph{tvsclib} \cite{kissel_time_2022} to handle the time varyying systems.
@@ -2555,27 +2585,14 @@ The code uses the library \emph{tvsclib} \cite{kissel_time_2022} to handle the t
 \section{Moving Boundaries}
 In this section the approach described in Section\,\ref{sec:Segmentation} is tested.
 Here a initial system with constant input- and output dimensions is first created.
-Then the Segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
+Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
 
-\subsection{Illustrative example}
-First I demonstrate the algorithm for a sequentially semiseparable matrix $A$.
-All Hankel matrices of $A$ are rank one. 
+\subsection{Illustrative example}\label{sec:test_adao}
+First I demonstrate the algorithm for a sequentially semiseparable matrix $T$.
+All Hankel matrices of $T$ are rank one. 
 The matrix is generated form random orthogonal vectors such that the range of $C$, $D$ and $G$ are orthogonal to each other.
-Also the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.  
-
-%The blockmatrix $A$ is constructed according to
-%\begin{equation}
-%	A_{[i,j]} = 
-%	\begin{cases}
-%	U_{i[:,0]} V_{j[:,0]}^\top & \text{if } i<j\\
-%	U_{i[:,1]} V_{j[:,1]}^\top & \text{if } i=j\\
-%	U_{i[:,2]} V_{j[:,2]}^\top & \text{if } i>j\\
-%	\end{cases}
-%\end{equation}
-%Here the matrices $U_i \in \mathbb{R}^{p_i\times p_i}$ and $V_i \in \mathbb{R}^{m_i\times m_i}$ are random orthogonal matrices. 
-%These are scaled such that $\|U_{i[:,0]}\|_2=p_i$ and $\|V_{i[:,0]}\|_2=m_j$.
-
-Now we want to represent the matrix with a time varying system without using the knowledge about the input and output dimensions.
+Also the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.
+The properties of the matrix $T$ are explained in more detail in Appendix\,\ref{A:random_T}.
 
 \begin{figure}[!htb]
 	\centering
@@ -2596,8 +2613,8 @@ Now we want to represent the matrix with a time varying system without using the
 		We can see that the segmentation of the optimized system coincides with the segmentation of $A$.}
 	\label{fig:example_move}
 \end{figure}
-
-For this we first create a system with constant input and output dimensions.
+Now I represent the matrix with a time varying system without using the knowledge about the input and output dimensions.
+For this I first create a system with constant input and output dimensions.
 This system is illustrated in Figure\,\ref{fig:example_move_a}.
 Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
 As an objective function I used the normalized nuclear norm as described in Equation\,\ref{eq:objective_nuc}.
@@ -2608,17 +2625,17 @@ When the algorithm adapts the segmentation, it tests different segmentation and 
 This is done in every iteration. 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.75\textwidth]{Plots/example_move_iterations.pdf}
+	\includegraphics[width=0.87\textwidth]{Plots/example_move_iterations.pdf}
 	\begin{subfigure}[b]{0.3\textwidth}
-		\label{fig:example_move_bound_a}
 		\caption{Illustration of all possible search paths}
+		\label{fig:example_move_bound_a}
 	\end{subfigure}
-	\begin{subfigure}[b]{0.34\textwidth}
-		\label{fig:example_move_bound_b}
+	\begin{subfigure}[b]{0.55\textwidth}
 		\caption{Illustration of the change of the segmentation}
+		\label{fig:example_move_bound_b}
 	\end{subfigure}
 	\caption{Illustration of the change of the segmentation.
-		The blue lines mark the change of the segmentation.
+		The blue lines mark how the boundaries change as the algorithm adapts the segmentation
 	}
 	\label{fig:example_move_bound}
 \end{figure}
@@ -2626,7 +2643,7 @@ The search distance $l_i$ determines which movements of boundaries are tested at
 In the first iterations a larger $l_i$ is used. 
 For the later iterations the $l_i$ are smaller.
 I used $l = [4,2,1,1]$ as search distances for this example.
-The left Plot in Figure\,\ref{fig:example_move_bound_a} shows all the positions that are possible at every iteration.
+The Plot in Figure\,\ref{fig:example_move_bound_a} shows all the positions that are possible at every iteration.
 We can see that in the first iterations the possible changes are larger and decrease for further iterations.
 We can also observe that it is possible to reach the same segmentation using different paths.
 The Figure\,\ref{fig:example_move_bound_b} shows how the segmentation is changing between the iterations. 
@@ -2638,15 +2655,14 @@ Now the algorithm is tested for weight matrices.
 
 
 \paragraph{Mobilenet V2}
-First the a weight matrix from the \emph{Mobilenet V2} model is used.
-The size of the matrix is $A \in \mathbb{R}^{1000 \times 1280}$.
+First a weight matrix $M$ from the \emph{Mobilenet V2} model is used.
+The size of the matrix is ${1000 \times 1280}$.
 I set the number of stages to $K = 10$ based on the approximations done in Section\,\ref{sec:Choose_K}.
-In Section\,\ref{sec:Choose_K} the input and output dimensions  presumed to be constant.
-This is not the case for the tested matrices.
-Therefore I also tested other $K$s.
+In Section\,\ref{sec:Choose_K} the input and output dimensions are presumed to be constant.
+Because this is not the case for the tested matrix, I also tested other $K$s.
 As the objective function I use the number of multiplications as defined in Equation\,\ref{eq:objective_flop}.
-I chose $\epsilon = \frac{1}{4} \|A\|_H$ as the threshold value for which the segmentation is optimized.
-The value of $\|A\|_H$ is calculated using the initial segmentation.
+I chose $\epsilon = \frac{1}{4} \|M\|_H$ as the threshold value for which the segmentation is optimized.
+The value of $\|M\|_H$ is calculated using the initial segmentation.
 I use the search sequence $l = [30, 20, 14,  9,  6,  4,  3,  2,  2,  1]$.
 This search sequence also starts with lager search distances, that decrease over time.
 
@@ -2688,15 +2704,15 @@ For $K=10$ I get the lowest number of multiplications.
 The change of the segmentation for $K=10$ is illustrated in Figure\,\ref{fig:mobilenet_seperation_comp}.
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=\textwidth]{Plots/move_example_mobilenet_comp.pdf}
+	\includegraphics[width=0.93\textwidth]{Plots/move_example_mobilenet_comp.pdf}
 	\caption{Illustration of the change of the segmentation for the weight matrix from \emph{Mobilenet V2} model.
 	}
 	\label{fig:mobilenet_seperation_comp}
 \end{figure}
-On the right the objective function $f_\text{FLOP}(\Sigma)$ is plotted.
-We can see that the number of operation decreases, as the algorithm runs.
+%On the right the objective function $f_\text{FLOP}(\Sigma)$ is plotted.
+We can see that the number of operation decreases, as the algorithm runs, as plotted on the right of Figure\,\ref{fig:mobilenet_seperation_comp}.
 Note that some input and output dimensions vanish. 
-In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging to the same point. This also leads to the effect that only a small part of the matrix is represented with the $D$-matrices.
+In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging to the same point. This also leads to the effect that only a small part of the matrix is represented with the $D_k$-matrices.
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Plots/move_example_mobilenet_error.pdf}
@@ -2705,29 +2721,37 @@ In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging t
 	}
 	\label{fig:mobilenet_err_cost}
 \end{figure}
-The resulting system requires more multiplications to compute $y=Au$ as required for a regular matrix vector multiplication.
+The resulting system requires more multiplications to compute $y=Tu$ as required for a regular matrix vector multiplication.
 Therefor the system complexity is reduced using balanced truncation as described in Section\,\ref{sec:approx}.
-This is done for different approximation parameters $\epsilon$.
-For every $\epsilon$ the number of multiplications and the approximation error $\| A-\tilde{A} \|$ is computed.
-In Figure\,\ref{fig:mobilenet_err_cost} the approximation error is plotted against the number of multiplications for different approximation parameters $\epsilon$.
+This is done for evenly spaced approximation parameters $\epsilon$ in the range form 0 to $\|M\|_H$.
+For every $\epsilon$ the number of multiplications and the approximation error $\| M-\tilde{T} \|$ are computed and plotted in Figure\,\ref{fig:mobilenet_err_cost}.
 The results for the original and the adapted segmentation is shown.
 %We can see that the adaptation of the segmentation does not yield big changes.
-For the case $\epsilon = \frac{1}{4} \|A\|_H$ we can see that the number of multiplications 
+For the case $\epsilon = \frac{1}{4} \|M\|_H$ we can see that the number of multiplications 
 did decrease by $6\%$ as shown in Figure\,\ref{fig:mobilenet_seperation_comp}.
-The approximation error $\| A-\tilde{A} \|$ did not change due to the adaption of the segmentation.
+The approximation error $\| M-\tilde{T} \|$ did not change due to the adaption of the segmentation.
+
+The state dimensions of the initial and adapted systems are plotted in Figure\,\ref{fig:mobilenet_state_dims_move}.
+One can see that while some state dimensions decreased others did not decrease or even increased significantly.
+In total, the number of states decreased.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=\textwidth]{Plots/move_example_mobilenet_state_dims.pdf}
+	\caption{Plot of the causal state dimensions $d_k$ and the anticausal state dimensions $d_k^*$ before and after the adaptation of the segmentation for $\epsilon = \frac{1}{4} \|M\|_H$
+	}
+	\label{fig:mobilenet_state_dims_move}
+\end{figure}
 
 \paragraph{AlexNet}
-Now a weight matrix form the \emph{AlexNet} model is represented.
-This size of the matrix is $A \in \mathbb{R}^{4096 \times 9216}$.
+Now a weight matrix $M$ form the \emph{AlexNet} model with the size ${4096 \times 9216}$ is represented.
 For this matrix I use $K=15$, using the approximation described in Section\,\ref{sec:Choose_K}.
 As the matrix is wide, I use different search distances for the inputs and outputs.
 For the output I use the search distances $l =  [120,  86,  62,  44,  32,  23,  16,  12,   9,   6]$.
 And for the input $l =  [270, 193, 138,  99,  71,  51,  36,  26,  19,  14]$.
-Here the threshold value is again $\epsilon = \frac{1}{4} \|A\|_H$, based on the initial segmentation.
+Here the threshold value is again $\epsilon = \frac{1}{4} \|M\|_H$, based on the initial segmentation.
 To speed up the computation, the system is approximated with balanced truncation before the segmentation is adapted.
 This is done using the threshold $\epsilon_{\text{apr}}=\frac{1}{2} \epsilon$.
-Here it is important to choose an smaller $\epsilon$ for the approximation than for the adaptation.
-\todo{information}
+It is important to choose an smaller $\epsilon$ for the approximation than for the adaptation.
 
 \begin{figure}[!htb]
 	\centering
@@ -2738,7 +2762,7 @@ Here it is important to choose an smaller $\epsilon$ for the approximation than 
 \end{figure}
 Then I adapted the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
 The systems are again approximated using balanced truncation.
-After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|A\|_\text{H}$ is reduced by \todo{calc}.
+After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|M\|_\text{H}$ is reduced by \todo{calc when redoing plots}.
 As the adaptation of the segemntation was not performed on the full system, but only on an approximated system, adaptation errors can be amplified.
 \begin{figure}[!htb]
 	\centering
@@ -2749,14 +2773,14 @@ As the adaptation of the segemntation was not performed on the full system, but 
 	}
 	\label{fig:allexnet_err_cost}
 \end{figure}
-Here in Figure\,\ref{fig:alexnet_seperation_comp} we can see that the approximation error actually increased after applying the Algorithm\,\ref{alg:optimize segemtnation}.
+We can see in Figure\,\ref{fig:alexnet_seperation_comp} that the approximation error actually increased after applying the Algorithm\,\ref{alg:optimize segemtnation}.
 We can also observe that the approximation error for the adapted system does not vanish for an balanced truncation with $\epsilon = 0$ as the system is based on an already approximated system.
 Therefore a new system is computed. 
-This system has the same input and output dimensions as the adapted system, but is directly calculated form the matrix $A$.
+This system has the same input and output dimensions as the adapted system, but is directly calculated form the matrix $M$.
 This system is subsequent approximated using balanced truncation.
 The recomputed system with the new borders has the lowest approximation error.
 The number of multiplications increases slightly for the recomputed system compared to the adapted system.
-The number of multiplication is still $31\%$ less compared with the initial system for $\epsilon = \frac{1}{4}\|A\|_\text{H}$.
+The number of multiplication is still $31\%$ less compared with the initial system for $\epsilon = \frac{1}{4}\|M\|_\text{H}$.
 For smaller $\epsilon$s  the recomputed system behaves similar to the initial system.
 
 
@@ -2764,49 +2788,50 @@ For smaller $\epsilon$s  the recomputed system behaves similar to the initial sy
 %The reidentified system has requires an equal or higher number of multiplications if $\epsilon < \frac{1}{4} \|A\|_H$.
 %This is due to the fact that in this case the necessary information has been removed before the running Algorithm\,\ref{alg:optimize segemtnation}.
 
-\section{Permutations}
+\section{Permutations}\label{sec:test_perm}
 In this section the algorithm described in Section\,\ref{sec:permutation} is tested.
 Here an initial system with one stage is created.
 The stage is than spit up in two stages.
 This process is then repeated.
-When the stages are split, the inputs and outputs are segmented such that a objective function is minimized.
-This makes it possible to recover permuted Sequentially Semiseperable matrices.
+When the stages are split, the inputs and outputs are partitioned such that a objective function is minimized.
+This makes it possible to recover a permuted sequentially semiseperable matrix.
 
 \subsection{Illustrative example}
-First the matrix is tested on a Sequential semiseperable matrix.
-\todo[inline]{How detailed description?}
+First the algorithm is tested on a random sequential semiseperable matrix $T$.
+The Hankel matrices have rank $2$.
+The matrix is generated as described in Appendix\,\ref{A:random_T}. 
 The rows and columns of the matrix are then permuted with random permutations.
 Then Algorithm\,\ref{alg:split} is used to identify the system.
-The inputs and outputs are segmented 
-
 The result is shown in Figure\,\ref{fig:example_permute}.
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.75\textwidth]{Plots/example_permute.pdf}
-	\caption{TODO.
+	\includegraphics[width=0.65\textwidth]{Plots/example_permute.pdf}
+	\caption{Illustration of the permuted sequentially matrix.
+		The connections at the top and the left illustrate how the original segmentation is recovered by permuting the input and output.
+		This is done in two iterations of the algorithm.
 	}
 	\label{fig:example_permute}
 \end{figure}
-During the first iteration the algorithm splits the inputs and the outputs in two groups.
-After this, the stage is split into two stages.
-In the second iteration the inputs and outputs of each stage are then again grouped into two subgroups each.
+During the first iteration the algorithm splits the initial stage into two stages
+We can see how the algorithm partitions the inputs and outputs in two groups and reorders them accordingly.
+After this, the stages are again split into four stages total.
+In the second iteration the inputs and outputs of each stage are then again grouped into two subgroups each and ordered accordingly.
 The algorithm is able to recover the permutation.
 
 \subsection{Weight Matrix Approximation}
 The algorithm is tested on weight matrices.
 These have the property that the Hankel matrices usually have close to full rank. 
-The algorithm to minimize the rank does not perform well.
-Therefore the Frobenius norm is minimized.
+As algorithm to minimize the rank does usually increase the computational cost in this case, the Frobenius norm of the Hankel matrices is used as objective function.
 \paragraph{Mobilenet V2}
 Next the algorithm is used to represent a weight matrix from the \emph{Mobilenet V2} model.
-Here the inputs and outputs are segmented such that the Forbenius norm of the Hankel matrices is minimized.
-As the algorithm can only used numbers of stages that are powers of $2$, I use $K=2^3$ as it is closest to $K=10$.
+Here the inputs and outputs are partitioned such that the Forbenius norm of the Hankel matrices is minimized.
+As the algorithm can only used numbers of stages that are powers of $2$, I use $K=2^3=8$ as it is closest to $K=10$.
 The regularization parameter is set to $\gamma=9\times10^5$.
-This makes sure, that the inputs and outputs are divided into two equally sized parts.
+This makes sure that the inputs and outputs are divided into two nearly equally sized parts.
 The resulting permuted matrix is shown in Figure\,\ref{fig:mobilenet_permutation}.
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.7\textwidth]{Plots/Mobilenet_permute.pdf}
+	\includegraphics[width=0.9\textwidth]{Plots/Mobilenet_permute.pdf}
 	\caption{Illustration of permuted weight matrix from \emph{Mobilenet V2} model.
 	}
 	\label{fig:mobilenet_permutation}
@@ -2814,7 +2839,7 @@ The resulting permuted matrix is shown in Figure\,\ref{fig:mobilenet_permutation
 As a  reference, a system without permutations is computed.
 The reference system and the permuted system are approximated using balanced truncation.
 We can see in Figure\,\ref{fig:mobilenet_err_cost_perm} that permuting the matrix has only a minor impact on the number of operations and the approximation error.
-For $\epsilon = \frac{1}{4}\|A\|_\text{H}$ the reduction of the computational cost due to the permutation is $<1\%$.
+For $\epsilon = \frac{1}{4}\|M\|_\text{H}$ the reduction of the computational cost due to the permutation is $<1\%$.
 
 \begin{figure}[!htb]
 	\centering
@@ -2826,34 +2851,119 @@ For $\epsilon = \frac{1}{4}\|A\|_\text{H}$ the reduction of the computational co
 	\label{fig:mobilenet_err_cost_perm}
 \end{figure}
 
+The state dimensions of the regular and permuted systems are plotted in Figure\,\ref{fig:mobilenet_state_dims_perm}.
+One can see that while most state dimensions decreased others did increase.
+In total, the number of states did only slightly decreased.
+This means that the algorithm is only partially successful in decreasing the number of states.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.93\textwidth]{Plots/perm_example_mobilenet_state_dims.pdf}
+	\caption{Plot of the causal state dimensions $d_k$ and the anticausal state dimensions $d_k^*$ for the regular and permuted system for $\epsilon = \frac{1}{4} \|M\|_H$
+	}
+	\label{fig:mobilenet_state_dims_perm}
+\end{figure}
+
 \paragraph{Alexnet}
+The algorithm returns similar results for the weight matrix form the \emph{AlexNet} model.
+For this the $K = 2^4 = 16$ was used and $\gamma =  6\times10^3$.
+The number of flops is reduced by $3\%$ if the system is approximated with $\epsilon = \frac{1}{4}\|M\|_\text{H}$.
 
 
 
-\chapter{Discussion}
-Permutation not successful
-mainly changing the Segemntation not reducing the number of states.
-Vanishing  input and output dimensions. Also vanishing $D$-matrices
-It might be interesting to explore time varying systems that do not have $D$-matrices.
+\chapter{Discussion}\label{chap:discussion}
+The two algorithm presented in this theses were able to recover the structure of simple test cases based on random sequentially matrices.
+When applied to the tested weight matrices, they were not able to identify a potential structure in the weight matrices.
 
-Different strategy for clustering
-Approaches in this thesis can help to reduce computational cost.
-Not able to find sequentially semiseperable structures in weight matrices.
+Regardless, optimizing the segmentation for the computational cost did lead to a noticeable reduction of the computational cost as seen in Section\,\ref{sec:test_adao}.
+The total number of states decreased, even if some state dimension got larger. 
+This reduction of the computational cost is possible without an significant worsening of the approximation error. 
+As the algorithm can also run on an pre-approximated system, the segmentation of relatively large matrices like the \emph{Alexnet} weight matrix can be computed on an regular notebook.
+One notable observation is that the size of the $D_k$ decrease.
+In some cases, the inputs or outputs of stages are zero-dimensional.
+It might be interesting to explore time varying systems that do not have $D_k$.
+Alternatively the $D_k$ could be represent using other matrix approximations like low rank approximations. 
+
+The second approach based on recursive splitting, tested in Section\,\ref{sec:test_perm} did not return promising results.
+Reducing the sum of the squared Hankel singular values did only lead to a very small reduction of the computational cost, as the number of states only minimally decreased.
+This also suggests, that the potential for decreasing the computational cost for system representations of weight matrices by reducing the number of states is limited.
+Focusing directly on the computational cost seems to be a better approach.
+
+I was not able to identify sequentially semiseperable structures in the weight matrices using an simple adaptation of the segmentation.
+This is also not surprising, as this would require that the Hankel matrices of the weight matrices have low rank but this was not experienced in any experiment.
+It might be possible to find structures when allowing for permutations as this has more degrees of freedom. 
+Unfortunately, the splitting algorithm based on the minimization of the Forbenius nor was not able to do this.
+Here an optimization based on the nuclear norm, that promotes low rank solutions might be preferable, even if this would require some improvements to make the optimization problem computationally viable.
+The fact that the Hankel matrices of the weight matrices is consistent with other research.
+%Different strategy for clustering
+%Approaches in this thesis can help to reduce computational cost.
+%Not able to find sequentially semiseperable structures in weight matrices.
+
+%Permutation not successful
+%mainly changing the Segemntation not reducing the number of states.
+%Vanishing  input and output dimensions. Also vanishing $D$-matrices
+Research by Martin and Mahoney suggests that weight matrices usually have full rank \cite{martin_implicit_2021}.
+This might be explained with information theory \cite{papyan_traces_2020}.
+The full rank property is in principal no problem, as sequentially semiseperable matrices can have full rank, even if the Hankel matrices have low rank. 
+\footnote{For an trivial example consider the identity matrix as sequentially semiseperabel matrix with full rank}
+I was not able to find statements if these results also hold for submatrices.
+Even if similar results hold true for submatrices, approximations using time varying systems might be still beneficial, if the bulk of the singular values is sufficiently small.
+In this case the approximation error would be small, even if many nonzero singular values would have to be removed.
 
 
 
+%4-5 4pages
+
+\chapter{Conclusion}\label{chap:conclusion}
+%1-2 pages
+The goal of this thesis was to develop and test algorithms that can be used to approximate matrices using time varying systems.
+
+I developed some algorithms to transform time varying systems.
+These are also useful for other applications involving time varying systems.
+%One important feature is the computation of the Hankel singular values.
+An important result are the techniques to obtain the Hankel singular values without explicitly computing the Hankel matrices.
+The Hankel singular values are important as they are needed to approximate a system with balanced truncation.
+This allows an efficient approximation of arbitrary systems similar to the technique described in \cite{chandrasekaran_fast_2005}.
+If a system has to be reduced to a minimal system using floating point arithmetic, then this also gives a good way to do this in a well-defined fashion.
+The Algorithm to split stages stated in \cite{chandrasekaran_fast_2005} was extended such that it is able to compute the Hankel singular values.
+This makes it possible to use the algorithm to identify and later refine systems and also obtain the Hankel singular values on the fly.
+Also algorithms to change the input and output dimensions are devised. 
+Such algorithms are required if systems with not compatible dimensions have to be added or multiplied.
+The work on this thesis also lead to improvements in the \emph{tvsclib}-library \cite{kissel_time_2022}.
+
+To devise the number of stages, the computational cost for computing the matrix vector product with a time varying system was estimated.
+Using this estimation it is possible to choose the number of stages for approximations.
+This estimation might also serve as a baseline if one needs to determine how the structural parameters have to be chosen to reduce the computational cost.
+These are not only required if an existing matrix is approximated but also could be used as a baseline if a neural network based on a time varying system is trained from scratch.
+
+These results where combined with optimization problems to approximate weight matrices form neural networks.
+The algorithm to adapt the segmentation of the matrix is able to reduce the computational cost of the system, even if no clear structure is identified.
+The second approach based on spiting the stages did only yield minor improvements.
+Some ideas used for the spiting might be interesting for other matrix structures.
+Especially in the case of $\mathcal{H}$-matrices.
+These also rely on recursively splitting the matrix into submatrices.
+When weight matrices are approximated with $\mathcal{H}$-matrices, this require nonstandard admissibility conditions to determine if a matrix can be represented using a low rank approximation.
+
+The techniques to change the segmentation can be used without increasing the approximation error measured in the operator norm.
+In this thesis I did not test how this influences the total accuracy of the neural network. 
+The approximation error does give an indication, but does not fully describe the behavior.
+Future research is needed to determine how the approximation and the changing of the segmentation influences the accuracy of the neural network.
 
 
-4-5 4pages
-
-\chapter{Conclusion}
-1-2 pages
+\appendix
+\chapter{Random Sequentially Semiseperable matrices}\label{A:random_T}
 
 
-
-\the\textwidth
-
-
+The random sequentially semipermeable matrix $T$ is constructed according to
+\begin{equation}
+	A_{[i,j]} = 
+	\begin{cases}
+	U_{i[:,0]} V_{j[:,0]}^\top & \text{if } i<j\\
+	U_{i[:,1]} V_{j[:,1]}^\top & \text{if } i=j\\
+	U_{i[:,2]} V_{j[:,2]}^\top & \text{if } i>j\\
+	\end{cases}
+\end{equation}
+Here the matrices $U_i \in \mathbb{R}^{p_i\times p_i}$ and $V_i \in \mathbb{R}^{m_i\times m_i}$ are random orthogonal matrices. \todo{cite paper on the paricular distribution}
+These are scaled such that $\|U_{i[:,0]}\|_2=p_i$ and $\|V_{i[:,0]}\|_2=m_j$.
 
 % Puts out the list of references
 \printbibliography{}
