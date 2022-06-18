@@ -1170,11 +1170,97 @@ The proof for this and the algorithms for the anticausal case are omitted for br
 
 \todo[inline]{Some notes on cumputational cost of the algorithm might be interesting}
  
- 
-\todo[inline]{Check if there is a difference between immediately cutting or cutting later....
-But this is probabyl irrelevant in practice}
+\subsection{Error Bound for Matrix Approximation}
 
-%\end{itemize}
+It is possible to give an upper bound for the error for the matrix approxiamtion.
+For this we can represent a arbitrary matrix using the algorithm given in \cite{chandrasekaran_fast_2002} and approximate the causal and anticausal system with balanced truncation.
+The error for the approximation of the causal and anticausal system can be bounded using the results form \cite{lall_error-bounds_2003}.
+The total error is smaller or equal to the sum of the errors for the causal and the anticausal system.
+
+For the case of matrix approximation, it is also possible to give a bound for the combined approximation.
+For this we first start by considering a case where we only approximate the $k$-th stage of the causal system and the $k-1$-th state.
+
+In this case the Hankel matrices $H_k$ and $H^*_{k-1}$ 
+\input{diagrams/Approx_combined.pgf}
+are replaced with the low rank approximation $\hat{H}_k$ and $\hat{H}^*_{k-1}$.
+These are based on the SVD of $H_k$ and $H^*_{k-1}$.
+
+This results in the approxiamted system $\hat{T}^{(k)}$.
+The approximation error is the norm of the matrix
+\begin{equation}
+	T-\hat{T}^{(k)} = 
+	\begin{bmatrix}
+	0&H^*_{k-1}-\hat{H}^*_{k-1}\\
+	H_k-\hat{H}_k&0
+	\end{bmatrix}.
+\end{equation}
+The SVD of this matrix can be obtained by combining the SVDs of $H_k-\hat{H}_k$ and $H^*_{k-1}-\hat{H}^*_{k-1}$ to
+\begin{equation}
+T-\hat{T}^{(k)}=
+%	\begin{bmatrix}
+%&\Ob_{k-1[2]}^*\R_{k-1[2]}^*\\
+%\Ob_{k[2]}\R_{k[2]}
+%\end{bmatrix}
+%=
+	\begin{bmatrix}
+	 & U_{k-1}^*\Sigma_{k-1}^* V_{k-1}^*\\
+	 U_k\Sigma_k V_k
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	U_{k-1}^*\\
+	&U_k
+	\end{bmatrix}
+	\begin{bmatrix}
+\Sigma_{k-1}^*\\
+&\Sigma_{k}
+\end{bmatrix}
+	\begin{bmatrix}
+&V_{k-1}^*\\
+V_{k}
+\end{bmatrix}
+\end{equation}
+and then permuting the matrices such that the singular values are ordered in decreasing order.
+Using the singular values, the Spectral norm can be computed 
+\begin{equation}\label{eq:bound_single}
+	\|T-\hat{T}^{(k)}\| = \max(\sigma)
+\end{equation}
+and the Frobenius norm is
+\begin{equation}
+	\|T-\hat{T}^{(k)}\|_\text{F} = \sqrt{\sum_{i=1}^{M}\sigma_i^2}
+\end{equation}
+According to the Schmidt–Mirsky Theorem \cite{bai_matrix_2021} the approxiamtion is optimal for the operator norm $\|X\|$ and the Frobenius norm $\|X\|_\text{F}$.
+
+If multiple states are approximated, the error form the individual approximations have to be combined.
+
+In general 
+\begin{equation}
+	\hat{T} \neq T + \sum_{i=1}^K T-\hat{T}^{(i)}
+\end{equation}
+is true.
+Nevertheless the total error is bounded by 
+\begin{equation}
+	\|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\| .
+\end{equation}
+\begin{proof}
+	The proof relies on the fact that $\|T-\hat{T}^{(k)}\|$ is equal or larger than the actual error if multiple stages are approximated.
+	The details can be found in Appendix\,\ref{A:Error Bounds}
+\end{proof}
+
+
+For the operator norm this results in the upper bound 
+\begin{equation}
+	\text{Error} \leq \epsilon K
+\end{equation}
+for the balanced truncation of a system with an approxiamtion parameter $\epsilon$ of a system with $K$ stages.
+\begin{proof}
+As the system is approximated with the parameter $\epsilon$, all singular values of $T-\hat{T}^{(k)}$ are smaller than $\epsilon$ for all $k \in {1,\dots,K-1}$.
+\begin{equation}
+\|T-\hat{T}\| \leq \sum_{i=1}^K \epsilon = K\epsilon
+\end{equation}
+\end{proof}
+
+
 \section{Cost of Computation} \label{sec:cost}
 When using Time Varying Systems to approximate weight matrices, we are mainly interested in the cost of computing the product $y = Tu$ using time varying systems.
 The cost is the number of Floating Point Operations(FLOPs).
@@ -2950,12 +3036,428 @@ The techniques to change the segmentation can be used without increasing the app
 In this thesis I did not test how this influences the total accuracy of the neural network. 
 The approximation error does give an indication, but does not fully describe the behavior.
 Future research is needed to determine how the approximation and the changing of the segmentation influences the accuracy of the neural network.
-
+\todo[inline]{maybes something more optimistic}
 
 \appendix
+\chapter{Matrix Approximation Error Bounds}\label{A:Error Bounds}
+
+In this chapter a proof for the equation
+\begin{equation}
+\|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\| .
+\end{equation}
+is given.
+First we decompose the error into
+\begin{equation}
+	T-\hat{T} =
+	\begin{bmatrix}
+	&\Delta_0^*\\
+	\breve{\Delta}_1
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+	&\breve{\Delta}_1^*\\
+	\breve{\Delta}_2
+	\end{bmatrix}
+	+\dots+
+	\begin{bmatrix}
+	&\breve{\Delta}_{K-1}^*\\
+	\Delta_K
+	\end{bmatrix}
+	.
+\end{equation}
+The matrix $\Delta_k$ denotes the difference caused by the balanced truncation on the original system
+\begin{equation}
+	\Delta_k = \Ob_{k}\R_{k} - \hat{\Ob}_k\hat{\R}_k = \Ob_{k[2]}\R_{k[2]}
+\end{equation}
+and the matrix $\breve{\Delta}_k$ denotes the difference causes by a balanced truncation of the state $k$ if the later stages have already been truncated using balanced truncation. This can be  expressed as 
+\begin{equation*}
+\tilde{\Delta}_k=
+	\begin{bmatrix}
+	C_k\\
+	\hat{\Ob}_{k+1}\begin{bmatrix}
+	A_{k+1[11]}&A_{k+1[12]}
+	\end{bmatrix}
+	\end{bmatrix}
+	R_k
+	-
+	\begin{bmatrix}
+C_k\\
+\hat{\Ob}_{k+1}
+A_{k+1[11]}
+\end{bmatrix}
+R_{k[1]}
+= 
+\begin{bmatrix}
+C_{k[2]}\\
+\hat{\Ob}_{k+1}A_{k+1[12]}
+\end{bmatrix}
+R_{k[2]}
+\end{equation*}
+Here the matrix $\hat{\Ob}_{k+1}$ denotes the observability matrix of the approximated system 
+\begin{equation}
+\hat{\Ob}_{k+1}=
+\begin{bmatrix}
+\hat{C}_{k+1}\\
+\hat{C}_{k+2}\hat{A}_{k+1}\\
+\vdots \\
+\hat{C}_{K} \hat{A}_{K-1} \dots \hat{A}_{k+1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+C_{k+1[1]}\\
+C_{k+2[1]}A_{k+1[11]}\\
+\vdots\\
+C_{K[1]}A_{K-1[11]}\dots A_{k+1[11]}
+\end{bmatrix}
+\end{equation}
+
+Using the triangle inequality we obtain the relation
+\begin{equation}
+\|T-\hat{T}\| =
+\Bigg\|
+\begin{bmatrix}
+&\Delta_0^*\\
+\breve{\Delta}_1
+\end{bmatrix}
+\Bigg\|+\Bigg\|
+\begin{bmatrix}
+&\breve{\Delta}_1^*\\
+\breve{\Delta}_2
+\end{bmatrix}
+\Bigg\|+\dots+\Bigg\|
+\begin{bmatrix}
+&\breve{\Delta}_{K-1}\\
+\Delta_K
+\end{bmatrix}
+\Bigg\|.
+\end{equation}
+
+The idea is to prove that $\|\Delta_k\|$ is equal or larger than the actual introduced difference $\|\breve{\Delta}_k\|$.
+Using the bound form Equation\,\ref{eq:bound_single} we can then bound the matrix
+\begin{equation}
+\Bigg\|
+\begin{bmatrix}
+& \breve{\Delta}_{k-1}^*\\
+\breve{\Delta}_k
+\end{bmatrix}
+\Bigg\| \leq \max{\sigma}
+\end{equation}
+
+To prove $\|\breve{\Delta}_k\| \leq \|\Delta_k\|$ it is sufficient to prove
+\begin{equation}
+	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
+\end{equation}
+for any vector $u$.
+\begin{proof}
+	For this we use the definition of the operator norm
+	\begin{equation}
+		\|\breve{\Delta}_k\| =
+		\underset{\|u\|_2 = 1}{\max}(\|\breve{\Delta}_k u\|)_2
+		\leq 
+		\underset{\|u\|_2 = 1}{\max}(\|\Delta_k u\|)_2
+		=\|\Delta_k\|
+	\end{equation}
+\end{proof}
+
+For the causal case we start with the equation
+\begin{equation}
+	\|\Delta_k u\|_2^2 = \|\Ob_{k[2]}] \R_{k[2]} u\|_2^2
+\end{equation}
+By inserting the definitions form Equation\,\ref{eq:reduced_system} and using the factorization from Equation\,\ref{eq:decomp_O} we obtain 
+\begin{equation}
+	\Bigg\|
+	\begin{bmatrix}
+	\eye & \\
+	& \Ob_{K+1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_{k[2]}\\
+	\begin{bmatrix}
+	A_{k[11]}\\
+	A_{k[21]}
+	\end{bmatrix}
+	\end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
+\end{equation}
+Now we use balanced truncation of the state $x_{k+1}$.
+This analogous splits up the observability matrix $\Ob_{k+1}$ according to
+\begin{equation}
+	\Ob_{k+1} = 
+	\begin{bmatrix}
+	\Ob_{k+1[1]} & \Ob_{k+1[2]}
+	\end{bmatrix}
+\end{equation}
+Using this $\|\Delta_k u\|_2^2$ can be expressed as
+\begin{equation}
+	\Bigg\|
+\begin{bmatrix}
+C_{k[2]}\\
+\Ob_{k+1[1]}A_{k[11]}+
+\Ob_{k+1[2]}A_{k[21]}
+\end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
+.
+\end{equation}
+Using the properties of the balanced realization the norm can be split up in the sum
+\begin{equation}
+\Big\|
+\begin{bmatrix}
+C_{k[2]}\\
+\Ob_{k+1[1]}A_{k[11]}
+\end{bmatrix}  \R_{k[2]} u
+\Big\|_2^2
++
+\Big\|
+\Ob_{k+1[2]}A_{k[21]}
+ \R_{k[2]} u
+\Big\|_2^2
+.
+\end{equation}
+\begin{proof}
+%	\begin{align}
+%		&\Bigg\|
+%		\begin{bmatrix}
+%		C_{k[2]}\\
+%		\Ob_{k+1[1]}A_{k[11]}+\Ob_{k+1[2]}A_{k[21]}
+%		\end{bmatrix}  \R_{k[2]} u
+%		\Bigg\|_2^2\\
+%		&=
+%		u^\top \R_{k[2]}^\top
+%		\begin{bmatrix}
+%C_{k[2]}^\top &
+%\Ob_{k+1[1]}A_{k[11]}^\top+\Ob_{k+1[2]}A_{k[21]}^\top
+%\end{bmatrix}  
+%		\begin{bmatrix}
+%C_{k[2]}\\
+%\Ob_{k+1[1]}A_{k[11]}+\Ob_{k+1[2]}A_{k[21]}
+%\end{bmatrix}  \R_{k[2]} u		
+%	\end{align}
+\begin{align}
+		&\Bigg\|
+	\begin{bmatrix}
+	\eye & \\
+	& \Ob_{K+1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_{k[2]}\\
+	\begin{bmatrix}
+	A_{k[11]}\\
+	A_{k[21]}
+	\end{bmatrix}
+	\end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
+	\\
+	&=
+	u^\top
+	\R_{k[2]}^\top
+	\begin{bmatrix}
+	C_{k[2]}^\top&
+	\begin{bmatrix}
+	A_{k[11]}^\top&
+	A_{k[21]}^\top
+	\end{bmatrix}
+	\end{bmatrix} 
+	\begin{bmatrix}
+	\eye & \\
+	& \Ob_{K+1}^\top
+	\end{bmatrix} 
+	\begin{bmatrix}
+	\eye & \\
+	& \Ob_{K+1}
+	\end{bmatrix}
+	\begin{bmatrix}
+	C_{k[2]}\\
+	\begin{bmatrix}
+	A_{k[11]}\\
+	A_{k[21]}
+	\end{bmatrix}
+	\end{bmatrix}  
+	\R_{k[2]} u
+\end{align}
+using the fact that the system is balanced and therefore $\Ob_{k+1}^\top \Ob_{k+1} = \Sigma_{k+1}$
+\begin{equation}
+u^\top
+\R_{k[2]}^\top
+\begin{bmatrix}
+C_{k[2]}^\top&
+\begin{bmatrix}
+A_{k[11]}^\top&
+A_{k[21]}^\top
+\end{bmatrix}
+\end{bmatrix} 
+\begin{bmatrix}
+\eye & \\
+& \Sigma_{K+1}
+\end{bmatrix} 
+\begin{bmatrix}
+C_{k[2]}\\
+\begin{bmatrix}
+A_{k[11]}\\
+A_{k[21]}
+\end{bmatrix}
+\end{bmatrix}  
+\R_{k[2]} u
+\end{equation}
+By splitting $\Sigma_{k+1}$ with the appropriate dimensions such that  $\Sigma_{k+1} = \diag(\Sigma_{k+1[1]},\Sigma_{k+1[2]})$ we can rewrite the expression as
+\begin{equation}
+u^\top
+\R_{k[2]}^\top
+\begin{bmatrix}
+C_{k[2]}^\top&
+A_{k[11]}^\top&
+A_{k[21]}^\top
+\end{bmatrix} 
+\begin{bmatrix}
+\eye & \\
+& \Sigma_{K+1[1]}\\
+& & \Sigma_{K+1[2]}
+\end{bmatrix} 
+\begin{bmatrix}
+C_{k[2]}\\
+A_{k[11]}\\
+A_{k[21]}
+\end{bmatrix}  
+\R_{k[2]} u
+.
+\end{equation}
+This allows us to regroup the expression as the sum
+\begin{align}
+	&=
+	u^\top
+	\R_{k[2]}^\top
+	\begin{bmatrix}
+	C_{k[2]}^\top&
+	A_{k[11]}^\top&
+	\end{bmatrix} 
+	\begin{bmatrix}
+	\eye & \\
+	& \Sigma_{K+1[1]}\\
+	\end{bmatrix} 
+	\begin{bmatrix}
+	C_{k[2]}\\
+	A_{k[11]}\\
+	\end{bmatrix}  
+	\R_{k[2]} u
+\\&\quad\quad+
+	u^\top
+	\R_{k[2]}^\top
+	A_{k[21]}^\top 
+	\Sigma_{K+1[2]}
+	A_{k[21]} 
+	\R_{k[2]} u
+	.
+\end{align}
+	It is also possible to prove this using the fact that $\range(\Ob_{k+1[1]})\perp \range(\Ob_{k+1[2]})$ and then employing $(u+v)^\top (u+v) = u^\top u + v^\top v$ for $u \perp v$
+\end{proof}
+
+Now we again use Equation\,\ref{eq:decomp_O} to rewrite the first summand as 
+\begin{equation}
+\Big\|
+\begin{bmatrix}
+C_{k[2]}\\
+\Ob_{k+1[1]}A_{k[11]}
+\end{bmatrix}  \R_{k[2]} u
+\Big\|_2^2
+=
+\Big\|
+\begin{bmatrix}
+\eye\\&\eye\\&&\Ob_{k+2}
+\end{bmatrix}
+\begin{bmatrix}
+C_{k[2]}\\
+C_{k+1[1]}A_{k[11]}\\
+\begin{bmatrix}
+A_{k+2[11]}\\
+A_{k+2[12]}
+\end{bmatrix}
+A_{k[11]}
+\end{bmatrix}  \R_{k[2]} u
+\Big\|_2^2
+\end{equation}
+Analogously we can spit the norm up again into the sum
+\begin{align}
+&=\Bigg\|
+\begin{bmatrix}
+\eye\\&\eye\\&&\Ob_{k+2}
+\end{bmatrix}
+\begin{bmatrix}
+C_{k[2]}\\
+C_{k+1[1]}A_{k[11]}\\
+\begin{bmatrix}
+A_{k+2[11]}\\
+A_{k+2[12]}
+\end{bmatrix}
+A_{k[11]}
+\end{bmatrix}  \R_{k[2]} u
+\Bigg\|_2^2
+\\
+&=
+\Bigg\|
+\begin{bmatrix}
+C_{k[2]}\\
+C_{k+1[1]}A_{k[11]}\\
+\Ob_{k+2[1]}A_{k+2[11]}A_{k[11]}+
+\Ob_{k+2[2]}A_{k+2[12]}A_{k[11]}
+\end{bmatrix}  \R_{k[2]} u
+\Bigg\|_2^2
+\\
+&=
+\Bigg\|
+\begin{bmatrix}
+C_{k[2]}\\
+C_{k+1[1]}A_{k[11]}\\
+\Ob_{k+2[1]}A_{k+2[11]}A_{k[11]}+
+\end{bmatrix}  \R_{k[2]} u
+\Bigg\|_2^2
++
+\Big\|
+\Ob_{k+2[2]}A_{k+2[12]}A_{k[11]}
+\R_{k[2]} u
+\Big\|_2^2
+\end{align}
+This can be repeated until we reach $K$.
+The remaining term is 
+\begin{equation}
+	\Bigg\|
+	\begin{bmatrix}
+	C_{k[2]}\\
+	C_{k+1[1]}A_{k[11]}\\
+	C_{k+2[1]}A_{k+1[11]}A_{k[11]}\\
+	\vdots\\
+	C_{K[1]}A_{K-1[11]}\dots A_{k[11]}
+	\end{bmatrix}  \R_{k[2]} u
+	\Bigg\|_2^2
+	.
+\end{equation}
+The remaining term can be identified as 
+\begin{equation}
+\Bigg\|
+\begin{bmatrix}
+C_{k[2]}\\
+\hat{\Ob}_{k+1}A_{k[12]}
+\end{bmatrix}  \R_{k[2]} u
+\Bigg\|_2^2
+=
+\Big\|\breve{\Delta}_k u\Big\|_2^2
+.
+\end{equation}
+We combine this to
+\begin{equation}
+\|\Delta_k u\|_2^2
+	  =
+	    \|\breve{\Delta}_k u\|_2^2
+	  + \dots + \Big\|
+	  \Ob_{k+1[2]}A_{k[21]}
+	  \R_{k[2]} u
+	  \Big\|_2^2
+\end{equation}
+Be reordering and using the fact that the squared norms larger or equal than $0$ we obtain the relation
+\begin{equation}
+	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
+	.
+\end{equation}
+This proves the relation form equation 
+
 \chapter{Random Sequentially Semiseperable matrices}\label{A:random_T}
 
-
+\todo[inline]{Make ti more clear, discuss properties, explain higher ranks...}
 The random sequentially semipermeable matrix $T$ is constructed according to
 \begin{equation}
 	A_{[i,j]} = 
