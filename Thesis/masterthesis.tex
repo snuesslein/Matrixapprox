@@ -87,8 +87,8 @@
 
 \newcommand{\sys}{\Sigma}
 
-\newcommand{\lsearchud}{l^\text{ud}}
-\newcommand{\lsearchrl}{l^\text{rl}}
+\newcommand{\lsearchud}{l^\text{out}}
+\newcommand{\lsearchrl}{l^\text{in}}
 
 
 %some shortcuts for things that might change
@@ -141,6 +141,7 @@
 \todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
 \todo[inline]{How to denote matrices and $d$ for anticausal systems}
 \todo[inline]{neural networks}
+\todo[inline]{eye in papers}
 
 
 
@@ -489,7 +490,6 @@ An anticausal system is described using the formula
 	\end{align}
 	\label{eq:def_anticausal}
 \end{subequations}
-\todo{$D$ für Antikausale?}
 In Figure\,\ref{fig:struktur-system_b} an anticausal system is illustrated.
 The structure is analogous except for the reversed direction of the arrows for the states.
 
@@ -1924,21 +1924,22 @@ The pseudocode for the adaptation of the segmentation is given in Algorithm\,\re
 			\spaceIO with optimized input and output dimensions}
 		%\State Start with input normal causal system and output normal anticausal system, 
 		\For{$i\gets 1$ \textbf{to} Number of iterations}
-		\For{$k \gets K$ \textbf{downto} $2$}
-		\State \Comment Iterate over output dimensions 
+		\For{$k \gets K-1$ \textbf{downto} $1$}
+		\State \Comment Iterate over boundaries 
 			and transform causal system
 			\State \hspace{1.8cm} to output normal and anticausal to input normal
-		\State $\Sigma_d \gets $ move down$(S)$ by $\lsearchud_i$
-		\State $\Sigma_n \gets $ no move $(S)$ 
-		\State $\Sigma_u \gets $ move up$(S)$ by $\lsearchud_i$
+		\State $\Sigma_d \gets $ move down$(\Sigma)$ by 
+		$\min(\lsearchud_i,p_{k+1})$
+		\State $\Sigma_n \gets $ no move $(\Sigma)$ 
+		\State $\Sigma_u \gets $ move up$(\Sigma)$ by $\min(\lsearchud_i,p_{k})$
 		\State $\Sigma \gets \underset{\Sigma \in \{\Sigma_d,\Sigma_n,\Sigma_u\}}{\argmin} \f(\Sigma)$
 		\EndFor
-		\For{$k \gets 2$ \textbf{to} $K$}
-		\State \Comment Iterate over output dimensions and transform causal system 
+		\For{$k \gets 1$ \textbf{to} $K-1$}
+		\State \Comment Iterate over boundaries and transform causal system 
 		\State \hspace{1.7cm} back to input normal and anticausal to output normal 
-		\State $\Sigma_r \gets $ move right$(S)$ by $\lsearchrl_i$
-		\State $\Sigma_n \gets $ no move $(S)$ 
-		\State $\Sigma_l \gets $ move left$(S)$ by $\lsearchrl_i$
+		\State $\Sigma_r \gets $ move right$(\Sigma)$ by $\min(\lsearchrl_i,m_{k+1})$
+		\State $\Sigma_n \gets $ no move $(\Sigma)$ 
+		\State $\Sigma_l \gets $ move left$(\Sigma)$ by $\min(\lsearchrl_i,m_k)$
 		\State $\Sigma \gets \underset{\Sigma \in  \{\Sigma_r,\Sigma_n,\Sigma_l\}}{\argmin} \f(\Sigma)$
 		\EndFor
 		\If{$\Sigma$ did not change} 
@@ -1950,11 +1951,13 @@ The pseudocode for the adaptation of the segmentation is given in Algorithm\,\re
 \end{algorithm}
 
 To avoid that the algorithm gets stuck in local minima and to improve the speed, the algorithm does not change the segmentation by a fixed search distance $l$, but uses different search distances for every iteration of the algorithm.
-If the matrices are non square it might also be needed to use a different search distances for the outputs $\lsearchud$ and the input $\lsearchrl$.
+If the matrices are non square it might also be advantageous to use a different search distances for the outputs and the input.
 
 For most of the tests I used search distances of the form $l_i = l_02^{-i}$.
 This gives a structure that is similar to a tree.
 As the optimal segmentation of the input depends on the segmentation of the output, that is also subject to change, the sequence is constructed such that there is not a single way to reach a certain movement of a boundary.
+
+If moving the boundary by the search distance would mean crossing the next boundary, the boundary is only moved to the position of the next boundary.
 %by gradually changing the segmentation but by facilitating a tree like structure.
 
 
@@ -2020,13 +2023,17 @@ This objective function does not minimize the approximation error, but \todo{equ
 %\todo[inline]{maybee some example}
 
 \section{Permutations}\label{sec:permutation}
-\todo{motaivation cite }%\verb|diepold_optic_2004|}
+
+%\todo{motaivation cite }%\verb|diepold_optic_2004|}
 In this section the matrix is represented as a an permutation of the input $\Pi_i$ a Time varying system $\Sigma$ and a permutation of the output.
-This means that the matrix $A$ is represented as the product
+
+This means that the matrix $M$ is represented as the product
 \begin{equation}
-	A = \Pi_o T \Pi_i
+	M = \Pi_o T \Pi_i
 \end{equation}
 Here $T$ is the transfer operator of the Time Varying system and $\Pi_i$ and $\Pi_o$ are Permutations.
+This is equivalent to permuting the columns and rows of the matrix $M$ before representing it using a time varying system.
+This can lead to a reduction of the Hankel rank and therefore the state dimensions as demonstrated in \cite{diepold_optic_2004}. 
 \begin{figure}[!htb]
 	\centering
 	\input{diagrams/system_permute.pgf}
@@ -2034,7 +2041,7 @@ Here $T$ is the transfer operator of the Time Varying system and $\Pi_i$ and $\P
 	\label{fig:system_permuted}
 \end{figure}
 In this section I introduce an algorithm that makes it possible to permute the rows and columns of the represented matrix, such that state dimensions are reduced.
-The algorithm does not recover the whole permutation in one step but uses dynamic programming \todo{is there a good definition of dynamic programming} and recovers the permutation by solving individual subproblems.
+The algorithm does not recover the whole permutation in one step but uses a strategy similar to divide and conquer by recursively spiting the problem up in smaller subproblems and recovering the permutation by combining the results form these individual subproblems.
 First an initial system consisting of only one stage is created.
 In this case $T = D_1$.
 Then the Algorithm splits the stages into two stages  as illustrated in Figure\,\ref{fig:split_permute}.
@@ -2065,7 +2072,7 @@ The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and per
 \end{equation}
 is again a singular value decomposition.
 \begin{proof}
-	To be an valid SVD, we have to prrof that $\tilde{U}$ and $\tilde{V}$ are orthogonal.
+	To be an valid SVD, we have to prove that $\tilde{U}$ and $\tilde{V}$ are orthogonal.
 	This is shown by the forward multiplication
 	\begin{equation}
 		\tilde{U}^\top \tilde{U} = U^\top \Pi_C^\top \Pi_C U = U^\top U = \eye 
@@ -2078,28 +2085,18 @@ This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
 	\end{equation}
 	is true.
 \end{proof}
-This means that all permutations of rows and columns of the matrix $A$ are equivalent as long as the inputs and outputs remain inside the same input vectors $u_k$ and the output vectors $y_k$.
-
+This means that all permutations that preserve the grouping of the inputs and outputs are equivalent.
 %This means that all permutations of the inputs and outputs that only differ in the orderings inside the $u_k$ and $y_k$ are equivalent. 
 %\todo{formal blockdiagonal $\Pi$}
 Therefore the Algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
 
 The algorithm to split a stage is described in Subsection\,\ref{subsec:split_stage}.
 The algorithm uses the same strategy as described in \cite{chandrasekaran_fast_2005}.
-For this the inputs and outputs of the stage have to be grouped.
-This is done by segmenting a matrix. 
-An algorithm to do this is presented in Subsection\,\ref{subsec:segment_matrix}.
+Before the stage is split, the inputs and outputs of the stage have to be grouped. 
+The required algorithm to partition the inputs and outputs is presented in Subsection\,\ref{subsec:segment_matrix}.
 
 
 \subsection{Split Stage}\label{subsec:split_stage}
-
-
-
-
-
-
-
-
 
 We want to spit the stage $k$ into the stages $\alpha$ and $\beta$.
 This is illustrated in Figure\,\ref{fig:split_up}.
@@ -2119,7 +2116,7 @@ This is illustrated in Figure\,\ref{fig:split_up}.
 	\label{fig:split_up}
 \end{figure}
 Again we have connections that are no longer possible in a causal system. 
-These have to be included in the anticausal part. These are again represented using a dotted line.
+These have to be included in the anticausal part. In Figure\,\ref{fig:split_up} the connections are represented using a dotted line.
 The resulting system should have the same input-output behavior. Therefore the relations
 \begin{subequations}
 \begin{align}
@@ -2132,8 +2129,9 @@ The resulting system should have the same input-output behavior. Therefore the r
 have to be fulfilled.
 This immediately gives us most of the matrices for the new stages
 
-Now we want to compute these matrices.
-For this we consider the Hankel matrix associated with the new intermediate stage $x_\beta$.
+Now we want to compute the remaining matrices.
+The new realization should be minimal.
+For this we consider the Hankel matrix associated with the new intermediate state $x_\beta$.
 
 This is 
 \begin{equation}
@@ -2225,7 +2223,7 @@ If $O_{k+1}^\top O_{k+1} = 1$ and $R_k  R_k^\top = 1$ the singular values calcul
 \end{proof}
 
 To run efficiently, the Algorithm requires a way to store the system in such a way that we can easily compute the different normal forms.
-For this we store the Hankel Singular values separately form the reduced matrices $\tilde{A},\tilde{B}$ and $\tilde{C}$.
+For this we store the Hankel singular values separately form the reduced matrices $\tilde{A},\tilde{B}$ and $\tilde{C}$.
 
 If we have a balanced system $\Sigma_{[A,B,C,D]}$ the matrices $\tilde{A},\tilde{B},\tilde{C}$ and $\tilde{D}$ are constructed such that 
 \begin{subequations}
@@ -2238,7 +2236,7 @@ If we have a balanced system $\Sigma_{[A,B,C,D]}$ the matrices $\tilde{A},\tilde
 \end{align}\label{eq:stages_sigma}
 \end{subequations}
 As $\Sigma_k$ is a diagonal matrix we only need to store the vector of the diagonal entries.
-Also products with $\Sigma_k$ can be simply computed by scaling the columns if the matrix is multiplied from the right or scaling the columns if the matrix is multiplied from the right.
+Also products with $\Sigma_k$ can be efficiently computed by scaling the columns if the matrix is multiplied from the right or scaling the rows if the matrix is multiplied from the left.
 Analogously the products with the inverses or the square roots can be computed.
 Then the input normal system can be computed according to
 \begin{subequations}
@@ -2267,13 +2265,13 @@ Analogously the output normal system is
 \end{align}
 \end{subequations}
 \begin{proof}
-We have to prove that $\breve{\Ob}_k^\top \breve{\Ob}_k = \eye$ for all $k$.
-As the original system is balanced we know that $\Ob_k = U_k \Sigma_k^{1/2}$.
-The new observability matrix is $\breve{\Ob} = \Ob_{k} \Sigma^{-1/2} = U_k$.
-As $U_k$ is orthogonal, $\breve{\Ob}_k^\top \breve{\Ob}_k = \eye$.
+We have to prove that $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$ for all $k$.
+As the original system is balanced we know that $\Ob_{k+1} = U_{k+1} \Sigma_{k+1}^{1/2}$.
+The new observability matrix is $\breve{\Ob}_{k+1} = \Ob_{k+1} \Sigma_{k+1}^{-1/2} = U_{k+1}$.
+As $U_k$ is orthogonal, $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$.
 \end{proof}
 
-This makes it possible to get transform the stage $k$ such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_k^\top \Ob = \eye$ are fulfilled at the same time.
+This makes it possible to transform the stage $k$ such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ are fulfilled at the same time.
 The matrices $A_k,B_k,C_k$ and $D$ are
 \begin{subequations}
 \begin{align} \label{eq:make_in_out}
@@ -2284,8 +2282,8 @@ The matrices $A_k,B_k,C_k$ and $D$ are
 	.
 \end{align}
 \end{subequations}
-To make it possible to later split the resulting stages, the $\Sigma$s have to be removed after splitting the stage.
-To obtain $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the matrices $\tilde{C}_k$ and $\tilde{B}_k$ as starting point.
+To make it possible to later split the resulting stages, the $\Sigma$s have to be removed form the matrices after splitting the stage.
+In the case $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the reduced matrices $\tilde{C}_k$ and $\tilde{B}_k$ directly.
 
 
 \begin{algorithm}[htb]
@@ -2296,7 +2294,7 @@ To obtain $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the m
 		\spaceIO Tolerance $\text{tol}$}
 		\Output{Stages $\alpha$ and $\beta$ also intermediate $\Sigma_\beta$}
 		\State $	A_k \gets \Sigma_{k+1} \tilde{A}_k \Sigma_k $
-		\Comment transform stage such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_k^\top \Ob = \eye$
+		\Comment transform stage such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_{k+1}^\top \Ob_{k+1} = \eye$
 		\State $ B_k \gets \Sigma_{k+1} \tilde{B}_k $
 		\State $ C_k \gets \tilde{C}_k \Sigma_k $
 
@@ -2315,11 +2313,11 @@ To obtain $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the m
 		\State $\tilde{A}_\beta \gets \Sigma_{k+1}^{-1} U[-d_{k+1}:,:]$
 		\State $\tilde{B}_\beta \gets \tilde{B}_k[:,i_\text{in}:]$
 		\State $\tilde{C}_\beta \gets  U[:-d_{k+1},:] $
-		\State $\tilde{D}_\beta \gets D[i_\text{out}:,i_\text{in}:] $		
+		\State $\tilde{D}_\beta \gets \tilde{D}[i_\text{out}:,i_\text{in}:] $		
 		\\
 		\State $\Sigma_\beta \gets \diag(s)$
 	\end{algorithmic}
-	\caption{Algorithm to move the split the stage $k$ into the stages $\alpha$ and $\beta$}\label{alg:split}
+	\caption{Algorithm to split the stage $k$ into the stages $\alpha$ and $\beta$}\label{alg:split}
 \end{algorithm}
 
 The Pseudocode is given in Algorithm\,\ref{alg:split}.
@@ -2349,7 +2347,7 @@ X=
 \end{equation}
 into two groups each.
 
-When permuting the rows and columns of the $B_k$, $C_k$, $B_k^*$, $C_k^*$ and $D_k$ we obtain the matrices $\tilde{B}_k$, $\tilde{C}_k$, $\tilde{B}_k^*$, $\tilde{C}_k^*$ and $\tilde{D}_k$.
+When permuting the rows and columns of the $B_k$, $C_k$, $F_k$, $G_k$ and $D_k$ we obtain the matrices $\tilde{B}_k$, $\tilde{C}_k$, $\tilde{B}_k^*$, $\tilde{C}_k^*$ and $\tilde{D}_k$.
 Then we can segment the resulting matrix according to 
 
 \input{diagrams/Moves/Split_X.pgf}
@@ -2362,26 +2360,31 @@ and $\partition(y_k)$ for $y_k$ accordingly.
 Here $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ have the same singular values as the Hankel matrices $H_\beta$ and $H_\alpha^*$.
 These singular values determine the state dimensions $d_\beta$ and $d_\alpha^*$.
 When we represent a system we want both of them to be minimal.
-Therefore we want to optimize in the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ some sense. 
-The properties of the remaining parts of the matrix $X$ are nor relevant, as they do not influence the state dimensions.
+Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ some sense. 
+The properties of the remaining parts of the matrix $X$ are not relevant, as they do not influence the state dimensions.
 
-\todo[inline]{motivatio, outline previous ideas (nuclear norm with interior points, compute nuclear norm with %\verb|brand_fast_2006| 
-	but expencive )}
 
-We can use two strategies to reduce the state dimensions.
-The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
+Ideally the algorithm directly optimizes the singular values.
+For this we need a way to compute or approximate the singular values for different configurations. 
+There are some approaches to decrease the cost for low rank updates of SVDs \cite{brand_fast_2006}.
+But these still require a diagonalization step and are therefore to expensive to calculate the singular values for multiple times per iteration.
+Also techniques for low rank optimizations described in \cite{liu_interior-point_2010} and \cite{recht_guaranteed_2010} did not proof helpful.
+
+Therefore I use two strategies to reduce the state dimensions.
+The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ by minimizing the angle between the columns and rows respectively.
 This can be used if the resulting matrix is low rank.
 In the case of weight matrices all sub matrices usually have full rank.
 Here we try to reduce the squared sum of the singular values.
 This is equivalent to minimizing the Frobenius norms of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
+This does not promote low rank solutions like the nuclear norm but is far easier to compute.
 
 
 \paragraph{Rank reduction}
 Reducing the rank of the Hankel matrices is equivalent to reducing the dimensions of the range of $H$.
 We could also reduce the range of $H^\top$.
-For a matrix $A\in \mathbb{R}^{m\times n}$ these are all equivalent as 
+For a matrix $M\in \mathbb{R}^{m\times n}$ these are all equivalent as 
 \begin{equation}
-\rank(A) = \dim(\range(A)) = \dim(\range(A^\top))
+\rank(m) = \dim(\range(M)) = \dim(\range(M^\top))
 \end{equation}
 This makes it possible to reduce the rank by partition the input $u_k$ such that 
 \begin{equation}
@@ -2474,8 +2477,8 @@ The weight between the columns $c_i$ and $c_j$ is
 	\end{cases}
 \end{equation}
 The spectral clustering is done with a normalized Laplacian as described in \cite{higham_spectral_2007}.
-The resulting segmentation also includes additional columns that do not correspond to input, but are already fixed.
-If more than halve of these column have been grouped into the incorrectly the segmentation is flipped.
+The resulting segmentation also includes additional columns that do not correspond to inputs, and are therefore already fixed.
+If more than halve of these columns have been grouped incorrectly, the segmentation is flipped.
 
 Analogously the initial partition of $y_k$ is computed.
 
@@ -2485,8 +2488,8 @@ Next we consider the case where the Hankel matrices have close to full rank.
 Here balanced truncation is used to approximate the system.
 To reduce the number of states, the number of singular values grater than some threshold have to be reduced.
 To achieve this I reduce the sum of the squared singular values.
-This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$ \cite[p.~67]{bai_matrix_2021}. \todo{This was already used in this thesis. I think it is easier if i state it a second time here instead of giving a }
-Because $\|A\|_\text{F}^2 = \sum_{i=1}^{m}\sum_{j=1}^{n} a_{ij}^2$ this results in the problem of partitioning the inputs and outputs such that the sum over the squared entries of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ is reduced.
+This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$ \cite[p.~67]{bai_matrix_2021}. \todo{This was already used in this thesis. I think it is easier if i state it a second time here instead of giving a reference}
+Because $\|H\|_\text{F}^2 = \sum_{i=1}^{m}\sum_{j=1}^{n} h_{ij}^2$ this results in the problem of partitioning the inputs and outputs such that the sum over the squared entries of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ is reduced.
 As $\|H\|_\text{F}^2 \approx \text{size}(H)$ for the weight matrices tested, this would be equivalent to minimizing the size of $H_\beta$ and $H_\alpha^*$.
 %\textcolor{blue}{
 %Therefore the norms are scaled with $\text{size}(H)^{-1}$.
@@ -2526,7 +2529,7 @@ For larger matrices multiple inputs and outputs can be flipped at every iteratio
 To additionally speed up the algorithm a matrix $W$ is computed, containing the matrix $D_k^{\bullet^2}$ with the squared entries of $D$.
 Using this approach, means that the squares of the entries only have to be computed once.
 Additionally the size of the matrix $W$ can be reduced by replacing the matrices $A_k$ and $E_k$ with their Frobeniusnorms $a_k$ and $e_k$.
-The matrices $B_k$ and $F_k^*$ are replaced by their column-wise vector-2-norm $b_k^\top$ and $f_k^top$.
+The matrices $B_k$ and $F_k^*$ are replaced by their column-wise vector-2-norm $b_k^\top$ and $f_k^\top$.
 The matrices $C_k$ and $G_k$ are replaced by their row wise vector-2-norm $c_k$ and $g_k$.
 This results in the matrix
 \begin{equation}
@@ -2635,7 +2638,7 @@ This is done in every iteration.
 		\label{fig:example_move_bound_b}
 	\end{subfigure}
 	\caption{Illustration of the change of the segmentation.
-		The blue lines mark how the boundaries change as the algorithm adapts the segmentation
+		The blue lines mark how the boundaries change as the algorithm adapts the segmentation TODO: illustrate checks for crossing boundaries
 	}
 	\label{fig:example_move_bound}
 \end{figure}
@@ -2904,7 +2907,7 @@ The fact that the Hankel matrices of the weight matrices is consistent with othe
 Research by Martin and Mahoney suggests that weight matrices usually have full rank \cite{martin_implicit_2021}.
 This might be explained with information theory \cite{papyan_traces_2020}.
 The full rank property is in principal no problem, as sequentially semiseperable matrices can have full rank, even if the Hankel matrices have low rank. 
-\footnote{For an trivial example consider the identity matrix as sequentially semiseperabel matrix with full rank}
+\footnote{For a trivial example consider the identity matrix as sequentially semiseperabel matrix with full rank}
 I was not able to find statements if these results also hold for submatrices.
 Even if similar results hold true for submatrices, approximations using time varying systems might be still beneficial, if the bulk of the singular values is sufficiently small.
 In this case the approximation error would be small, even if many nonzero singular values would have to be removed.
