@@ -76,6 +76,7 @@
 \DeclareMathOperator{\argmin}{argmin}
 \DeclareMathOperator{\f}{f}
 \DeclareMathOperator{\length}{len}
+\DeclareMathOperator{\trace}{trace}
 
 
 %define symbols
@@ -761,8 +762,6 @@ The approximated system $\tilde{T}$ is then set to
 This approach is equivalent to removing all $\sigma_l<\epsilon$ of the SVD of the Hankel operator.
 Therefore we can also construct an approximation when identifying a system using the SVD by truncating the SVD as described in \cite{shokoohi_identification_1987}.
 The error can be bound to two times the cut singular values \cite{lall_error-bounds_2003}.
-\todo[inline]{TODO: understand the proof and conditions in the paper and summarize it}
-
 A detailed discussion of approxiamtions is given in
 \cite{antoulas_approximation_2005}.
 
@@ -781,10 +780,8 @@ In Section\,\ref{sec:Segmentation} methods to change the segmentation are presen
 %\item Describe the overall approximation algorithm.
 %\end{itemize}
 
-\todo[inline]{Maybee I will add soemthing about the Frobenius norm... Also I need to make the structure consistent}
+\todo[inline]{ Also I need to make the structure consistent}
 
-\todo[inline]{Maybee something on error.
-one possible way would be using the proof from Chandrasekaran 2002 that there exists an SSS for any matrix ant then use the existing error bounds}
 \paragraph{Balanced truncation of ordered systems}
 In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
 These have the property that $\Ob_k = U_k \Sigma_{\Ob k}$ and $\R_k = \Sigma_{\R k} V_k^\top$ where $\Sigma_{\Ob k} = \Sigma_{\R k}=\Sigma_k^{1/2}$.
@@ -1178,7 +1175,7 @@ The error for the approximation of the causal and anticausal system can be bound
 The total error is smaller or equal to the sum of the errors for the causal and the anticausal system.
 
 For the case of matrix approximation, it is also possible to give a bound for the combined approximation.
-For this we first start by considering a case where we only approximate the $k$-th stage of the causal system and the $k-1$-th state.
+For this we first start by considering a case where we only approximate the $k$-th state of the causal system and the $k-1$-th state of the anticausal system.
 
 In this case the Hankel matrices $H_k$ and $H^*_{k-1}$ 
 \input{diagrams/Approx_combined.pgf}
@@ -1235,30 +1232,31 @@ If multiple states are approximated, the error form the individual approximation
 
 In general 
 \begin{equation}
-	\hat{T} \neq T + \sum_{i=1}^K T-\hat{T}^{(i)}
+	\hat{T} \neq T - \sum_{i=1}^K T-\hat{T}^{(i)}
 \end{equation}
 is true.
-Nevertheless the total error is bounded by 
+Nevertheless the total error in the spectral norm is bounded by 
 \begin{equation}
-	\|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\| .
+	\|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\|
+\end{equation}
+and for the Frobenius norm by
+\begin{equation}
+\|T-\hat{T}\|_\text{F} \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\|_\text{F}
+.
 \end{equation}
 \begin{proof}
-	The proof relies on the fact that $\|T-\hat{T}^{(k)}\|$ is equal or larger than the actual error if multiple stages are approximated.
+	The proof relies on the fact that $\|T-\hat{T}^{(k)}\|$ is equal or larger than the actual change if multiple stages are approximated.
 	The details can be found in Appendix\,\ref{A:Error Bounds}
 \end{proof}
 
 
 For the operator norm this results in the upper bound 
-\begin{equation}
-	\text{Error} \leq \epsilon K
+\begin{equation}\label{eq:bound_spectral_K}
+	\|T-\hat{T}\| \leq \sum_{i=1}^K \epsilon \leq K\epsilon
 \end{equation}
-for the balanced truncation of a system with an approxiamtion parameter $\epsilon$ of a system with $K$ stages.
-\begin{proof}
-As the system is approximated with the parameter $\epsilon$, all singular values of $T-\hat{T}^{(k)}$ are smaller than $\epsilon$ for all $k \in {1,\dots,K-1}$.
-\begin{equation}
-\|T-\hat{T}\| \leq \sum_{i=1}^K \epsilon = K\epsilon
-\end{equation}
-\end{proof}
+for the balanced truncation of a system with an approxiamtion parameter $\epsilon$ of a system with $K$ stages,
+because all singular values of $T-\hat{T}^{(k)}$ are smaller than $\epsilon$ for all $k \in {1,\dots,K-1}$.
+
 
 
 \section{Cost of Computation} \label{sec:cost}
@@ -2102,11 +2100,9 @@ Based on the Equation\,\ref{eq:cost_mixed}, this gives the objective function
 \end{equation}
 Here the number of states is determined by counting the Hankel singular values bigger than a certain threshold value. 
 The threshold value has to be known in advance.
-This objective function does not minimize the approximation error, but \todo{equation} gives an upper bound as the truncated singular values are lower than the threshold.
+This objective function does not minimize the approximation error, but Equation\,\ref{eq:bound_spectral_K} gives an upper bound of $K\epsilon$.
 
  
-%\todo[inline]{something on the objective functions}
-%\todo[inline]{maybee some example}
 
 \section{Permutations}\label{sec:permutation}
 
@@ -3046,7 +3042,7 @@ In this chapter a proof for the equation
 \|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\| .
 \end{equation}
 is given.
-First we decompose the error into
+First we decompose the change due to the balanced truncation into
 \begin{equation}
 	T-\hat{T} =
 	\begin{bmatrix}
@@ -3065,7 +3061,7 @@ First we decompose the error into
 	\end{bmatrix}
 	.
 \end{equation}
-The matrix $\Delta_k$ denotes the difference caused by the balanced truncation on the original system
+The matrix $\Delta_k$ denotes the difference caused by the balanced truncation of the state $k$ on the original system
 \begin{equation}
 	\Delta_k = \Ob_{k}\R_{k} - \hat{\Ob}_k\hat{\R}_k = \Ob_{k[2]}\R_{k[2]}
 \end{equation}
@@ -3113,7 +3109,7 @@ C_{K[1]}A_{K-1[11]}\dots A_{k+1[11]}
 
 Using the triangle inequality we obtain the relation
 \begin{equation}
-\|T-\hat{T}\| =
+\|T-\hat{T}\| \leq
 \Bigg\|
 \begin{bmatrix}
 &\Delta_0^*\\
@@ -3144,7 +3140,7 @@ Using the bound form Equation\,\ref{eq:bound_single} we can then bound the matri
 \end{equation}
 
 To prove $\|\breve{\Delta}_k\| \leq \|\Delta_k\|$ it is sufficient to prove
-\begin{equation}
+\begin{equation}\label{eq:A_breve_leq_delta}
 	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
 \end{equation}
 for any vector $u$.
@@ -3152,9 +3148,9 @@ for any vector $u$.
 	For this we use the definition of the operator norm
 	\begin{equation}
 		\|\breve{\Delta}_k\| =
-		\underset{\|u\|_2 = 1}{\max}(\|\breve{\Delta}_k u\|)_2
+		\underset{\|u\|_2 = 1}{\max}(\|\breve{\Delta}_k u\|_2)
 		\leq 
-		\underset{\|u\|_2 = 1}{\max}(\|\Delta_k u\|)_2
+		\underset{\|u\|_2 = 1}{\max}(\|\Delta_k u\|_2)
 		=\|\Delta_k\|
 	\end{equation}
 \end{proof}
@@ -3173,8 +3169,8 @@ By inserting the definitions form Equation\,\ref{eq:reduced_system} and using th
 	\begin{bmatrix}
 	C_{k[2]}\\
 	\begin{bmatrix}
-	A_{k[11]}\\
-	A_{k[21]}
+	A_{k[12]}\\
+	A_{k[22]}
 	\end{bmatrix}
 	\end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
 \end{equation}
@@ -3191,8 +3187,8 @@ Using this $\|\Delta_k u\|_2^2$ can be expressed as
 	\Bigg\|
 \begin{bmatrix}
 C_{k[2]}\\
-\Ob_{k+1[1]}A_{k[11]}+
-\Ob_{k+1[2]}A_{k[21]}
+\Ob_{k+1[1]}A_{k[12]}+
+\Ob_{k+1[2]}A_{k[22]}
 \end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
 .
 \end{equation}
@@ -3201,12 +3197,12 @@ Using the properties of the balanced realization the norm can be split up in the
 \Big\|
 \begin{bmatrix}
 C_{k[2]}\\
-\Ob_{k+1[1]}A_{k[11]}
+\Ob_{k+1[1]}A_{k[12]}
 \end{bmatrix}  \R_{k[2]} u
 \Big\|_2^2
 +
 \Big\|
-\Ob_{k+1[2]}A_{k[21]}
+\Ob_{k+1[2]}A_{k[22]}
  \R_{k[2]} u
 \Big\|_2^2
 .
@@ -3239,8 +3235,8 @@ C_{k[2]}\\
 	\begin{bmatrix}
 	C_{k[2]}\\
 	\begin{bmatrix}
-	A_{k[11]}\\
-	A_{k[21]}
+	A_{k[12]}\\
+	A_{k[22]}
 	\end{bmatrix}
 	\end{bmatrix}  \R_{k[2]} u\Bigg\|_2^2
 	\\
@@ -3250,8 +3246,8 @@ C_{k[2]}\\
 	\begin{bmatrix}
 	C_{k[2]}^\top&
 	\begin{bmatrix}
-	A_{k[11]}^\top&
-	A_{k[21]}^\top
+	A_{k[12]}^\top&
+	A_{k[22]}^\top
 	\end{bmatrix}
 	\end{bmatrix} 
 	\begin{bmatrix}
@@ -3265,8 +3261,8 @@ C_{k[2]}\\
 	\begin{bmatrix}
 	C_{k[2]}\\
 	\begin{bmatrix}
-	A_{k[11]}\\
-	A_{k[21]}
+	A_{k[12]}\\
+	A_{k[22]}
 	\end{bmatrix}
 	\end{bmatrix}  
 	\R_{k[2]} u
@@ -3278,8 +3274,8 @@ u^\top
 \begin{bmatrix}
 C_{k[2]}^\top&
 \begin{bmatrix}
-A_{k[11]}^\top&
-A_{k[21]}^\top
+A_{k[12]}^\top&
+A_{k[22]}^\top
 \end{bmatrix}
 \end{bmatrix} 
 \begin{bmatrix}
@@ -3289,8 +3285,8 @@ A_{k[21]}^\top
 \begin{bmatrix}
 C_{k[2]}\\
 \begin{bmatrix}
-A_{k[11]}\\
-A_{k[21]}
+A_{k[12]}\\
+A_{k[22]}
 \end{bmatrix}
 \end{bmatrix}  
 \R_{k[2]} u
@@ -3301,8 +3297,8 @@ u^\top
 \R_{k[2]}^\top
 \begin{bmatrix}
 C_{k[2]}^\top&
-A_{k[11]}^\top&
-A_{k[21]}^\top
+A_{k[12]}^\top&
+A_{k[22]}^\top
 \end{bmatrix} 
 \begin{bmatrix}
 \eye & \\
@@ -3311,8 +3307,8 @@ A_{k[21]}^\top
 \end{bmatrix} 
 \begin{bmatrix}
 C_{k[2]}\\
-A_{k[11]}\\
-A_{k[21]}
+A_{k[12]}\\
+A_{k[22]}
 \end{bmatrix}  
 \R_{k[2]} u
 .
@@ -3324,7 +3320,7 @@ This allows us to regroup the expression as the sum
 	\R_{k[2]}^\top
 	\begin{bmatrix}
 	C_{k[2]}^\top&
-	A_{k[11]}^\top&
+	A_{k[12]}^\top&
 	\end{bmatrix} 
 	\begin{bmatrix}
 	\eye & \\
@@ -3332,15 +3328,15 @@ This allows us to regroup the expression as the sum
 	\end{bmatrix} 
 	\begin{bmatrix}
 	C_{k[2]}\\
-	A_{k[11]}\\
+	A_{k[12]}\\
 	\end{bmatrix}  
 	\R_{k[2]} u
 \\&\quad\quad+
 	u^\top
 	\R_{k[2]}^\top
-	A_{k[21]}^\top 
+	A_{k[22]}^\top 
 	\Sigma_{K+1[2]}
-	A_{k[21]} 
+	A_{k[22]} 
 	\R_{k[2]} u
 	.
 \end{align}
@@ -3352,7 +3348,7 @@ Now we again use Equation\,\ref{eq:decomp_O} to rewrite the first summand as
 \Big\|
 \begin{bmatrix}
 C_{k[2]}\\
-\Ob_{k+1[1]}A_{k[11]}
+\Ob_{k+1[1]}A_{k[12]}
 \end{bmatrix}  \R_{k[2]} u
 \Big\|_2^2
 =
@@ -3362,12 +3358,12 @@ C_{k[2]}\\
 \end{bmatrix}
 \begin{bmatrix}
 C_{k[2]}\\
-C_{k+1[1]}A_{k[11]}\\
+C_{k+1[1]}A_{k[12]}\\
 \begin{bmatrix}
-A_{k+2[11]}\\
-A_{k+2[12]}
+A_{k+1[11]}\\
+A_{k+1[21]}
 \end{bmatrix}
-A_{k[11]}
+A_{k[12]}
 \end{bmatrix}  \R_{k[2]} u
 \Big\|_2^2
 \end{equation}
@@ -3379,12 +3375,12 @@ Analogously we can spit the norm up again into the sum
 \end{bmatrix}
 \begin{bmatrix}
 C_{k[2]}\\
-C_{k+1[1]}A_{k[11]}\\
+C_{k+1[1]}A_{k[12]}\\
 \begin{bmatrix}
 A_{k+2[11]}\\
-A_{k+2[12]}
+A_{k+2[21]}
 \end{bmatrix}
-A_{k[11]}
+A_{k[12]}
 \end{bmatrix}  \R_{k[2]} u
 \Bigg\|_2^2
 \\
@@ -3392,9 +3388,9 @@ A_{k[11]}
 \Bigg\|
 \begin{bmatrix}
 C_{k[2]}\\
-C_{k+1[1]}A_{k[11]}\\
-\Ob_{k+2[1]}A_{k+2[11]}A_{k[11]}+
-\Ob_{k+2[2]}A_{k+2[12]}A_{k[11]}
+C_{k+1[1]}A_{k[12]}\\
+\Ob_{k+2[1]}A_{k+2[11]}A_{k[12]}+
+\Ob_{k+2[2]}A_{k+2[21]}A_{k[12]}
 \end{bmatrix}  \R_{k[2]} u
 \Bigg\|_2^2
 \\
@@ -3402,26 +3398,26 @@ C_{k+1[1]}A_{k[11]}\\
 \Bigg\|
 \begin{bmatrix}
 C_{k[2]}\\
-C_{k+1[1]}A_{k[11]}\\
-\Ob_{k+2[1]}A_{k+2[11]}A_{k[11]}+
+C_{k+1[1]}A_{k[12]}\\
+\Ob_{k+2[1]}A_{k+2[11]}A_{k[12]}+
 \end{bmatrix}  \R_{k[2]} u
 \Bigg\|_2^2
 +
 \Big\|
-\Ob_{k+2[2]}A_{k+2[12]}A_{k[11]}
+\Ob_{k+2[2]}A_{k+2[21]}A_{k[12]}
 \R_{k[2]} u
 \Big\|_2^2
 \end{align}
-This can be repeated until we reach $K$.
+This can be repeated until we reach the final state $K$.
 The remaining term is 
 \begin{equation}
 	\Bigg\|
 	\begin{bmatrix}
 	C_{k[2]}\\
-	C_{k+1[1]}A_{k[11]}\\
-	C_{k+2[1]}A_{k+1[11]}A_{k[11]}\\
+	C_{k+1[1]}A_{k[12]}\\
+	C_{k+2[1]}A_{k+1[11]}A_{k[12]}\\
 	\vdots\\
-	C_{K[1]}A_{K-1[11]}\dots A_{k[11]}
+	C_{K[1]}A_{K-1[11]}\cdots  A_{k+1[11]} A_{k[12]}
 	\end{bmatrix}  \R_{k[2]} u
 	\Bigg\|_2^2
 	.
@@ -3438,7 +3434,7 @@ C_{k[2]}\\
 \Big\|\breve{\Delta}_k u\Big\|_2^2
 .
 \end{equation}
-We combine this to
+This allows us to decompose $\|\Delta_k u\|_2^2$ into the sum
 \begin{equation}
 \|\Delta_k u\|_2^2
 	  =
@@ -3453,7 +3449,19 @@ Be reordering and using the fact that the squared norms larger or equal than $0$
 	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
 	.
 \end{equation}
-This proves the relation form equation 
+This proves the relation form Equation\,\ref{eq:A_breve_leq_delta}.
+
+Using Equation\,\ref{eq:A_breve_leq_delta} it is also straightforward to prove the relation for the Frobenius norm
+as 
+\begin{equation}
+	\|M\|_\text{F}^2 = \trace(M^\top M) = \sum_{i=1}^{N} e_i^\top M^\top M e_i = \sum_{i=1}^{N} \|M e_i\|_2^2
+\end{equation}
+where $e_i$ is the $i$-th standard basis vector.
+The relation $\|\breve{\Delta}_k e_i\|_2^2 \leq \|\Delta_k e_i\|_2^2$ implies that 
+\begin{equation}
+	\|\breve{\Delta}_k\|_\text{F} \leq \|\Delta_k\|_\text{F}
+\end{equation}
+
 
 \chapter{Random Sequentially Semiseperable matrices}\label{A:random_T}
 
