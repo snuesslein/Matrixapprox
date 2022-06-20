@@ -1,0 +1,55 @@
+﻿\makeatletter
+\DeclareRobustCommand{\rvdots}{%
+  \vbox{
+    \baselineskip4\p@\lineskiplimit\z@
+    \kern-\p@
+    \hbox{.}\hbox{.}\hbox{.}
+  }}
+\makeatother
+
+\tikzstyle{border} = [line width=0.8pt]%[very thick]
+
+
+\begin{equation}
+T = \!\!\!\!\!
+\begin{matrix}\begin{tikzpicture}
+     \matrix [%
+		matrix of math nodes,
+       column sep=-0.1em,
+       row sep=0.2em,
+		] (T) {
+\ddots& \phantom{\vdots}&\phantom{\vdots} & \\
+\cdots& D_{k-1}&\phantom{A} &\phantom{\cdots}\\
+\cdots&C_kB_{k-1}&D_k& \phantom{\cdots}\\[0.65cm,between origins]
+\iddots& \vdots& \vdots &\ddots \\
+	};
+
+\node[coordinate] (north) at ($(T-1-2.north)!0.65!(T-1-3.north)$) {};
+\node[coordinate] (south) at ($(T-4-2.south)!0.65!(T-4-3.south)$) {};
+\node[coordinate] (west) at ($(T-2-1.west)!0.5!(T-3-1.west)$) {};
+\node[coordinate] (east) at ($(T-2-4.east)!0.5!(T-3-4.east)$) {};
+\filldraw[name = Hrect, fill=C0!40, draw=white] (west) rectangle  (south); 
+\draw[border,C0] (south) -- ($(west)!(north)!(east)$) -- (west);
+
+
+     \matrix [%
+       matrix of math nodes,
+       column sep=-0.1em,
+       row sep=0.2em,
+				left delimiter=\lbrack,right delimiter=\rbrack
+    	] (T) {
+\ddots& \phantom{\vdots}&\phantom{\vdots} & \\
+\cdots& D_{k-1}&\phantom{A} &\phantom{\cdots}\\
+\cdots&C_kB_{k-1}&D_k& \phantom{\cdots}\\[0.65cm,between origins]
+\iddots& \vdots& \vdots &\ddots \\
+     };
+
+\node[name=Hcausakpos,shape=coordinate] at ($(T-4-2.south west)+(-0.2em,-1em)$) {};
+\node[anchor = east,C0] (Hcausal) at (Hcausakpos) {$H_k = \mathcal{O}_k\mathcal{R}_k$};
+\draw[->,C0,border] ($(Hcausakpos)+(-1.mm,0)$) to [out=0,in=270] (T-4-2.south east);
+\node[name=Hanticausakpos,shape=coordinate] at ($(T-1-3.north west)+(0.2em,1.35em)$) {};
+\node[anchor = west,C0] (Hanticausal) at (Hanticausakpos) {$\phantom{H_{k-1}}$};
+
+\end{tikzpicture} 
+\end{matrix}
+\end{equation}

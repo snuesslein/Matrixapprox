@@ -138,20 +138,20 @@
 
 
 
-\todo[inline]{Make the usage of the state transforms consistent}
-\todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
-\todo[inline]{How to denote matrices and $d$ for anticausal systems}
-\todo[inline]{neural networks}
-\todo[inline]{eye in papers}
+%\todo[inline]{Make the usage of the state transforms consistent}
+%\todo[inline]{Definition of SVD, maybe state reduced svd directly in algorithm to avoid this counting and cutting}
+%\todo[inline]{How to denote matrices and $d$ for anticausal systems}
+%\todo[inline]{neural networks}
+%\todo[inline]{eye in papers,Hankelrank od Hankel rank}
 
 
 
 \chapter{Introduction} 
 
 The computational complexity for training and evaluation neural networks is steadily increasing \cite{Schwartz_green_2020}.
-As the neural nets get larger, the evaluation of the neural nets get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
-The linear layers in a neuronal networks are usually represented with matrices.
-When the neural nets is evaluated, one has to compute the matrix vector product.
+As the neural networks get larger, the evaluation of the neural networks get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
+The linear layers in a neural networks are usually represented with matrices.
+When the neural network is evaluated, one has to compute the matrix vector product.
 For a full unstructured matrix this is of the order $\bigO(n^2)$ \cite{hackbusch_hierarchische_2009}.
 For large $n$ the cost for computing the matrix vector products will therefore dominate over terms with linear growth.
 %This means that the cost for the calculation is quadratic in the number of neurons.
@@ -209,7 +209,7 @@ In both cases I need to compute the Hankel singular values efficiently.
 
 Chapter\,\ref{chap:lit} will give an review of different matrix structures and their use in neural networks.
 In Section\,\ref{sec:mat_structures} different matrix structures related to sequentially semiseperabel matrices are presented
-and in Section\,\ref{sec:AI_weight} approaches to use structured matrices in neural nets are collected.
+and in Section\,\ref{sec:AI_weight} approaches to use structured matrices in neural networks are collected.
 Because time varying systems will be used in this thesis, a short intoduction will be given in Chapter\,\ref{chap:background}.
 In Chapter\,\ref{chap:methods} the methods to create system representation for a matrix with unknown structural parameters will be presented.
 First different prerequisites are discussed.
@@ -247,7 +247,7 @@ This can analogously be used for a matrix. Here $A_{[i,j]}$ denotes the $j$-th e
 \chapter{Literature Review}\label{chap:lit}
 In the next section different matrix structures are described.
 These are matrices that have certain properties.
-In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neural nets are presented.
+In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neural networks are presented.
 
 \todo[color=blue!40]{changed ordering and new introduction}
 
@@ -385,17 +385,17 @@ Unlike semiseperable matrices the sequentially semiseperable matrices do not hav
 \section{Neural Nets}\label{sec:AI_weight}
 %Special matrix structures are been explored for the use in neural nets.
 %Here different matrices structures are used to improve the performance. 
-In this section different approaches that use structured matrices in neural nets are shortly introduced.
+In this section different approaches that use structured matrices in neural networks are shortly introduced.
 There are two main approaches to obtain structured matrices:
 In one case the structure is predetermined and the parameters of the structure are trained by a regular training process \cite{fan_multiscale_2019,dao_kaleidoscope_2020,li_butterfly_2015,ailon_sparse_2021,ioannou_training_2016}.
-Or the neural net is trained without a predetermined matrix structure and the matrices are later approximated with structured matrices \cite{wu_hybrid_2020,hassibi_optimal_1993,jaderberg_speeding_2014,rigamonti_learning_2013}. In \cite{yu_compressing_2017} the model was retrained after the approximation. 
+Or the neural network is trained without a predetermined matrix structure and the matrices are later approximated with structured matrices \cite{wu_hybrid_2020,hassibi_optimal_1993,jaderberg_speeding_2014,rigamonti_learning_2013}. In \cite{yu_compressing_2017} the model was retrained after the approximation. 
 There are also approaches where the approximation is done during the training procedure like \cite{dettmers_sparse_2019} or a structure is created using regularization \cite{louizos_learning_2018,wen_learning_2016}.
 
 
-One widely known approach to reduce the complexity of neural nets is pruning. 
-These are processes that set elements in neural net matrices to zero to reduce the computational cost \cite{blalock_what_2020}.
+One widely known approach to reduce the complexity of neural networks is pruning. 
+These are processes that set elements in neural network matrices to zero to reduce the computational cost \cite{blalock_what_2020}.
 This is equivalent to removing connections between neurons.
-An approach to remove connections from a trained net based on the Hessian of the loss function was proposed by Hassibi \cite{hassibi_optimal_1993}.
+An approach to remove connections from a trained network based on the Hessian of the loss function was proposed by Hassibi \cite{hassibi_optimal_1993}.
 It is also possible to obtain sparse matrices while training.
 Dettmers and Zettlemoyer use an algorithm that includes pruning steps during the training after every epoch \cite{dettmers_sparse_2019}.
 A different approach to obtain sparse matrices is including a regularization term.
@@ -410,11 +410,11 @@ To avoid an accumulation of errors due to the compression of multiple layers, th
 This is achieved by defining the objective function as the difference between the outputs of the approximation for a collection of approximated input vectors and the corresponding output vectors.
 
 The structure of Hierarchical matrices will be explained in subsection\,\ref{subsec:H-mat}. These matrices have also been used in machine learning. 
-Fan et al. used the structure of $\mathcal{H}$-Matrices in neural nets to solve PDEs \cite{fan_multiscale_2019}. There the structure of the neural net makes use of the different scales in the system.
+Fan et al. used the structure of $\mathcal{H}$-Matrices in neural networks to solve PDEs \cite{fan_multiscale_2019}. There the structure of the neural network makes use of the different scales in the system.
 Hierarchical tensor decompositions were used by Wu et al. to represent weight matrices and convolutional kernels \cite{wu_hybrid_2020}.
 Ithapu used hierarchical factorization of covariance matrices to explore relationships between classes \cite{ithapu_decoding_2017}.
 
-A different matrix structure explored in neural nets are butterfly matrices.
+A different matrix structure explored in neural networks are butterfly matrices.
 These are products of sparse matrices that overall have a similar structure to the fast Fourier transform \cite{li_butterfly_2015,parker_random_1995}. Ailon et al. used this matrix structure to represent dense layers \cite{ailon_sparse_2021}.
 The butterfly structure was combined with CNNs by Li et al. \cite{li_butterfly-net_2020}. This structure can be used to efficiently represent Fourier kernels.
 An extension of butterfly matrices are Kaleidoscope matrices (K-matrices). These were introduced by Dao et al. in \cite{dao_kaleidoscope_2020}.
@@ -565,10 +565,9 @@ For a causal system this can be written as
 \end{equation}
 %If we take the transfer operator and 
 %This is the same matrix strucure as we obtain if we take a matrix form the strictly lowertriangular blockmatrix $T$ 
-The same structure can be found in the Transfer operator $T$.% seen in Equation\,\ref{eq:T_causal}.
-\todo{reword,eventually a marked matrix}
-
-
+The same structure can be found in the transfer operator $T$% seen in Equation\,\ref{eq:T_causal}.
+\vspace*{-0.7cm}
+\input{diagrams/Hankel_matrices.pgf}
 If the rows of $\R_k$ are linearly independent, the range of $\R_k$ is $\mathbb{R}^d_k$, where $d_k$ is the number of dimensions of $x_k$.
 This means that we can reach every state with an according input.
 Therefore we call a system reachable if every $R_k$ has a full row rank.
@@ -651,22 +650,22 @@ As $A_1$ has zero columns and $A_3$ has zero rows, the first block-column and th
 An analogous factorization is possible for anticausal systems.
 Here the ordering is reversed and we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
 
-We can also represent mixed systems as factorization, if we insert the factorizations for the causal part $T_{\text{causal}}$ and the anticausal parts $T_{\text{anticausal}}$ in the formula
-\begin{equation}
-	T = 
-	\begin{bmatrix}
-	\eye &
-	\eye
-	\end{bmatrix}
-	\begin{bmatrix}
-	T_{\text{causal}}&\\
-	&T_{\text{anticausal}}
-	\end{bmatrix}	
-	\begin{bmatrix}
-	\eye\\
-	\eye
-	\end{bmatrix}
-\end{equation}
+%We can also represent mixed systems as factorization, if we insert the factorizations for the causal part $T_{\text{causal}}$ and the anticausal parts $T_{\text{anticausal}}$ in the formula
+%\begin{equation}
+%	T = 
+%	\begin{bmatrix}
+%	\eye &
+%	\eye
+%	\end{bmatrix}
+%	\begin{bmatrix}
+%	T_{\text{causal}}&\\
+%	&T_{\text{anticausal}}
+%	\end{bmatrix}	
+%	\begin{bmatrix}
+%	\eye\\
+%	\eye
+%	\end{bmatrix}
+%\end{equation}
 Sequentially semiseperable matrices can be added, multiplied and inverted using algorithms that work on the state space description.
 It is also possible to calculate QR factorization \cite{chandrasekaran_fast_2002,tong_blind_2003} or URV factorization \cite{chandrasekaran_fast_2005}. 
 %Note on URV more papers in Dewilde,Diepold and van der Veen p315 
@@ -773,16 +772,12 @@ In Section\,\ref{sec:Segmentation} methods to change the segmentation are presen
 
 \section{Matrix Approximations}\label{sec:approx}
 
-%\begin{itemize}
-%\item Discuss ordering of the sigmas, and cutting states if the sigmas are ordered.
-%\item Define ordered realization as extention of the ballanced realization
-%\item Describe how to get the sigmas for a system by transforming it.General idea: We do not have to compute the SVD of the total Hankel matrix, if we take a input-nomal system and convert it step by step to a output-normal.
-%\item Describe the overall approximation algorithm.
-%\end{itemize}
+In this section more details of the balanced truncation derived in this thesis are described.
+First, the class of ordered systems is presented, that makes it possible to use the balanced truncation on certain systems that are not balanced.
+Next a algorithm to compute the required singular values is given.
+Finally an error bound for the approximation of matrices is derived.
 
-\todo[inline]{ Also I need to make the structure consistent}
-
-\paragraph{Balanced truncation of ordered systems}
+\subsection{Balanced truncation of ordered systems}
 In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
 These have the property that $\Ob_k = U_k \Sigma_{\Ob k}$ and $\R_k = \Sigma_{\R k} V_k^\top$ where $\Sigma_{\Ob k} = \Sigma_{\R k}=\Sigma_k^{1/2}$.
 The balanced truncation is also possible for a wider class of realizations.
@@ -1177,7 +1172,7 @@ The total error is smaller or equal to the sum of the errors for the causal and 
 For the case of matrix approximation, it is also possible to give a bound for the combined approximation.
 For this we first start by considering a case where we only approximate the $k$-th state of the causal system and the $k-1$-th state of the anticausal system.
 
-In this case the Hankel matrices $H_k$ and $H^*_{k-1}$ 
+In this case the Hankel matrix of the casual system $H_k$ and the Hankel matrix of the anticausal system $H^*_{k-1}$ 
 \input{diagrams/Approx_combined.pgf}
 are replaced with the low rank approximation $\hat{H}_k$ and $\hat{H}^*_{k-1}$.
 These are based on the SVD of $H_k$ and $H^*_{k-1}$.
@@ -1218,15 +1213,16 @@ V_{k}
 \end{bmatrix}
 \end{equation}
 and then permuting the matrices such that the singular values are ordered in decreasing order.
-Using the singular values, the Spectral norm can be computed 
+Using the singular values, the spectral norm can be computed 
 \begin{equation}\label{eq:bound_single}
 	\|T-\hat{T}^{(k)}\| = \max(\sigma)
 \end{equation}
 and the Frobenius norm is
 \begin{equation}
-	\|T-\hat{T}^{(k)}\|_\text{F} = \sqrt{\sum_{i=1}^{M}\sigma_i^2}
+	\|T-\hat{T}^{(k)}\|_\text{F} = \sqrt{\sum_{i=\hat{d}_k+1}^{d_k}\sigma_i^2
+	+\sum_{i=\hat{d}_k^*+1}^{d_k^*}\sigma_i^{*2}}
 \end{equation}
-According to the Schmidt–Mirsky Theorem \cite{bai_matrix_2021} the approxiamtion is optimal for the operator norm $\|X\|$ and the Frobenius norm $\|X\|_\text{F}$.
+According to the Schmidt–Mirsky Theorem \cite{bai_matrix_2021} the approxiamtion is optimal for the spectral norm $\|X\|$ and the Frobenius norm $\|X\|_\text{F}$.
 
 If multiple states are approximated, the error form the individual approximations have to be combined.
 
@@ -1236,11 +1232,11 @@ In general
 \end{equation}
 is true.
 Nevertheless the total error in the spectral norm is bounded by 
-\begin{equation}
+\begin{equation}\label{eq:error_spectral}
 	\|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\|
 \end{equation}
 and for the Frobenius norm by
-\begin{equation}
+\begin{equation}\label{eq:error_frobenius}
 \|T-\hat{T}\|_\text{F} \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\|_\text{F}
 .
 \end{equation}
@@ -1250,7 +1246,7 @@ and for the Frobenius norm by
 \end{proof}
 
 
-For the operator norm this results in the upper bound 
+For the spectral norm this results in the upper bound 
 \begin{equation}\label{eq:bound_spectral_K}
 	\|T-\hat{T}\| \leq \sum_{i=1}^K \epsilon \leq K\epsilon
 \end{equation}
@@ -1450,14 +1446,14 @@ The algorithms are constructed such that they also preserve the minimality of th
 	\begin{algorithmic}
 		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}$ }
 		\Output{System $\Sigma_{[A,B,C,D]}$ with changed input dimensions}
-		\State $b \gets B_k[:,-1]$
-		\State $D_k \gets D_k[:,:-2]$
-		\State $B_k \gets B_k[:,:-2]$
+		\State $b \gets B_{k[:,-1]}$
+		\State $D_k \gets D_{k[:,:-2]}$
+		\State $B_k \gets B_{k[:,:-2]}$
 		\State $D_{k+1} \gets [C_{k+1}b,D_{k+1}]$
 		\State $B_{k+1} \gets [A_{k+1}b,B_{k+1}]$
-		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k])$ 
-		\If{$\sigma[-1] < \text{tol}$}
-		\State $U \gets U[:,:-2]$; $\sigma \gets \sigma[:-2]$; $V \gets V[:-2,:]$
+		\State $U,\sigma,V^\top \gets$ SVD$([A_k,B_k],\text{econ}=\text{True})$ 
+		\If{$\sigma_{[-1]} < \text{tol}$}
+		\State $U \gets U_{[:,:-2]}$; $\sigma \gets \sigma_{[:-2]}$; $V \gets V_{[:-2,:]}$
 		%\State $U \gets U[:,:-2]$
 		%\State $\sigma \gets \sigma[:-2]$
 		%\State $V \gets V[:-2,:]$
@@ -1517,14 +1513,14 @@ The pseudocode to move the boundary to the left is given in Algorithm\,\ref{alg:
 	\begin{algorithmic}
 		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}$ }
 		\Output{System $\Sigma_{[A,B,C,D]}$ with changed output dimensions}
-		\State $c^\top \gets C_{k+1}[1,:]$
-		\State $D_{k+1} \gets D_{k+1}[2:,]$
-		\State $C_{k+1} \gets C_{k+1}[2:,:]$
+		\State $c^\top \gets C_{k+1[1,:]}$
+		\State $D_{k+1} \gets D_{k+1[2:,]}$
+		\State $C_{k+1} \gets C_{k+1[2:,:]}$
 		\State $D_k \gets \begin{bmatrix} D_k\\c^\top B_k	\end{bmatrix}$
 		\State $C_k \gets \begin{bmatrix} C_k\\c^\top A_k	\end{bmatrix}$
-		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix}\right)$ 
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix},\text{econ}=\text{True}\right)$ 
 		\If{$\sigma[-1] < \text{tol}$}
-		\State $U \gets U[:,:-2]$; $\sigma \gets \sigma[:-2]$; $V \gets V[:-2,:]$
+		\State $U \gets U_{[:,:-2]}$; $\sigma \gets \sigma_{[:-2]}$; $V \gets V_{[:-2,:]}$
 		%\State $U \gets U[:,:-2]$
 		%\State $\sigma \gets \sigma[:-2]$
 		%\State $V \gets V[:-2,:]$
@@ -1579,21 +1575,21 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
 		%		#v is the index to the left of the boundary
 		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}$} 
 		\Output{System $\Sigma_{[A,B,C,D]}$ with changed input dimensions}
-		\State $b \gets B_{k+1}[:,1]$
-		\State $d \gets D_{k+1}[:,1]$
-		\State $B_{k+1} \gets B_{k+1}[:,2:]$
-		\State $D_{k+1} \gets D_{k+1}[:,2:]$
+		\State $b \gets B_{k+1[:,1]}$
+		\State $d \gets D_{k+1[:,1]}$
+		\State $B_{k+1} \gets B_{k+1[:,2:]}$
+		\State $D_{k+1} \gets D_{k+1[:,2:]}$
 		%		#check if [d;b] in range(C_v+1;Av+1)
 		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
 		C_{k+1}\\A_{k+1}
-		\end{bmatrix}\right)$ Full matrices 
+		\end{bmatrix}\right)$ 
 		
-		\State $r \gets $ count$(\sigma>\text{tol}_i)$\Comment{TODO: is r needed?}
+		\State $r \gets $ count$(\sigma>\text{tol}_i)$
 		\State $a \gets U^\top \begin{bmatrix}
 		d\\b
 		\end{bmatrix}$
 		%\If{any $|a[r+1:]|>\text{tol}$}
-		\If{$\|a[r+1:]\|>\text{tol}$}
+		\If{$\|a_{[r+1:]}\|>\text{tol}$}
 		\Comment not in range
 		\State $B_k \gets \begin{bmatrix}
 		B_k & 0\\
@@ -1606,7 +1602,7 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
 		\State $C_{k+1} \gets [C_{k+1},d]$		
 		\Else
 		%			#in range -> no need for an additional dim
-		\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
+		\State $m \gets V_{[:,:r]} \diag(\sigma_{[:r]})^{-1} a_{[:r]}$
 		\State $B_k \gets \begin{bmatrix} B_k & m\end{bmatrix}$
 		%		
 		\EndIf
@@ -1693,7 +1689,7 @@ If the vector $[d^\top,b^\top]^\top$ is in the range, the norm of
 Here $r$ is the number of nonzero singular values.
 The vector $m$ is computed with 
 \begin{equation}
-	m = V[:,:r] \diag(\sigma[:r])^{-1} a[:r]
+	m = V_{[:,:r]} \diag(\sigma_{[:r]})^{-1} a_{[:r]}
 	.
 \end{equation}
 This is equivalent to calculating the vector $m$ using the pseudoinverse.  
@@ -1723,18 +1719,18 @@ This connection is drawn with a dotted line in Figure\,\ref{fig:move_right}.
 	\begin{algorithmic}
 		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}_r$ } 
 		\Output{System $\Sigma_{[A,B,C,D]}$ with changed  output dimensions}
-		\State $c^\top \gets C_{k}[-1,:]$
-		\State $d^\top \gets D_{k}[-1,:]$
-		\State $C_{k} \gets C_{k}[:-2,:]$
-		\State $D_{k} \gets D_{k}[:-2,:]$
+		\State $c^\top \gets C_{k[-1,:]}$
+		\State $d^\top \gets D_{k[-1,:]}$
+		\State $C_{k} \gets C_{k[:-2,:]}$
+		\State $D_{k} \gets D_{k[:-2,:]}$
 		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
 		A_{k+1}^\top\\B_{k+1}^\top
-		\end{bmatrix}\right)$ Full matrices 
+		\end{bmatrix}\right)$ 
 		\State $r \gets $ count$(\sigma>\text{tol}_i)$
 		\State $a \gets U^\top \begin{bmatrix}
 		c\\d
 		\end{bmatrix}$
-		\If{$\|a[r+1:]\|>\text{tol}$} 
+		\If{$\|a_{[r+1:]}\|>\text{tol}$} 
 		\Comment not in range
 		\State $A_k \gets \begin{bmatrix}
 		A_k \\ c^\top
@@ -1749,10 +1745,10 @@ This connection is drawn with a dotted line in Figure\,\ref{fig:move_right}.
 		A_{k+1} & 0
 		\end{bmatrix}$
 		\Else
-		\State $m \gets V[:,:r] \diag(\sigma[:r])^{-1} a[:r]$
+		\State $m \gets V_{[:,:r]} \diag(\sigma_{[:r]})^{-1} a_{[:r]}$
 		\State $C_{k+1} \gets \begin{bmatrix} m^\top\\C_{k+1} \end{bmatrix}$
 		\EndIf
-		\State $D_v \gets \begin{bmatrix}
+		\State $D_k \gets \begin{bmatrix}
 		d_{\text{new}} \\D_k
 		\end{bmatrix}$
 	\end{algorithmic}
@@ -1826,14 +1822,14 @@ The algorithm starts with an output normal system and transforms it into a order
 When moving the boundary between $u_{k-1}$ and $u_{k}$ to the left the distance $l$, the last $l$ columns of $\R_{k}$ are removed.
 Based on this we have the new Hankel matrix
 \begin{equation}
-	\tilde{H}_k = \tilde{\Ob}_k \tilde{\R}_k = \Ob_{k}\R_{k}[:,:-(l+1)]
+	\tilde{H}_k = \tilde{\Ob}_k \tilde{\R}_k = \Ob_{k}\R_{k[:,:-(l+1)]}
 	.
 \end{equation}
 Using the decomposition from Equation\,\ref{eq:decomp_R} this becomes
 \begin{equation}
 	H_{k}=\Ob_{k}
 	\begin{bmatrix}
-	A_{k-1}&B_{k-1}[:,:-(l+1)]
+	A_{k-1}&B_{k-1[:,:-(l+1)]}
 	\end{bmatrix}
 	\begin{bmatrix}
 	\R_{k-1} & 0\\ 0& \eye
@@ -1841,7 +1837,7 @@ Using the decomposition from Equation\,\ref{eq:decomp_R} this becomes
 	.
 \end{equation}
 If $\Ob_k^\top \Ob_k = \eye$ and $\R_{k-1} \R_{k-1}^\top = \eye$ then the singular values of the SVD of $\begin{bmatrix}
-A_{k-1}&B_{k-1}[:,:-(l+1)]
+A_{k-1}&B_{k-1[:,:-(l+1)]}
 \end{bmatrix}$ are the singular values of $H_k$.
 This is the case as the initial system is output normal and the previous stages were already transformed to input normal form.
 Based on the singular value decomposition, the stage can be transformed such that $\R_{k} \R_{k}^\top = \eye$.
@@ -1934,17 +1930,13 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 	%\For{$k\gets 2$ \textbf{to} $K$}
 		\State $\Sigma_{[A,B,C,D]} \gets \text{input normal}_k(\Sigma_{[A,B,C,D]})$
 		\Comment Transform state $x_k$
-		\State $b \gets B_{k}[:,:l]$
-		\State $d \gets D_{k}[:,:l]$
-		\State $B_{k+1} \gets B_{k}[:,l+1:]$
-		\State $D_{k+1} \gets D_{k}[:,l+1:]$
-		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
+		\State $b \gets B_{k[:,:l]}$
+		\State $d \gets D_{k[:,:l]}$
+		\State $B_{k+1} \gets B_{k[:,l+1:]}$
+		\State $D_{k+1} \gets D_{k[:,l+1:]}$
+		\State $U,\sigma,V^\top \gets$ reducedSVD$\left(\begin{bmatrix}
 		C_{k+1}&d\\A_{k+1}&b
-		\end{bmatrix}\right)$  
-		\State $r \gets $ count$(\sigma>\text{tol}_i)$
-		\State $U \gets U[:,:r]$
-		\State $\sigma \gets \sigma[:r]$
-		\State $V^\top \gets V^\top[:r,:]$
+		\end{bmatrix},\epsilon=\text{tol}\right)$  
 		\State $B_{k-1} \gets V^\top \begin{bmatrix}
 		B_{k-1} & 0\\
 		0 & \eye
@@ -1990,7 +1982,6 @@ This is done for every boundary.
 By doing this using the algorithms described in the previous subsection, the systems are transformed into a causal input normal system and an anticausal output normal system.
 These algorithms also compute the singular values of the Hankel matrices. This makes it possible to use these in the objective function.
 After this, we adapt the input dimensions.
-\todo{reword}
 Again, this is done by computing three preliminary systems were the 
   bounds are moved to the left, not moved and moved to the right.
 Then the option with the lowest objective function is used.
@@ -2076,7 +2067,7 @@ The Nuclear norm is defined as the sum of the singular values
 	.
 \end{equation}
 The nuclear norm can be used to get low rank solutions in optimization problems \cite{liu_interior-point_2010}.
-We get a lower bound of the rank by dividing with the operator norm $\|H\|$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
+We get a lower bound of the rank by dividing with the spectral norm $\|H\|$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
 This results in the objective function
 \begin{equation}\label{eq:objective_nuc}
 	\f_{\text{nuc}}(\Sigma)= \sum_{\text{all } H} \frac{\|H\|_*}{\|H\|}
@@ -2414,15 +2405,15 @@ For this the algorithm also returns the intermediate singular values $\Sigma_\be
 
 \subsection{Segment Matrix}\label{subsec:segment_matrix}
 Every time we split up a stage we have to determine which inputs and outputs of the current stage correspond to the stage $\alpha$ and which one correspond to the stage $\beta$.
-We want to do this in such a way that the Hankel ranks of the causal and the anticausal systems are reduced.
+We want to do this in such a way that the Rank of the Hankel matrices of the causal and the anticausal systems are reduced.
 This is again nontrivial as we have to solve a discrete optimization problem. 
 
 We need to group the rows and columns of the matrix
 \begin{equation}
 X=
 \begin{bmatrix}
-	0   &F_k^* & E_k^*\\
-	C_k & D_k & G_k^*\\
+	0   &F_k & E_k\\
+	C_k & D_k & G_k\\
 	A_k & B_k & 0
 \end{bmatrix}
 .
@@ -2570,7 +2561,7 @@ Next we consider the case where the Hankel matrices have close to full rank.
 Here balanced truncation is used to approximate the system.
 To reduce the number of states, the number of singular values grater than some threshold have to be reduced.
 To achieve this I reduce the sum of the squared singular values.
-This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$ \cite[p.~67]{bai_matrix_2021}. \todo{This was already used in this thesis. I think it is easier if i state it a second time here instead of giving a reference}
+This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$. 
 Because $\|H\|_\text{F}^2 = \sum_{i=1}^{m}\sum_{j=1}^{n} h_{ij}^2$ this results in the problem of partitioning the inputs and outputs such that the sum over the squared entries of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ is reduced.
 As $\|H\|_\text{F}^2 \approx \text{size}(H)$ for the weight matrices tested, this would be equivalent to minimizing the size of $H_\beta$ and $H_\alpha^*$.
 %\textcolor{blue}{
@@ -2624,7 +2615,7 @@ This results in the matrix
 	.
 \end{equation}
 
-
+\todo[inline]{make a clearer ending}
 %Also the Size of the matrix $X$ can be decreased by replacing the matrices $B_k$ and $F_k^*$ by their column-wise sums $b_k^\top$ and $f_k^top$. 
 %The matrices $C_k$ and $G_k$ are replaced by their row wise sum $c_k$ and $g_k$.
 %Finally the matrices $A_k$ and $E_k$ are replaced by their elementwise sum $a$ and $c$
@@ -2661,7 +2652,7 @@ After this I test the algorithms on weight matrices form the \emph{Mobilenet V2}
 When approximating the weight matrices, the goal is to reduce the number of floating point operations.
 The number of floating point operations was described in Section\,\ref{sec:cost}.
 At the same time the approximation error should stay small.
-To measure the approximation error I use the operator norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
+To measure the approximation error I use the spectral norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
 
 The code to reproduce the experiments can be found in \todo{Add github}.
 The code uses the library \emph{tvsclib} \cite{kissel_time_2022} to handle the time varyying systems.
@@ -2720,7 +2711,7 @@ This is done in every iteration.
 		\label{fig:example_move_bound_b}
 	\end{subfigure}
 	\caption{Illustration of the change of the segmentation.
-		The blue lines mark how the boundaries change as the algorithm adapts the segmentation TODO: illustrate checks for crossing boundaries
+		The blue lines mark how the boundaries change as the algorithm adapts the segmentation.
 	}
 	\label{fig:example_move_bound}
 \end{figure}
@@ -2731,6 +2722,9 @@ I used $l = [4,2,1,1]$ as search distances for this example.
 The Plot in Figure\,\ref{fig:example_move_bound_a} shows all the positions that are possible at every iteration.
 We can see that in the first iterations the possible changes are larger and decrease for further iterations.
 We can also observe that it is possible to reach the same segmentation using different paths.
+The algorithm also makes sure, that the boundaries do not cross.
+Therefore some paths are not possible as these would require crossing another boundary. 
+In Figure\,\ref{fig:example_move_a} these are drawn with dotted lines.
 The Figure\,\ref{fig:example_move_bound_b} shows how the segmentation is changing between the iterations. 
 
 %The algorithm does not always converge to the original segmentation if the Hankel matricies have a higher rank.
@@ -3028,7 +3022,7 @@ Especially in the case of $\mathcal{H}$-matrices.
 These also rely on recursively splitting the matrix into submatrices.
 When weight matrices are approximated with $\mathcal{H}$-matrices, this require nonstandard admissibility conditions to determine if a matrix can be represented using a low rank approximation.
 
-The techniques to change the segmentation can be used without increasing the approximation error measured in the operator norm.
+The techniques to change the segmentation can be used without increasing the approximation error measured in the spectral norm.
 In this thesis I did not test how this influences the total accuracy of the neural network. 
 The approximation error does give an indication, but does not fully describe the behavior.
 Future research is needed to determine how the approximation and the changing of the segmentation influences the accuracy of the neural network.
@@ -3037,13 +3031,17 @@ Future research is needed to determine how the approximation and the changing of
 \appendix
 \chapter{Matrix Approximation Error Bounds}\label{A:Error Bounds}
 
-In this chapter a proof for the equation
+In this chapter a proof for the Equation\,\ref{eq:error_spectral}
 \begin{equation}
 \|T-\hat{T}\| \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\| .
 \end{equation}
-is given.
-First we decompose the change due to the balanced truncation into
+and for the Equation\,\ref{eq:error_spectral}
 \begin{equation}
+\|T-\hat{T}\|_\text{F} \leq \sum_{i=1}^K \|T-\hat{T}^{(k)}\|_\text{F}
+\end{equation}
+is given.
+To prove the bound we decompose the change due to the balanced truncation into
+\begin{equation}\label{eq:decomposition_approx_sum}
 	T-\hat{T} =
 	\begin{bmatrix}
 	&\Delta_0^*\\
@@ -3065,7 +3063,8 @@ The matrix $\Delta_k$ denotes the difference caused by the balanced truncation o
 \begin{equation}
 	\Delta_k = \Ob_{k}\R_{k} - \hat{\Ob}_k\hat{\R}_k = \Ob_{k[2]}\R_{k[2]}
 \end{equation}
-and the matrix $\breve{\Delta}_k$ denotes the difference causes by a balanced truncation of the state $k$ if the later stages have already been truncated using balanced truncation. This can be  expressed as 
+and the matrix $\breve{\Delta}_k$ denotes the difference causes by a balanced truncation of the state $k$ if the later stages have already been truncated using balanced truncation. 
+For the causal system this can be expressed as 
 \begin{equation*}
 \tilde{\Delta}_k=
 	\begin{bmatrix}
@@ -3128,6 +3127,7 @@ Using the triangle inequality we obtain the relation
 \Bigg\|.
 \end{equation}
 
+\paragraph{Spectral Norm}
 The idea is to prove that $\|\Delta_k\|$ is equal or larger than the actual introduced difference $\|\breve{\Delta}_k\|$.
 Using the bound form Equation\,\ref{eq:bound_single} we can then bound the matrix
 \begin{equation}
@@ -3145,7 +3145,7 @@ To prove $\|\breve{\Delta}_k\| \leq \|\Delta_k\|$ it is sufficient to prove
 \end{equation}
 for any vector $u$.
 \begin{proof}
-	For this we use the definition of the operator norm
+	For this we use the definition of the spectral norm
 	\begin{equation}
 		\|\breve{\Delta}_k\| =
 		\underset{\|u\|_2 = 1}{\max}(\|\breve{\Delta}_k u\|_2)
@@ -3449,8 +3449,12 @@ Be reordering and using the fact that the squared norms larger or equal than $0$
 	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
 	.
 \end{equation}
-This proves the relation form Equation\,\ref{eq:A_breve_leq_delta}.
+This proves the relation form Equation\,\ref{eq:A_breve_leq_delta} for the causal matrices.
+The anticausal case can be proven by transposing the matrix.
+In this case the state $1$ is approximated first as indicated in Equation\,\ref{eq:decomposition_approx_sum}
+The details are left as an exercise to the examiner.
 
+\paragraph{Frobenius Norm}
 Using Equation\,\ref{eq:A_breve_leq_delta} it is also straightforward to prove the relation for the Frobenius norm
 as 
 \begin{equation}
@@ -3461,24 +3465,70 @@ The relation $\|\breve{\Delta}_k e_i\|_2^2 \leq \|\Delta_k e_i\|_2^2$ implies th
 \begin{equation}
 	\|\breve{\Delta}_k\|_\text{F} \leq \|\Delta_k\|_\text{F}
 \end{equation}
+\begin{equation}
+\|T-\hat{T}\| \leq
+\Bigg\|
+\begin{bmatrix}
+&\Delta_0^*\\
+\breve{\Delta}_1
+\end{bmatrix}
+\Bigg\|+\Bigg\|
+\begin{bmatrix}
+&\breve{\Delta}_1^*\\
+\breve{\Delta}_2
+\end{bmatrix}
+\Bigg\|+\dots+\Bigg\|
+\begin{bmatrix}
+&\breve{\Delta}_{K-1}\\
+\Delta_K
+\end{bmatrix}
+\Bigg\|.
+\end{equation}
 
 
 \chapter{Random Sequentially Semiseperable matrices}\label{A:random_T}
 
-\todo[inline]{Make ti more clear, discuss properties, explain higher ranks...}
-The random sequentially semipermeable matrix $T$ is constructed according to
+%In this section the construction of the random sequentially semiseperable matrices are  
+In this section the algorithm to construct the sequentially semiseperable matrices used in Chapter\,\ref{chap:experiments} is explained.
+The matrices can be parameterized with the the input dimensions $m_k$, the output dimensions $p_k$ and the rank of the  Hankel matrices.
+The generated matrices have the property, that the range of $C$, $D$ and $G$ are orthogonal to each other.
+Also the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.
+
+
+To archive the orthogonality, random orthogonal matrices form the Haar distribution are used.
+The matrices are generated by the algorithm described in \cite{mezzadri_how_2007}, that is available in \emph{SciPy}.
+Here we denote the group of orthogonal matrices with $n$ dimensions as $O(n)$.
+
+For every stage $i \in 1, \dots ,K$ the matrices 
+\begin{align}
+	\tilde{U}_k &=p_k U_k  & \text{with } U_k &\in O(p_k)\\
+	\tilde{V}_k &=m_k V_k  & \text{with } V_k &\in O(m_k)
+\end{align}
+are generated.
+The matrices are scaled with $p_k$ and $m_k$ respectively to make sure that 
 \begin{equation}
-	A_{[i,j]} = 
+	\frac{\|v\|_2}{\length(v)} = 1  
+\end{equation}
+for all columns of $\tilde{V}_k$ and $\tilde{U}_k$.
+The random sequentially semipermeable matrix $T$ with Hankel matrices of rank $d$ is constructed form the block matrices 
+\begin{equation}
+	T_{[i,j]} = 
 	\begin{cases}
-	U_{i[:,0]} V_{j[:,0]}^\top & \text{if } i<j\\
-	U_{i[:,1]} V_{j[:,1]}^\top & \text{if } i=j\\
-	U_{i[:,2]} V_{j[:,2]}^\top & \text{if } i>j\\
+	\tilde{U}_{i[:,d]} \tilde{V}_{j[:,d]}^\top & \text{if } i<j\\
+	\tilde{U}_{i[d+1,2d]} \tilde{V}_{j[d+1,2d]}^\top & \text{if } i=j\\
+	\tilde{U}_{i[2d+1,3d]} \tilde{V}_{j[2d+1,3d]}^\top & \text{if } i>j\\
 	\end{cases}
 \end{equation}
-Here the matrices $U_i \in \mathbb{R}^{p_i\times p_i}$ and $V_i \in \mathbb{R}^{m_i\times m_i}$ are random orthogonal matrices. \todo{cite paper on the paricular distribution}
-These are scaled such that $\|U_{i[:,0]}\|_2=p_i$ and $\|V_{i[:,0]}\|_2=m_j$.
+These are then combined according to 
+\begin{equation}
+	T = \begin{bmatrix}
+	T_{[1,1]} & T_{[1,2]} & \dots & T_{[1,k]}\\
+	T_{[2,1]} & T_{[2,2]} & \dots & T_{[2,k]}\\
+	\vdots & \vdots & \ddots &\vdots\\
+	T_{[K,1]} & T_{[K,2]} & \dots & T_{[K,K]}
+	\end{bmatrix}
+\end{equation}
 
-% Puts out the list of references
 \printbibliography{}
 
 \end{document}
