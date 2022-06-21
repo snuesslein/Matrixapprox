@@ -117,14 +117,38 @@
 
 
 \chapter*{Abstract}
+\textcolor{blue}{Background:}
+There are different approaches to approximate matrices using structured matrices to reduce the computational cost.% more efficient structures 
 
-\begin{itemize}
-	\item neural nets
-	\item reduce cost of neural nets using structured matrix
-	\item how to use Sequentially semisperable matrices in this context?
-	\item choose and tuning segmentation
-	\item some sentence on results
-\end{itemize}
+\textcolor{blue}{
+Aims:}
+One possible structure is sequentially semiseparable matrices, that represent the behavior of time varying systems.
+%These have structural parameters that are usually determined by a underlying physical system.
+If time varying systems are used to approximate weight matrices form neural networks, structural parameters have to be determined.
+
+\textcolor{blue}{Methods:}
+In this thesis two algorithms to obtain the structural parameters are described.
+The first refines a initial segmentation by optimizing the input and output dimensions of the system.
+The second algorithm recursively splits the subsystems in a way that makes it possible to recover permuted sequentially semiseparable matrices.
+
+\textcolor{blue}{Results and conclusions}
+The algorithms were able to recover the structure of simple test matrices.
+When used to represent weight matrices form neural networks, the algorithms were able to reduce the computational cost of the matrix representation.
+
+\vspace{3cm}
+
+\textcolor{blue}{
+Are they needed?
+}
+
+Keywords: Sequentially Semiseparable, Time Varying Systems,
+%\begin{itemize}
+%	\item neural nets
+%	\item reduce cost of neural nets using structured matrix
+%	\item how to use Sequentially semisperable matrices in this context?
+%	\item choose and tuning segmentation
+%	\item some sentence on results
+%\end{itemize}
 
 
 \tableofcontents
@@ -1510,66 +1534,6 @@ This restores the minimality of the system.
 
 The pseudocode to move the boundary to the left is given in Algorithm\,\ref{alg:move_left}.
  
-
-
-\paragraph{Move Down}
-\begin{figure}[!htb]
-	\centering
-	\input{diagrams/Moves/Move_down.pgf}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Original system}
-		\label{fig:move_down_a}
-	\end{subfigure}
-	\hspace{0.8cm}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Moved system}
-		\label{fig:move_down_b}
-	\end{subfigure}
-	\caption{Illustration of a system where a boundary is moved down}
-	\label{fig:move_down}
-\end{figure}
-\begin{algorithm}[!htb]
-	\begin{algorithmic}
-		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}$ }
-		\Output{System $\Sigma_{[A,B,C,D]}$ with changed output dimensions}
-		\State $c^\top \gets C_{k+1[1,:]}$
-		\State $D_{k+1} \gets D_{k+1[2:,]}$
-		\State $C_{k+1} \gets C_{k+1[2:,:]}$
-		\State $D_k \gets \begin{bmatrix} D_k\\c^\top B_k	\end{bmatrix}$
-		\State $C_k \gets \begin{bmatrix} C_k\\c^\top A_k	\end{bmatrix}$
-		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix},\text{econ}=\text{True}\right)$ 
-		\If{$\sigma_{[\en]} < \text{tol}$}
-		\State $U \gets U_{[:,:\en-1]}$; $\sigma \gets \sigma_{[:\en-1]}$; $V \gets V_{[:,:\en-1]}$
-		%\State $U \gets U[:,:-2]$
-		%\State $\sigma \gets \sigma[:-2]$
-		%\State $V \gets V[:-2,:]$
-		\State$\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix} \gets U\diag(\sigma)$
-		\State$A_{k} \gets V^\top A_{k}$
-		\State$C_{k} \gets V^\top C_{k}$
-		\EndIf
-	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
-\end{algorithm}
-A similar strategy can be used to move the $k$-th horizontal a boundary down.
-That means moving the first output $y_\m$ from $y_{k+1}$ to $y_k$.
-The altered connections are drawn in color in Figure\,\ref{fig:move_down}.
-
-The vector $c^\top$ is the first row of $C_{k+1}$ and describes the connection from $x_k$ to $y_\m$.
-This vector is removed from $C_{k+1}$.
-We also remove the first row from $D_{k+1}$.
-The dotted connection from $u_{k+1}$ to the output $y_\m$ is no longer possible and therefore we have to drop it.
-Now we attach the output $y_\m$ to the output vector $y_k$.
-For this the vector $c^\top B_k$ is added as last row to $D_k$ and the vector $c^\top A_k$ is added as last row to $C_k$.
-
-The mapping from the state $x_k$ to the combined outputs $[y_k^\top \: y_{k+1}^\top]^\top$ remains unchanged. This means that the previous states are still observable and therefore minimal. 
-As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
-This is the case if the kernel of $\Ob_{k+1}$ is not the zero subspace.
-We can check this with the SVD of $[A_{k+1}^\top,\breve{C}_{k+1}^\top]^\top$.
-If the last singular value is equal to zero one state dimension has to be removed.
-This is done by using a state transformation based on the reduced SVD. 
-Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
-An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
-
 \FloatBarrier
 \paragraph{Move Right}
 \begin{figure}[!htb]
@@ -1715,113 +1679,7 @@ This is equivalent to calculating the vector $m$ using the pseudoinverse.
 Additionally the vector $d_\text{new}$ is attached to $D_k$ to represent the new connection from $u_{k+1}$ to $y_\m$.
 This connection is drawn with a dotted line in Figure\,\ref{fig:move_right}.
 
-
-
-
-\paragraph{Move Up}
-\begin{figure}[!htb]
-	\centering
-	\input{diagrams/Moves/Move_up.pgf}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Original system}
-		\label{fig:move_up_a}
-	\end{subfigure}
-	\hspace{0.8cm}
-	\begin{subfigure}[b]{0.45\textwidth}
-		\caption{Moved system}
-		\label{fig:move_up_b}
-	\end{subfigure}
-	\caption{Illustration of a system where a boundary is moved up}
-	\label{fig:move_up}
-\end{figure}
-\begin{algorithm}[!htb]
-	\begin{algorithmic}
-		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}_r$ } 
-		\Output{System $\Sigma_{[A,B,C,D]}$ with changed  output dimensions}
-		\State $c^\top \gets C_{k[\en,:]}$
-		\State $d^\top \gets D_{k[\en,:]}$
-		\State $C_{k} \gets C_{k[:\en-1,:]}$
-		\State $D_{k} \gets D_{k[:\en-1,:]}$
-		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
-		A_{k+1}^\top\\B_{k+1}^\top
-		\end{bmatrix}\right)$ 
-		\State $r \gets $ count$(\sigma>\text{tol}_i)$
-		\State $a \gets U^\top \begin{bmatrix}
-		c\\d
-		\end{bmatrix}$
-		\If{$\|a_{[r+1:]}\|>\text{tol}$} 
-		\Comment not in range
-		\State $A_k \gets \begin{bmatrix}
-		A_k \\ c^\top
-		\end{bmatrix}$
-		\State $B_k \gets \begin{bmatrix}
-		B_k \\ d^\top
-		\end{bmatrix}$
-		\State $C_{k+1} \gets \begin{bmatrix}
-		0 & 1\\ C_{k+1} & 0
-		\end{bmatrix}$
-		\State $A_{k+1} \gets \begin{bmatrix}
-		A_{k+1} & 0
-		\end{bmatrix}$
-		\Else
-		\State $m \gets V_{[:,:r]} \diag(\sigma_{[:r]})^{-1} a_{[:r]}$
-		\State $C_{k+1} \gets \begin{bmatrix} m^\top\\C_{k+1} \end{bmatrix}$
-		\EndIf
-		\State $D_k \gets \begin{bmatrix}
-		d_{\text{new}} \\D_k
-		\end{bmatrix}$
-	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ up}\label{alg:move_up}
-\end{algorithm}
-
-A similar algorithm makes it possible to move the the $k$-th horizontal boundary up.
-When moving the boundary up the output $y_\m$ is removed from the output $y_k$ and attached to the output vector $y_{k+1}$.
-Here the output $y_\m$ is constructed in the stage $k$ and appended to the state $x_{k+1}$.
-First, the last row of $D_{k}$ is removed and stored in $d^\top$ and analogously the last row of $C_k$ is removed and stored in $c^\top$.
-The vector $c^\top$ is appended to the matrix $A_k$ and the vector $d^\top$ is attached to $B_k$.
-Now we route the new statedimension to the new output.
-This can be done by setting 
-\begin{equation}
-	\breve{C}_{k+1} = 
-	\begin{bmatrix}
-	0 & 1\\ C_{k+1} & 0
-	\end{bmatrix}
-	.
-\end{equation}
-This is illustrated in Figure\,\ref{fig:move_up}.
-The mapping from the state $x_k$ to the combined outputs $[y_k^\top \: y_{k+1}^\top]^\top$ remains unchanged. Therefore the previous states are still observable and minimal.
-
-The algorithm changes the observability matrix $\tilde{\Ob}_{k+1}$ and reachability matrix $\tilde{\R}_{k+1}$ of the state $x_{k+1}$.
-The state $x_{k+1}$ is still observable as the added state dimension is directly connected to the output $y_\m$.
-The algorithm adds a new row to the reachability matrix
-\begin{equation}
-\tilde{\R}_{k+1}
-=
-\begin{bmatrix}
-A_{k} & B_{k}\\
-c^\top & d^\top
-\end{bmatrix}
-\begin{bmatrix}
-\R_{k} &0\\
-0& \eye
-\end{bmatrix}
-.
-\end{equation}
-If this new row is part of the co-range of $\R_{k+1}$, then the system is no longer reachable.
-In this case no additional state is needed. 
-Using a similar derivation as for the previous move we can check this using the SVD of $[A_{k+1} \: B_{k+1}]^\top$.
-If no new state is needed, then we can simply attach the vector
-\begin{equation}
-	m = \text{pinv}\left(\begin{bmatrix}
-	A_{k+1}^\top\\B_{k+1}^\top
-	\end{bmatrix}\right) 
-	\begin{bmatrix}
-	c \\ d
-	\end{bmatrix}
-\end{equation}
-to the matrix $C_{k+1}$.
-
-The pseudocode can be found in Algorithm\,\ref{alg:move_up}.
+The algorithms to move the horizontal boundaries up or down are described in Appendix\,\ref{A:move}
 
 \FloatBarrier
 \subsection{Computing Hankel Singular Values when Moving Boundaries}\label{subsec:move_sig}
@@ -3506,6 +3364,172 @@ The relation $\|\breve{\Delta}_k e_i\|_2^2 \leq \|\Delta_k e_i\|_2^2$ implies th
 \Bigg\|_\text{F}.
 \end{equation}
 
+\chapter{Algorithms to Move Bounds Up or Down}\label{A:move}
+In this Appendix the complemaentary algorithms to the algorithms stated in Subsecion\,\ref{subsec:move} are described.
+
+\paragraph{Move Down}
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Moves/Move_down.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_down_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_down_b}
+	\end{subfigure}
+	\caption{Illustration of a system where a boundary is moved down}
+	\label{fig:move_down}
+\end{figure}
+\begin{algorithm}[!htb]
+	\begin{algorithmic}
+		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}$ }
+		\Output{System $\Sigma_{[A,B,C,D]}$ with changed output dimensions}
+		\State $c^\top \gets C_{k+1[1,:]}$
+		\State $D_{k+1} \gets D_{k+1[2:,]}$
+		\State $C_{k+1} \gets C_{k+1[2:,:]}$
+		\State $D_k \gets \begin{bmatrix} D_k\\c^\top B_k	\end{bmatrix}$
+		\State $C_k \gets \begin{bmatrix} C_k\\c^\top A_k	\end{bmatrix}$
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix},\text{econ}=\text{True}\right)$ 
+		\If{$\sigma_{[\en]} < \text{tol}$}
+		\State $U \gets U_{[:,:\en-1]}$; $\sigma \gets \sigma_{[:\en-1]}$; $V \gets V_{[:,:\en-1]}$
+		%\State $U \gets U[:,:-2]$
+		%\State $\sigma \gets \sigma[:-2]$
+		%\State $V \gets V[:-2,:]$
+		\State$\begin{bmatrix} A_{k+1}\\C_{k+1}	\end{bmatrix} \gets U\diag(\sigma)$
+		\State$A_{k} \gets V^\top A_{k}$
+		\State$C_{k} \gets V^\top C_{k}$
+		\EndIf
+	\end{algorithmic}
+	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
+\end{algorithm}
+A similar to Algorithm\,\ref{alg:move_left} can be used to move the $k$-th horizontal a boundary down.
+That means moving the first output $y_\m$ from $y_{k+1}$ to $y_k$.
+The altered connections are drawn in color in Figure\,\ref{fig:move_down}.
+
+The vector $c^\top$ is the first row of $C_{k+1}$ and describes the connection from $x_k$ to $y_\m$.
+This vector is removed from $C_{k+1}$.
+We also remove the first row from $D_{k+1}$.
+The dotted connection from $u_{k+1}$ to the output $y_\m$ is no longer possible and therefore we have to drop it.
+Now we attach the output $y_\m$ to the output vector $y_k$.
+For this the vector $c^\top B_k$ is added as last row to $D_k$ and the vector $c^\top A_k$ is added as last row to $C_k$.
+
+The mapping from the state $x_k$ to the combined outputs $[y_k^\top \: y_{k+1}^\top]^\top$ remains unchanged. This means that the previous states are still observable and therefore minimal. 
+As the algorithm removes a row from $\Ob_{k+1}$ it might happen that the state $x_{k+1}$ is no longer observable.
+This is the case if the kernel of $\Ob_{k+1}$ is not the zero subspace.
+We can check this with the SVD of $[A_{k+1}^\top,\breve{C}_{k+1}^\top]^\top$.
+If the last singular value is equal to zero one state dimension has to be removed.
+This is done by using a state transformation based on the reduced SVD. 
+Again the inverse does not need to be calculated as it is implicitly calculated by the SVD.
+An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
+
+
+\paragraph{Move Up}
+\begin{figure}[!htb]
+	\centering
+	\input{diagrams/Moves/Move_up.pgf}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Original system}
+		\label{fig:move_up_a}
+	\end{subfigure}
+	\hspace{0.8cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\caption{Moved system}
+		\label{fig:move_up_b}
+	\end{subfigure}
+	\caption{Illustration of a system where a boundary is moved up}
+	\label{fig:move_up}
+\end{figure}
+\begin{algorithm}[!htb]
+	\begin{algorithmic}
+		\Input{System $\Sigma_{[A,B,C,D]}$, Index $k$, Tolerance $\text{tol}_r$ } 
+		\Output{System $\Sigma_{[A,B,C,D]}$ with changed  output dimensions}
+		\State $c^\top \gets C_{k[\en,:]}$
+		\State $d^\top \gets D_{k[\en,:]}$
+		\State $C_{k} \gets C_{k[:\en-1,:]}$
+		\State $D_{k} \gets D_{k[:\en-1,:]}$
+		\State $U,\sigma,V^\top \gets$ SVD$\left(\begin{bmatrix}
+		A_{k+1}^\top\\B_{k+1}^\top
+		\end{bmatrix}\right)$ 
+		\State $r \gets $ count$(\sigma>\text{tol}_i)$
+		\State $a \gets U^\top \begin{bmatrix}
+		c\\d
+		\end{bmatrix}$
+		\If{$\|a_{[r+1:]}\|>\text{tol}$} 
+		\Comment not in range
+		\State $A_k \gets \begin{bmatrix}
+		A_k \\ c^\top
+		\end{bmatrix}$
+		\State $B_k \gets \begin{bmatrix}
+		B_k \\ d^\top
+		\end{bmatrix}$
+		\State $C_{k+1} \gets \begin{bmatrix}
+		0 & 1\\ C_{k+1} & 0
+		\end{bmatrix}$
+		\State $A_{k+1} \gets \begin{bmatrix}
+		A_{k+1} & 0
+		\end{bmatrix}$
+		\Else
+		\State $m \gets V_{[:,:r]} \diag(\sigma_{[:r]})^{-1} a_{[:r]}$
+		\State $C_{k+1} \gets \begin{bmatrix} m^\top\\C_{k+1} \end{bmatrix}$
+		\EndIf
+		\State $D_k \gets \begin{bmatrix}
+		d_{\text{new}} \\D_k
+		\end{bmatrix}$
+	\end{algorithmic}
+	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ up}\label{alg:move_up}
+\end{algorithm}
+
+A similar algorithm to Algorithm\,\ref{alg:move_right} makes it possible to move the the $k$-th horizontal boundary up.
+When moving the boundary up the output $y_\m$ is removed from the output $y_k$ and attached to the output vector $y_{k+1}$.
+Here the output $y_\m$ is constructed in the stage $k$ and appended to the state $x_{k+1}$.
+First, the last row of $D_{k}$ is removed and stored in $d^\top$ and analogously the last row of $C_k$ is removed and stored in $c^\top$.
+The vector $c^\top$ is appended to the matrix $A_k$ and the vector $d^\top$ is attached to $B_k$.
+Now we route the new statedimension to the new output.
+This can be done by setting 
+\begin{equation}
+\breve{C}_{k+1} = 
+\begin{bmatrix}
+0 & 1\\ C_{k+1} & 0
+\end{bmatrix}
+.
+\end{equation}
+This is illustrated in Figure\,\ref{fig:move_up}.
+The mapping from the state $x_k$ to the combined outputs $[y_k^\top \: y_{k+1}^\top]^\top$ remains unchanged. Therefore the previous states are still observable and minimal.
+
+The algorithm changes the observability matrix $\tilde{\Ob}_{k+1}$ and reachability matrix $\tilde{\R}_{k+1}$ of the state $x_{k+1}$.
+The state $x_{k+1}$ is still observable as the added state dimension is directly connected to the output $y_\m$.
+The algorithm adds a new row to the reachability matrix
+\begin{equation}
+\tilde{\R}_{k+1}
+=
+\begin{bmatrix}
+A_{k} & B_{k}\\
+c^\top & d^\top
+\end{bmatrix}
+\begin{bmatrix}
+\R_{k} &0\\
+0& \eye
+\end{bmatrix}
+.
+\end{equation}
+If this new row is part of the co-range of $\R_{k+1}$, then the system is no longer reachable.
+In this case no additional state is needed. 
+Using a similar derivation as for the previous move we can check this using the SVD of $[A_{k+1} \: B_{k+1}]^\top$.
+If no new state is needed, then we can simply attach the vector
+\begin{equation}
+m = \text{pinv}\left(\begin{bmatrix}
+A_{k+1}^\top\\B_{k+1}^\top
+\end{bmatrix}\right) 
+\begin{bmatrix}
+c \\ d
+\end{bmatrix}
+\end{equation}
+to the matrix $C_{k+1}$.
+
+The pseudocode can be found in Algorithm\,\ref{alg:move_up}.
 
 \chapter{Random Sequentially semiseparable matrices}\label{A:random_T}
 
