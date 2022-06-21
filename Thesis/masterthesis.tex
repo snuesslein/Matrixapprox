@@ -149,9 +149,9 @@
 \chapter{Introduction} 
 
 The computational complexity for training and evaluation neural networks is steadily increasing \cite{Schwartz_green_2020}.
-As the neural networks get larger, the evaluation of the neural networks get computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
-The linear layers in a neural networks are usually represented with matrices.
-When the neural network is evaluated, one has to compute the matrix vector product.
+As the neural networks get larger, the evaluation of the neural networks gets computationally more expensive. This is often problematic as the computational resources are a limiting factor, especially on embedded or mobile systems.
+The linear layers in neural networks are usually represented with matrices.
+When the neural network is evaluated, one must compute the matrix vector product.
 For a full unstructured matrix this is of the order $\bigO(n^2)$ \cite{hackbusch_hierarchische_2009}.
 For large $n$ the cost for computing the matrix vector products will therefore dominate over terms with linear growth.
 %This means that the cost for the calculation is quadratic in the number of neurons.
@@ -160,34 +160,34 @@ For large $n$ the cost for computing the matrix vector products will therefore d
 In other fields the quadratic growth of the computational cost for a matrix vector product is also an issue.
 These lead to the development of structured matrices, where the cost of the matrix vector product is of lower order.
 Some structured matrices are used to solve partial differential equations like $\mathcal{H}$-Matrices \cite{grasedyck_theorie_2001}, arise in different circumstances like semiseperabel matrices \cite{vandebril_bibliography_2005}, 
-or are description of time varying systems like sequentially semiseperable matrices \cite{dewilde_time-varying_1998}.
+or are description of time varying systems like sequentially semiseparable matrices \cite{dewilde_time-varying_1998}.
 All of them can not only be represented as a matrix but also have a different representation.
 It is possible to use these representations to construct algorithms that can compute the matrix vector product.
 One example of this are circulant matrices that describe cyclic convolutions.
 Using the matrix describing the Discrete Fourier Transform, circulant matrices can be transformed into diagonal matrices.
 This allows us to obtain a faster algorithm for the product $y=Tu$ by using the Fast Fourier Transform(FFT):
-We can first compute the FFT of the input, then multiply the vector element-wise with a weight vector. Finally we use the inverse FFT to obtian the result $y$.
-Instead of of the order $\bigO(n^2)$ we now have $\bigO(n\log(n))$ \cite{strang_computational_2007}.
-%This result is used in widely used to compute convolutions .
-%Instead of using a matrix vector products the underlying structure is utilized.
+We can first compute the FFT of the input, then multiply the vector elementwise with a weight vector. Finally, we use the inverse FFT to obtain the result $y$.
+Instead of the order $\bigO(n^2)$ we now have $\bigO(n\log(n))$ \cite{strang_computational_2007}.
+%This result is used in widely used to compute convolutions.
+%Instead of using a matrix vector product the underlying structure is utilized.
 
 One might analogously try to use other structures to represent weight matrices.
-A possible representation are sequentially semiseperable matrices that represent the input-output behaviour of time varing systems.
+A possible representation are sequentially semiseparable matrices that represent the input-output behavior of time varying systems.
 These systems consist of subsystems, so called stages that can change over time.
 %Every stage can be described using four small matrices.\todo{reword}
 We can create a system that represents the matrix.
-It is also possible to to calculate the matrix-vector product using algorithms based on this representation.
+It is also possible to calculate the matrix-vector product using algorithms based on this representation.
 %The number of inputs and outputs of a system also create a segmentation of the system.
-Sequentially semiseperable matrices have an inherent segmentation of the matrix.
+Sequentially semiseparable matrices have an inherent segmentation of the matrix.
 If certain sub blocks of the matrices are low rank, then computing the matrix-vector product is far cheaper if the system representation is used.
 The segmentation is often determined by an underlying physical system and therefore known. 
 The matrices in neural networks do not necessarily have the same underlying structure.
-Even if the matrix is close to a sequentially semiseperable matrix the structural parameters are usually unknown.
+Even if the matrix is close to a sequentially semiseparable matrix the structural parameters are usually unknown.
 To represent the matrices, algorithms to derive these structural parameters are needed.
 %This can be split in different sub problems.
 %Firs the number of stages is not known.
 Existing algorithms to calculate the state space representation for an arbitrary matrix require a prior knowledge of the segmentation \cite{chandrasekaran_fast_2002}.
-As the weight matrices usually are not sequentially semiseperable, the systems are approximated to reduce the computational cost.
+As the weight matrices usually are not sequentially semiseparable, the systems are approximated to reduce the computational cost.
 A common approximation algorithm is the balanced truncation, that relies on the Hankel singular values.
 
 The goal of this thesis is to develop algorithms to represent matrices with time varying systems that do not require a prior knowledge of the segmentation.
@@ -195,7 +195,7 @@ These algorithms should be able to reduce the computational cost while not incre
 For this I guess an initial segmentation and then use a algorithm to refine it.
 Or I start with a initial system that is split recursively.
 In both cases I need to compute the Hankel singular values efficiently.
-%For this some structural parameters have to devised based on estimations.
+%For this some structural parameters must devised based on estimations.
 %Then algorithms to optimize the segmentation need to be developed.
 %These require the knowlege of the Hankel singular values to allow an efficient approximation.
 %For this strategies to obtian 
@@ -208,21 +208,21 @@ In both cases I need to compute the Hankel singular values efficiently.
 %}
 
 Chapter\,\ref{chap:lit} will give an review of different matrix structures and their use in neural networks.
-In Section\,\ref{sec:mat_structures} different matrix structures related to sequentially semiseperabel matrices are presented
+In Section\,\ref{sec:mat_structures} different matrix structures related to sequentially semiseparable matrices are presented
 and in Section\,\ref{sec:AI_weight} approaches to use structured matrices in neural networks are collected.
-Because time varying systems will be used in this thesis, a short intoduction will be given in Chapter\,\ref{chap:background}.
+Because time varying systems will be used in this thesis, a short introduction will be given in Chapter\,\ref{chap:background}.
 In Chapter\,\ref{chap:methods} the methods to create system representation for a matrix with unknown structural parameters will be presented.
 First different prerequisites are discussed.
 In Section\,\ref{sec:approx} an algorithm for the approximation of a system is explored
- and a strategy to efficiently compute the Hankel singular values is presented.
+and a strategy to efficiently compute the Hankel singular values is presented.
 The number of operations is derived in Section\,\ref{sec:cost}.
 In Section\,\ref{sec:Choose_K} an approach to determine the number of stages for a system will be presented.
-Based on this, the input and output dimensions have to be  determined.
+Based on this, the input and output dimensions have to be determined.
 For this two algorithms are presented.
 The first starts with an initial guess and then refines the structure by adapt the input and output dimensions.
 In section Section\,\ref{sec:Segmentation} an algorithm to change the input and output dimensions of a system is given.
 This Algorithm is then used to optimize the segmentation of the matrix.
-%Additionally this section presents strategies how to use these algorithms in cases where the final structure has to be determined.
+%Additionally, this section presents strategies how to use these algorithms in cases where the final structure has to be determined.
 The second algorithm described in Section\,\ref{sec:permutation} starts with a simple system and then recursively refines this structure by splitting up the stages.
 In Chapter\,\ref{chap:experiments} the algorithms will be tested on random sequentially semisepereable matrices and on weight matrices.
 In Chapter\,\ref{chap:discussion} I will discuss the results and in Chapter\,\ref{chap:conclusion} I will give some perspective on them.
@@ -256,10 +256,10 @@ In Section\,\ref{sec:AI_weight} some approaches to use Matrix structures in neur
 \section{Matrix Structures}\label{sec:mat_structures}
 In the following several matrix structures are presented.
 These have in common that they have low rank sub-matrices.
-These are Semiseperable, Hierarchical and Sequentially Semiseparable matrices.
+These are semiseparable, Hierarchical and Sequentially Semiseparable matrices.
 
-\subsection{Semiseperable Matrices}
-Semiseperable matrices are not consistently defined in the literature. 
+\subsection{semiseparable Matrices}
+semiseparable matrices are not consistently defined in the literature. 
 In this thesis the definitions described by Vandebril \cite{vandebril_bibliography_2005,vandebril_matrix_2007} are used.
 An important differentiation are generator representable semiseparable matrices and semiseparable matrices.
 \paragraph{Generator Representable Semiseparable Matrix}
@@ -273,7 +273,7 @@ Where $\triu$ is the upper triangular matrix and $\tril$ is the lower triangular
 It is important to note here that the diagonal of $S$ is both included in the lower and upper triangular matrix.
 
 \paragraph{Semiseparable Matrix}
-In a semiseperable matrix every subblock selected from the lower triangular part of $S$ has rank 1. The analogous statement has to be fulfilled for the upper triangular part.
+In a semiseparable matrix every subblock selected from the lower triangular part of $S$ has rank 1. The analogous statement has to be fulfilled for the upper triangular part.
 This can be formalized as 
 \begin{align}
 	\rank(S_{i:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
@@ -282,7 +282,7 @@ This can be formalized as
 An extension of this matrix class are the semiseparable plus diagonal matrices.
 
 \paragraph{Quasiseparable Matrix}
-The quasiseparable matrices are similar to the semiseperable matrices. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ has rank 1. 
+The quasiseparable matrices are similar to the semiseparable matrices. In a quasiseparable matrix every subblock selected from the strictly lower strictly upper triangular part of $S$ has rank 1. 
 This can be formalized as 
 \begin{align}
 \rank(S_{i+1:n,1:i}) &\leq 1 & \forall_i &\in\{i,\dots,n\}\\
@@ -292,13 +292,13 @@ This can be formalized as
 A quasiseperable matrix is illustrated in Figure\,\ref{fig:quasiseperable}. All the marked submatrices have the property that their rank is 1.
 \begin{figure}
 	\centering
-	\input{diagrams/semiseperable}
+	\input{diagrams/semiseparable.tex}
 	\caption{Illustration of a quasiseperable matrix}
 	\label{fig:quasiseperable}
 \end{figure}
-As the quasiseperable structure does not impose conditions on the diagonal it is more general than the semiseperable matrices.
+As the quasiseperable structure does not impose conditions on the diagonal it is more general than the semiseparable matrices.
 
-There is a relation between invertible semiseperable matrices and invertible tridiagonal matrices.
+There is a relation between invertible semiseparable matrices and invertible tridiagonal matrices.
 The inverses of a generator representable semiseparable matrix is a irreducible tridiagonal matrix and vice versa. 
 The inverse of a semiseparable matrix is a tridiagonal matrix and vice versa.
 If an invertible quasiseparable matrix is inverted, the inverse is again a quasiseparable matrix.
@@ -358,29 +358,29 @@ The block-tree for the matrix in Figure\,\ref{fig:strukturh-matrix_a} is illustr
 The Hierarchical matrices make it possible to compute different matrix operations efficiently. %\todo[inline]{some detailed statement on complexity}
 %The need for efficient operations also constraints the possible sizes of the blocks as these should be compatible.
 
-\subsection{Sequentially Semiseperable Matrices}
+\subsection{Sequentially semiseparable Matrices}
 %\todo[inline]{Quellen, also which notation, note that book is on the transposed...}
-Sequentially semiseperable matrices are described in detail in the book by Dewilde and van der Veen\cite{dewilde_time-varying_1998}.
+Sequentially semiseparable matrices are described in detail in the book by Dewilde and van der Veen\cite{dewilde_time-varying_1998}.
 These matrices can represent time varying systems.
-As the sequentially semiseperable matrices will be used in this thesis an introduction will be given in Chapter\,\ref{chap:background}. 
-%Here the commonalities and differences to the semiseperable and hirarchical matrices are explored.
+As the sequentially semiseparable matrices will be used in this thesis an introduction will be given in Chapter\,\ref{chap:background}. 
+%Here the commonalities and differences to the semiseparable and hirarchical matrices are explored.
 
-%The sequentially semiseperable matrices have the properties that submatrices have a low rank.
-%This is similar to semiseperable matrices. 
-%Unlike the semiseperable matrices this is not true for all matrices taken form the lower and upper triangular part.
-The sequentially semiseperable matrices are divided into blocks.
+%The sequentially semiseparable matrices have the properties that submatrices have a low rank.
+%This is similar to semiseparable matrices. 
+%Unlike the semiseparable matrices this is not true for all matrices taken form the lower and upper triangular part.
+The sequentially semiseparable matrices are divided into blocks.
 Matrices taken from the strict lower and strict upper triangular blockmatrix have the condition that their rank is low.
 This is illustrated in Figure\,\ref{fig:sequentiallysep}.
 
 \begin{figure}[htb]
 	\centering
 	\input{diagrams/sequentially_sep}
-	\caption{Illustration of a sequentially semiseperable matrix. The thick dotted lines mark the segmentation of the matrix. The colored lines represent submatrices with low rank.}
+	\caption{Illustration of a sequentially semiseparable matrix. The thick dotted lines mark the segmentation of the matrix. The colored lines represent submatrices with low rank.}
 	\label{fig:sequentiallysep}
 \end{figure}
 
 This segmentation in blocks makes similar to the hierarchical matrices that also have a segmentation.
-Unlike semiseperable matrices the sequentially semiseperable matrices do not have to be quadratic. 
+Unlike semiseparable matrices the sequentially semiseparable matrices do not have to be quadratic. 
 
 \section{Neural Nets}\label{sec:AI_weight}
 %Special matrix structures are been explored for the use in neural nets.
@@ -431,7 +431,7 @@ K-matrices can also be used to represent linear hand crafted structures like rep
 \chapter{Background}\label{chap:background}
 
 
-Sequentially semiseperable Matrices can be considered as descriptions of time varying systems.\footnote{
+Sequentially semiseparable Matrices can be considered as descriptions of time varying systems.\footnote{
 The naming and structure of the matrices is not consistent in the literature.
 In this thesis I will use the notation used in \cite{tong_blind_2003}. 
 In \cite{dewilde_time-varying_1998} a similar notation is used, but the transfer operator is transposed.
@@ -611,7 +611,7 @@ In a balanced realization $\Ob_k = U_k \Sigma^{1/2}_k$ and $\R_k = \Sigma^{1/2}_
 These canonical forms usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is nontrivial to define for systems where the singular values decay slowly. If minimality is required, it will be explicitly stated.
 
 \paragraph{Matrix Factorization}
-The sequentially semiseperable matrices can also be considered as a matrix factorization.
+The sequentially semiseparable matrices can also be considered as a matrix factorization.
 For a causal system, the matrix $T$ can be expressed as a product $T = T_n T_{n-1} \dots T_2 T_1$
 where every $T_k$ represents a stage. The matrices $T_k$ is constructed according to 
 
@@ -666,7 +666,7 @@ Here the ordering is reversed and we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
 %	\eye
 %	\end{bmatrix}
 %\end{equation}
-Sequentially semiseperable matrices can be added, multiplied and inverted using algorithms that work on the state space description.
+Sequentially semiseparable matrices can be added, multiplied and inverted using algorithms that work on the state space description.
 It is also possible to calculate QR factorization \cite{chandrasekaran_fast_2002,tong_blind_2003} or URV factorization \cite{chandrasekaran_fast_2005}. 
 %Note on URV more papers in Dewilde,Diepold and van der Veen p315 
 There are also a couple of other algorithms that can be used for controller design like sign iterations \cite{rice_efficient_2010}.
@@ -1607,7 +1607,7 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
 		%		
 		\EndIf
 		%		#set the appropirate D_v
-		\State $D_v \gets \begin{bmatrix}
+		\State $D_k \gets \begin{bmatrix}
 		D_k&d_{\text{new}}
 		\end{bmatrix}$
 	\end{algorithmic}
@@ -1806,6 +1806,7 @@ The pseudocode can be found in Algorithm\,\ref{alg:move_up}.
 
 \FloatBarrier
 \subsection{Computing Hankel Singular Values when Moving Boundaries}\label{subsec:move_sig}
+\todo[inline]{check indexing in algorithms}
 In this section the ideas from Section\,\ref{sec:approx} are used to calculate the singular values for a moved system.
 The main idea is that this algorithm iterates over the different stages and moves them if needed.
 This algorithm not only calculates the moved system but also returns the singular values.
@@ -1866,7 +1867,7 @@ The pseudocode can be found in Algorithm\,\ref{alg:move_left_sig}.
 		\State $C_{k}=C_{k}U\diag(\sigma)$
 	%\EndFor
 	\end{algorithmic}
-	\caption{Algorithm to move the boundary between $u_k$ and $u_{k+1}$ to the left by $l$ inputs}\label{alg:move_left_sig}
+	\caption{Algorithm to move the boundary between $u_{k-1}$ and $u_{k}$ to the left by $l$ inputs}\label{alg:move_left_sig}
 \end{algorithm}
 
 
@@ -1945,7 +1946,7 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 		A_{k-1} \\ 0
 		\end{bmatrix}$
 		\State $\begin{bmatrix}
-		A_{k} \\ B_{k} 
+		C_{k} \\ B_{k} 
 		\end{bmatrix}  \gets U \diag(\sigma)$	
 		\State $D_ki \gets \begin{bmatrix}
 		D_k&d_{\text{new}}
@@ -2098,11 +2099,11 @@ This objective function does not minimize the approximation error, but Equation\
 \section{Permutations}\label{sec:permutation}
 
 %\todo{motaivation cite }%\verb|diepold_optic_2004|}
-In this section the matrix is represented as a an permutation of the input $\Pi_i$ a Time varying system $\Sigma$ and a permutation of the output.
+In this section the matrix is represented as a permutation of the input $\Pi_i$ a Time varying system $\Sigma$ and a permutation of the output.
 
 This means that the matrix $M$ is represented as the product
 \begin{equation}
-	M = \Pi_o T \Pi_i
+M = \Pi_o T \Pi_i
 \end{equation}
 Here $T$ is the transfer operator of the Time Varying system and $\Pi_i$ and $\Pi_o$ are Permutations.
 This is equivalent to permuting the columns and rows of the matrix $M$ before representing it using a time varying system.
@@ -2114,10 +2115,10 @@ This can lead to a reduction of the Hankel rank and therefore the state dimensio
 	\label{fig:system_permuted}
 \end{figure}
 In this section I introduce an algorithm that makes it possible to permute the rows and columns of the represented matrix, such that state dimensions are reduced.
-The algorithm does not recover the whole permutation in one step but uses a strategy similar to divide and conquer by recursively spiting the problem up in smaller subproblems and recovering the permutation by combining the results form these individual subproblems.
+The algorithm does not recover the whole permutation in one step but uses a strategy similar to divide and conquer by recursively spiting the problem up in smaller subproblems and recovering the permutation by combining the results from these individual subproblems.
 First an initial system consisting of only one stage is created.
 In this case $T = D_1$.
-Then the Algorithm splits the stages into two stages  as illustrated in Figure\,\ref{fig:split_permute}.
+Then the Algorithm splits the stages into two stages as illustrated in Figure\,\ref{fig:split_permute}.
 \begin{figure}[!htb]
 	\centering
 	\input{diagrams/Split_permutation.pgf}
@@ -2141,17 +2142,17 @@ The order of the inputs inside the input vectors $u_k$ and the order of the outp
 The states of the balanced realization depend on the singular value decomposition of $H_k$.
 The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and permutation of the columns with $\Pi_C$ as the new factorization
 \begin{equation}
-	\Pi_R U \Sigma V^\top \Pi_C = \tilde{U} \Sigma \tilde{V}^\top 
+\Pi_R U \Sigma V^\top \Pi_C = \tilde{U} \Sigma \tilde{V}^\top 
 \end{equation}
 is again a singular value decomposition.
 \begin{proof}
 	To be an valid SVD, we have to prove that $\tilde{U}$ and $\tilde{V}$ are orthogonal.
 	This is shown by the forward multiplication
 	\begin{equation}
-		\tilde{U}^\top \tilde{U} = U^\top \Pi_C^\top \Pi_C U = U^\top U = \eye 
-		.
+	\tilde{U}^\top \tilde{U} = U^\top \Pi_C^\top \Pi_C U = U^\top U = \eye 
+	.
 	\end{equation}
-This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
+	This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
 	Analogously 
 	\begin{equation}
 	\tilde{V}^\top \tilde{V} = V^\top \Pi_C \Pi_C^\top V = V^\top V = \eye
@@ -2161,11 +2162,11 @@ This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
 This means that all permutations that preserve the grouping of the inputs and outputs are equivalent.
 %This means that all permutations of the inputs and outputs that only differ in the orderings inside the $u_k$ and $y_k$ are equivalent. 
 %\todo{formal blockdiagonal $\Pi$}
-Therefore the Algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
+Therefore, the Algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
 
 The algorithm to split a stage is described in Subsection\,\ref{subsec:split_stage}.
 The algorithm uses the same strategy as described in \cite{chandrasekaran_fast_2005}.
-Before the stage is split, the inputs and outputs of the stage have to be grouped. 
+Before the stage is split, the inputs and outputs of the stage must be grouped. 
 The required algorithm to partition the inputs and outputs is presented in Subsection\,\ref{subsec:segment_matrix}.
 
 
@@ -2188,16 +2189,16 @@ This is illustrated in Figure\,\ref{fig:split_up}.
 	\caption{Illustration of splitting a stage.}
 	\label{fig:split_up}
 \end{figure}
-Again we have connections that are no longer possible in a causal system. 
+Again, we have connections that are no longer possible in a causal system. 
 These have to be included in the anticausal part. In Figure\,\ref{fig:split_up} the connections are represented using a dotted line.
-The resulting system should have the same input-output behavior. Therefore the relations
+The resulting system should have the same input-output behavior. Therefore, the relations
 \begin{subequations}
-\begin{align}
+	\begin{align}
 	A_k&=A_\beta A_\alpha & B_k&=\begin{bmatrix}A_\beta B_\alpha &
 	B_\beta \end{bmatrix}\\
 	C_k&=\begin{bmatrix}C_\alpha \\ C_\beta A_\alpha \end{bmatrix}&
 	D_k&= \begin{bmatrix} D_\alpha & 0 \\ C_\beta A_\alpha & D_\beta \end{bmatrix}
-\end{align}\label{eq:relations}
+	\end{align}\label{eq:relations}
 \end{subequations}
 have to be fulfilled.
 This immediately gives us most of the matrices for the new stages
@@ -2208,51 +2209,51 @@ For this we consider the Hankel matrix associated with the new intermediate stat
 
 This is 
 \begin{equation}
-	H_\beta = \Ob_\beta \R_\beta 
-	= \begin{bmatrix} C_\beta \\ C_{k+1} A_\beta \\ C_{k+2} A_{k+1} A_\beta \\ \vdots \end{bmatrix}
-	\begin{bmatrix} \cdots& A_\alpha A_{k-1}B_{k-2} & A_\alpha B_{k-1}&  B_\alpha  \end{bmatrix}
+H_\beta = \Ob_\beta \R_\beta 
+= \begin{bmatrix} C_\beta \\ C_{k+1} A_\beta \\ C_{k+2} A_{k+1} A_\beta \\ \vdots \end{bmatrix}
+\begin{bmatrix} \cdots& A_\alpha A_{k-1}B_{k-2} & A_\alpha B_{k-1}&  B_\alpha  \end{bmatrix}
 \end{equation}
 By factoring $ \Ob_\beta $ and $\R_\beta $ using Equations\,\ref{eq:decomp_O} and \ref{eq:decomp_R} respectively we obtain
 \begin{equation}
-	H_\beta
-	= \begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
-	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix} \begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
+H_\beta
+= \begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix} \begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
 \end{equation}
 Multiplying the inner of the three products results in the matrix
 \begin{equation}
-	\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
-	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
-	=
-	\begin{bmatrix}
-		C_\beta A_\alpha & C_\beta B_\alpha\\
-		A_\beta A_\alpha & A_\beta B_\alpha
-	\end{bmatrix}
+\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
+=
+\begin{bmatrix}
+C_\beta A_\alpha & C_\beta B_\alpha\\
+A_\beta A_\alpha & A_\beta B_\alpha
+\end{bmatrix}
 \end{equation}
 With the Equation\,\ref{eq:relations} we can equate this matrix to 
 \begin{equation}
-	\begin{bmatrix}
-	C_\beta A_\alpha & C_\beta B_\alpha\\
-	A_\beta A_\alpha & A_\beta B_\alpha
-	\end{bmatrix}
-	=
-	\begin{bmatrix}
-	C_{k[2]} & D_{k[2,1]}\\
-	A_k & B_{k[1]}
-	\end{bmatrix}
-	.
+\begin{bmatrix}
+C_\beta A_\alpha & C_\beta B_\alpha\\
+A_\beta A_\alpha & A_\beta B_\alpha
+\end{bmatrix}
+=
+\begin{bmatrix}
+C_{k[2]} & D_{k[2,1]}\\
+A_k & B_{k[1]}
+\end{bmatrix}
+.
 \end{equation}
 By computing the SVD we can now get the matrices
 \begin{equation}
-	\begin{bmatrix}
-	C_k & D_{k[1,0]}\\
-	A_k & B_k
-	\end{bmatrix} = U \Sigma V^\top = \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
-	\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
-	.
+\begin{bmatrix}
+C_k & D_{k[1,0]}\\
+A_k & B_k
+\end{bmatrix} = U \Sigma V^\top = \begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix}
+\begin{bmatrix} A_\alpha &  B_\alpha  \end{bmatrix}
+.
 \end{equation}
 Based on this we get the missing matrices for the new stages.
 \begin{equation}
-	\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix} = U \Sigma^{1/2}
+\begin{bmatrix} C_\beta \\  A_\beta \end{bmatrix} = U \Sigma^{1/2}
 \end{equation}
 and
 \begin{equation}
@@ -2273,109 +2274,109 @@ If $O_{k+1}^\top O_{k+1} = 1$ and $R_k  R_k^\top = 1$ the singular values calcul
 	\end{align}
 	with the property that
 	\begin{equation}
-		\tilde{U}^\top \tilde{U}
-		= 
-		\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} 
-		\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1}^\top \end{bmatrix} 
-		=
-		\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
-		=
-		\eye
+	\tilde{U}^\top \tilde{U}
+	= 
+	\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1} \end{bmatrix} 
+	\begin{bmatrix} \eye &\\ & \mathcal{O}_{k+1}^\top \end{bmatrix} 
+	=
+	\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
+	=
+	\eye
 	\end{equation}
 	and 
 	\begin{equation}
-		\tilde{V}^\top \tilde{V}
-		=
-		\begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
-		\begin{bmatrix} \mathcal{R}_k^\top\\&\eye \end{bmatrix}
-		=
-		\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
-		=
-		\eye
+	\tilde{V}^\top \tilde{V}
+	=
+	\begin{bmatrix} \mathcal{R}_k\\&\eye \end{bmatrix}
+	\begin{bmatrix} \mathcal{R}_k^\top\\&\eye \end{bmatrix}
+	=
+	\begin{bmatrix} \eye &\\ & \eye \end{bmatrix} 
+	=
+	\eye
 	\end{equation}
 \end{proof}
 
 To run efficiently, the Algorithm requires a way to store the system in such a way that we can easily compute the different normal forms.
-For this we store the Hankel singular values separately form the reduced matrices $\tilde{A},\tilde{B}$ and $\tilde{C}$.
+For this we store the Hankel singular values separately form the reduced matrices $\tilde{A}$, $\tilde{B}$ and $\tilde{C}$.
 
 If we have a balanced system $\Sigma_{[A,B,C,D]}$ the matrices $\tilde{A},\tilde{B},\tilde{C}$ and $\tilde{D}$ are constructed such that 
 \begin{subequations}
-\begin{align}
+	\begin{align}
 	A_k &= \Sigma_{k+1}^{1/2} \tilde{A}_k \Sigma_k^{1/2} &
 	B_k &= \Sigma_{k+1}^{1/2} \tilde{B}_k \\
 	C_k &= \tilde{C}_k \Sigma_k^{1/2} & 
 	D&=\tilde{D}
 	.
-\end{align}\label{eq:stages_sigma}
+	\end{align}\label{eq:stages_sigma}
 \end{subequations}
 As $\Sigma_k$ is a diagonal matrix we only need to store the vector of the diagonal entries.
-Also products with $\Sigma_k$ can be efficiently computed by scaling the columns if the matrix is multiplied from the right or scaling the rows if the matrix is multiplied from the left.
+Also, products with $\Sigma_k$ can be efficiently computed by scaling the columns if the matrix is multiplied from the right or scaling the rows if the matrix is multiplied from the left.
 Analogously the products with the inverses or the square roots can be computed.
 Then the input normal system can be computed according to
 \begin{subequations}
-\begin{align}
-\breve{A}_k &=  \tilde{A}_k \Sigma_k &
-\breve{B}_k &=  \tilde{B}_k \\
-\breve{C}_k &= \tilde{C}_k \Sigma_k & 
-\breve{D}_k &= D
-.
-\end{align}
+	\begin{align}
+	\breve{A}_k &=  \tilde{A}_k \Sigma_k &
+	\breve{B}_k &=  \tilde{B}_k \\
+	\breve{C}_k &= \tilde{C}_k \Sigma_k & 
+	\breve{D}_k &= D
+	.
+	\end{align}
 \end{subequations}
 \begin{proof}
-We have to prove that $\breve{\R}_k \breve{\R}_k^\top = \eye$ for all $k$.
-As the original system is balanced we know that $\R_k = \Sigma_k^{1/2} V_k^\top$.
-The new reachability matrix is $\breve{\R} = \Sigma^{-1/2} \R_{k} = V_k^\top$.
-As $V_k$ is orthogonal, $\breve{\R}_k \breve{\R}_k^\top = \eye$.
+	We have to prove that $\breve{\R}_k \breve{\R}_k^\top = \eye$ for all $k$.
+	As the original system is balanced we know that $\R_k = \Sigma_k^{1/2} V_k^\top$.
+	The new reachability matrix is $\breve{\R} = \Sigma^{-1/2} \R_{k} = V_k^\top$.
+	As $V_k$ is orthogonal, $\breve{\R}_k \breve{\R}_k^\top = \eye$.
 \end{proof}
 Analogously the output normal system is
 \begin{subequations}
-\begin{align}
-\breve{A}_k &= \Sigma_{k+1} \tilde{A}_k  &
-\breve{B}_k &= \Sigma_{k+1} \tilde{B}_k \\
-\breve{C}_k &= \tilde{C}_k  & 
-\breve{D}_k &=D
-.
-\end{align}
+	\begin{align}
+	\breve{A}_k &= \Sigma_{k+1} \tilde{A}_k  &
+	\breve{B}_k &= \Sigma_{k+1} \tilde{B}_k \\
+	\breve{C}_k &= \tilde{C}_k  & 
+	\breve{D}_k &=D
+	.
+	\end{align}
 \end{subequations}
 \begin{proof}
-We have to prove that $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$ for all $k$.
-As the original system is balanced we know that $\Ob_{k+1} = U_{k+1} \Sigma_{k+1}^{1/2}$.
-The new observability matrix is $\breve{\Ob}_{k+1} = \Ob_{k+1} \Sigma_{k+1}^{-1/2} = U_{k+1}$.
-As $U_k$ is orthogonal, $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$.
+	We have to prove that $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$ for all $k$.
+	As the original system is balanced we know that $\Ob_{k+1} = U_{k+1} \Sigma_{k+1}^{1/2}$.
+	The new observability matrix is $\breve{\Ob}_{k+1} = \Ob_{k+1} \Sigma_{k+1}^{-1/2} = U_{k+1}$.
+	As $U_k$ is orthogonal, $\breve{\Ob}_{k+1}^\top \breve{\Ob}_{k+1} = \eye$.
 \end{proof}
 
 This makes it possible to transform the stage $k$ such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ are fulfilled at the same time.
 The matrices $A_k,B_k,C_k$ and $D$ are
 \begin{subequations}
-\begin{align} \label{eq:make_in_out}
+	\begin{align} \label{eq:make_in_out}
 	A_k &= \Sigma_{k+1} \tilde{A} \Sigma_k &
 	B_k &= \Sigma_{k+1} \tilde{B}\\
 	C_k &= \tilde{C_k} \Sigma_k&
 	D_k &= \tilde{D}
 	.
-\end{align}
+	\end{align}
 \end{subequations}
-To make it possible to later split the resulting stages, the $\Sigma$s have to be removed form the matrices after splitting the stage.
+To make it possible to later split the resulting stages, the $\Sigma$s have to be removed from the matrices after splitting the stage.
 In the case $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the reduced matrices $\tilde{C}_k$ and $\tilde{B}_k$ directly.
 
 
 \begin{algorithm}[htb]
 	\begin{algorithmic}
 		\Input{Stage with $\tilde{A}_k,\tilde{B}_k,\tilde{C}_k$ and $\tilde{D}_k$ as well as $\Sigma_{k}$ and $\Sigma_{k+1}$\\
-		\spaceIO index $i_{\text{in}}$ to split inputs\\
-		\spaceIO index $i_{\text{out}}$ to split outputs\\
-		\spaceIO Tolerance $\text{tol}$}
+			\spaceIO index $i_{\text{in}}$ to split inputs\\
+			\spaceIO index $i_{\text{out}}$ to split outputs\\
+			\spaceIO Tolerance $\text{tol}$}
 		\Output{Stages $\alpha$ and $\beta$ also intermediate $\Sigma_\beta$}
 		\State $	A_k \gets \Sigma_{k+1} \tilde{A}_k \Sigma_k $
 		\Comment transform stage such that $\R_{k}^\top \R_{k} = \eye$ and $\Ob_{k+1}^\top \Ob_{k+1} = \eye$
 		\State $ B_k \gets \Sigma_{k+1} \tilde{B}_k $
 		\State $ C_k \gets \tilde{C}_k \Sigma_k $
-
-
+		
+		
 		
 		%(d_stateo,d_statei)=A.shape
 		\State $U,s,V^\top \gets \text{reducedSVD}\left(\begin{bmatrix}
-			C[i_\text{out}:,:]&D[i_\text{out}:,:i_\text{in}]\\A&B[:,:i_\text{in}]
+		C[i_\text{out}:,:]&D[i_\text{out}:,:i_\text{in}]\\A&B[:,:i_\text{in}]
 		\end{bmatrix}, \epsilon=\text{tol}\right)  $
 		\\
 		\State $\tilde{A}_\alpha \gets V^\top[:,:d_k] \Sigma_k^{-1}$
@@ -2404,7 +2405,7 @@ For this the algorithm also returns the intermediate singular values $\Sigma_\be
 
 
 \subsection{Segment Matrix}\label{subsec:segment_matrix}
-Every time we split up a stage we have to determine which inputs and outputs of the current stage correspond to the stage $\alpha$ and which one correspond to the stage $\beta$.
+Every time we split up a stage, we have to determine which inputs and outputs of the current stage correspond to the stage $\alpha$ and which one correspond to the stage $\beta$.
 We want to do this in such a way that the Rank of the Hankel matrices of the causal and the anticausal systems are reduced.
 This is again nontrivial as we have to solve a discrete optimization problem. 
 
@@ -2412,9 +2413,9 @@ We need to group the rows and columns of the matrix
 \begin{equation}
 X=
 \begin{bmatrix}
-	0   &F_k & E_k\\
-	C_k & D_k & G_k\\
-	A_k & B_k & 0
+0   &F_k & E_k\\
+C_k & D_k & G_k\\
+A_k & B_k & 0
 \end{bmatrix}
 .
 \end{equation}
@@ -2432,7 +2433,7 @@ We denote all partitions that partition $u_k$ into two sets as $\partition(u_k)$
 and $\partition(y_k)$ for $y_k$ accordingly.
 Here $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ have the same singular values as the Hankel matrices $H_\beta$ and $H_\alpha^*$.
 These singular values determine the state dimensions $d_\beta$ and $d_\alpha^*$.
-When we represent a system we want both of them to be minimal.
+When we represent a system, we want both of them to be minimal.
 Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ some sense. 
 The properties of the remaining parts of the matrix $X$ are not relevant, as they do not influence the state dimensions.
 
@@ -2441,9 +2442,9 @@ Ideally the algorithm directly optimizes the singular values.
 For this we need a way to compute or approximate the singular values for different configurations. 
 There are some approaches to decrease the cost for low rank updates of SVDs \cite{brand_fast_2006}.
 But these still require a diagonalization step and are therefore to expensive to calculate the singular values for multiple times per iteration.
-Also techniques for low rank optimizations described in \cite{liu_interior-point_2010} and \cite{recht_guaranteed_2010} did not proof helpful.
+Also, techniques for low rank optimizations described in \cite{liu_interior-point_2010} and \cite{recht_guaranteed_2010} did not proof helpful.
 
-Therefore I use two strategies to reduce the state dimensions.
+Therefore, I use two strategies to reduce the state dimensions.
 The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ by minimizing the angle between the columns and rows respectively.
 This can be used if the resulting matrix is low rank.
 In the case of weight matrices all sub matrices usually have full rank.
@@ -2461,7 +2462,7 @@ For a matrix $M\in \mathbb{R}^{m\times n}$ these are all equivalent as
 \end{equation}
 This makes it possible to reduce the rank by partition the input $u_k$ such that 
 \begin{equation}
-	\dim\range(\tilde{H_\beta}) + \dim\range(\tilde{H_\alpha^*})
+\dim\range(\tilde{H_\beta}) + \dim\range(\tilde{H_\alpha^*})
 \end{equation}
 is reduced. At the same time we have to partition the outputs $y_k$ such that 
 \begin{equation}
@@ -2478,15 +2479,15 @@ As we want to reduce the dimension of the range we want to make sure that the an
 %Therefore we want to reduce the angle between the columns.
 For this the function 
 \begin{equation}
-	\chi(u,v) =  1-\sin(\sphericalangle(u,v)) =1-\frac{|u^\top v|}{\|u\|_2\|v\|_2}
-	.
+\chi(u,v) =  1-\sin(\sphericalangle(u,v)) =1-\frac{|u^\top v|}{\|u\|_2\|v\|_2}
+.
 \end{equation}
 is used.
 If $u$ and $v$ are colinear $\chi(u,v) = 0$.
 \begin{proof}
 	If $u$ and $v$ are colinear then $u = \alpha v$. Therefore
 	\begin{equation}
-		\chi(\alpha v,v) = 1-\frac{|\alpha| |v^\top v|}{|\alpha|\|v\|_2\|v\|_2}= 1-\frac{|\alpha| \|v\|_2^2}{|\alpha| \|v\|_2^2} = 0
+	\chi(\alpha v,v) = 1-\frac{|\alpha| |v^\top v|}{|\alpha|\|v\|_2\|v\|_2}= 1-\frac{|\alpha| \|v\|_2^2}{|\alpha| \|v\|_2^2} = 0
 	\end{equation}
 \end{proof}
 if $u$ and $v$ are orthogonal $\chi(u,v) = 1$.
@@ -2502,24 +2503,24 @@ if $u$ and $v$ are orthogonal $\chi(u,v) = 1$.
 %\end{equation}
 This gives the objective function
 \begin{equation}
-	f_{col} = \sum_{u,v \text{ collumns of }  \tilde{H}_\beta}\!\!\!\!\!\!\chi(u,v)
-	+\sum_{u,v \text{ collumns of } \tilde{H}_\alpha^*}\!\!\!\!\!\!\chi(u,v)
-	.
+f_{col} = \sum_{u,v \text{ collumns of }  \tilde{H}_\beta}\!\!\!\!\!\!\chi(u,v)
++\sum_{u,v \text{ collumns of } \tilde{H}_\alpha^*}\!\!\!\!\!\!\chi(u,v)
+.
 \end{equation}
 An analogous derivation results in the objective function for the rows
 \begin{equation}
-	f_{row} = \sum_{u,v \text{ rows of }  \tilde{H}_\beta}\!\!\!\chi(u,v)
-	+\sum_{u,v \text{ rows of }  \tilde{H}_\alpha^*}\!\!\!\chi(u,v)
+f_{row} = \sum_{u,v \text{ rows of }  \tilde{H}_\beta}\!\!\!\chi(u,v)
++\sum_{u,v \text{ rows of }  \tilde{H}_\alpha^*}\!\!\!\chi(u,v)
 .
 \end{equation}
 This results in the two coupled optimizations problems
 \begin{equation}
-	\underset{(u_\alpha, u_\beta) \in \partition(u_k)}{\arg\min} f_{col} + \gamma_u
+\underset{(u_\alpha, u_\beta) \in \partition(u_k)}{\arg\min} f_{col} + \gamma_u
 \end{equation}
 and 
 \begin{equation}
-	\underset{(y_\alpha, y_\beta) \in \partition(y_k)}{\arg\min} f_{row} + \gamma_y
-	.
+\underset{(y_\alpha, y_\beta) \in \partition(y_k)}{\arg\min} f_{row} + \gamma_y
+.
 \end{equation}
 Here $\gamma_y$ and $\gamma_u$ are the regularization terms
 \begin{equation}
@@ -2543,11 +2544,11 @@ The initial partition of $u_k$ is obtained using spectral clustering.
 For this the columns of $X$ are represented by nodes connected by weighted edges.
 The weight between the columns $c_i$ and $c_j$ is  
 \begin{equation}
-	w_{i,j}=
-	\begin{cases}
-	|c_i^\top c_j| & \text{if } i\neq j\\
-	0  & \text{if } i=j\\
-	\end{cases}
+w_{i,j}=
+\begin{cases}
+|c_i^\top c_j| & \text{if } i\neq j\\
+0  & \text{if } i=j\\
+\end{cases}
 \end{equation}
 The spectral clustering is done with a normalized Laplacian as described in \cite{higham_spectral_2007}.
 The resulting segmentation also includes additional columns that do not correspond to inputs, and are therefore already fixed.
@@ -2557,10 +2558,10 @@ Analogously the initial partition of $y_k$ is computed.
 
 
 \paragraph{Frobenius norm reduction}
-Next we consider the case where the Hankel matrices have close to full rank.
+Next, we consider the case where the Hankel matrices have close to full rank.
 Here balanced truncation is used to approximate the system.
-To reduce the number of states, the number of singular values grater than some threshold have to be reduced.
-To achieve this I reduce the sum of the squared singular values.
+To reduce the number of states, the number of singular values greater than some threshold have to be reduced.
+To achieve this, I reduce the sum of the squared singular values.
 This is equivalent to the squared frobenius norm as $\|H\|_\text{F}^2 = \sum \sigma_i^2$. 
 Because $\|H\|_\text{F}^2 = \sum_{i=1}^{m}\sum_{j=1}^{n} h_{ij}^2$ this results in the problem of partitioning the inputs and outputs such that the sum over the squared entries of $\tilde{H}_\beta$ and $\tilde{H}_\alpha^*$ is reduced.
 As $\|H\|_\text{F}^2 \approx \text{size}(H)$ for the weight matrices tested, this would be equivalent to minimizing the size of $H_\beta$ and $H_\alpha^*$.
@@ -2571,8 +2572,8 @@ To avoid the trivial solution, where $u_\alpha$ and $y_\alpha$ or $u_\beta$  and
 
 This results in the discrete optimization problems
 \begin{equation}
-	(u_\alpha,u_\beta),(y_\alpha,y_\beta) = \underset{\substack{(u_\alpha, u_\beta) \in \partition(u_k)\\(y_\alpha, y_\beta) \in \partition(y_k)
-		}}{\arg\min} \|\tilde{H}_\beta\|_\text{F}^2 + \|\tilde{H}_\alpha^*\|_\text{F}^2 +\gamma
+(u_\alpha,u_\beta),(y_\alpha,y_\beta) = \underset{\substack{(u_\alpha, u_\beta) \in \partition(u_k)\\(y_\alpha, y_\beta) \in \partition(y_k)
+}}{\arg\min} \|\tilde{H}_\beta\|_\text{F}^2 + \|\tilde{H}_\alpha^*\|_\text{F}^2 +\gamma
 \end{equation}
 %\textcolor{blue}{
 %\begin{equation}
@@ -2582,11 +2583,11 @@ This results in the discrete optimization problems
 %}
 Here I use the regularization term
 \begin{equation}
-	\gamma =\gamma_r \frac{\length(u_k)+\length(y_k)}{2}%\|D\|_{\text{max}}
-	\left[ \left(\frac{\length(u_\alpha)}{\length(u_k)}-0.5\right)^2
-	+
-	\left(\frac{\length(y_\alpha)}{\length(y_k)}-0.5\right)^2
-	\right]
+\gamma =\gamma_r \frac{\length(u_k)+\length(y_k)}{2}%\|D\|_{\text{max}}
+\left[ \left(\frac{\length(u_\alpha)}{\length(u_k)}-0.5\right)^2
++
+\left(\frac{\length(y_\alpha)}{\length(y_k)}-0.5\right)^2
+\right]
 \end{equation}
 %Here the regularization parameter $\gamma_n$ is set such that the function ...
 To solve this optimization problem, I use the same iterative algorithm as used for the rank reduction.
@@ -2601,18 +2602,18 @@ The algorithm terminates as soon as the algorithm detects an loop.
 For larger matrices multiple inputs and outputs can be flipped at every iteration to speed up the algorithm.
 To additionally speed up the algorithm a matrix $W$ is computed, containing the matrix $D_k^{\bullet^2}$ with the squared entries of $D$.
 Using this approach, means that the squares of the entries only have to be computed once.
-Additionally the size of the matrix $W$ can be reduced by replacing the matrices $A_k$ and $E_k$ with their Frobeniusnorms $a_k$ and $e_k$.
+Additionally, the size of the matrix $W$ can be reduced by replacing the matrices $A_k$ and $E_k$ with their Frobeniusnorms $a_k$ and $e_k$.
 The matrices $B_k$ and $F_k^*$ are replaced by their column-wise vector-2-norm $b_k^\top$ and $f_k^\top$.
 The matrices $C_k$ and $G_k$ are replaced by their row wise vector-2-norm $c_k$ and $g_k$.
 This results in the matrix
 \begin{equation}
-	W = 
-	\begin{bmatrix}
-	0   &f_k^\top & e_k\\
-	c_k & D_k^{\bullet^2} & g_k\\
-	a_k & b_k^\top & 0
-	\end{bmatrix}
-	.
+W = 
+\begin{bmatrix}
+0   &f_k^\top & e_k\\
+c_k & D_k^{\bullet^2} & g_k\\
+a_k & b_k^\top & 0
+\end{bmatrix}
+.
 \end{equation}
 
 \todo[inline]{make a clearer ending}
@@ -2621,7 +2622,7 @@ This results in the matrix
 %Finally the matrices $A_k$ and $E_k$ are replaced by their elementwise sum $a$ and $c$
 
 
- 
+
 
 %possible way to write the 
 %{(u_\alpha,  u_\beta) | u_\alpha \sqcup u_\beta = u_k \}}
@@ -2649,14 +2650,14 @@ This results in the matrix
 In this section I test how the algorithms presented in Chapter\,\ref{chap:methods} behave for different matrices.
 To demonstrate the behavior on structured matrices I use random Hankel matrices.
 After this I test the algorithms on weight matrices form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019} and the \emph{AlexNet} model \cite{krizhevsky_one_2014}.
-When approximating the weight matrices, the goal is to reduce the number of floating point operations.
+When approximating the weight matrices, the goal is to reduce the number of floating-point operations.
 The number of floating point operations was described in Section\,\ref{sec:cost}.
 At the same time the approximation error should stay small.
-To measure the approximation error I use the spectral norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
+To measure the approximation error, I use the spectral norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
 
 The code to reproduce the experiments can be found in \todo{Add github}.
 The code uses the library \emph{tvsclib} \cite{kissel_time_2022} to handle the time varyying systems.
-  
+
 
 \section{Moving Boundaries}
 In this section the approach described in Section\,\ref{sec:Segmentation} is tested.
@@ -2664,10 +2665,10 @@ Here a initial system with constant input- and output dimensions is first create
 Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
 
 \subsection{Illustrative example}\label{sec:test_adao}
-First I demonstrate the algorithm for a sequentially semiseparable matrix $T$.
+First, I demonstrate the algorithm for a sequentially semiseparable matrix $T$.
 All Hankel matrices of $T$ are rank one. 
 The matrix is generated form random orthogonal vectors such that the range of $C$, $D$ and $G$ are orthogonal to each other.
-Also the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.
+Also, the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.
 The properties of the matrix $T$ are explained in more detail in Appendix\,\ref{A:random_T}.
 
 \begin{figure}[!htb]
@@ -2696,7 +2697,7 @@ Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation
 As an objective function I used the normalized nuclear norm as described in Equation\,\ref{eq:objective_nuc}.
 This gives the system illustrated in Figure\,\ref{fig:example_move_b}.
 We can see that the algorithm can recover the original segmentation.
- 
+
 When the algorithm adapts the segmentation, it tests different segmentation and uses the one with the lowest objective function.
 This is done in every iteration. 
 \begin{figure}[!htb]
@@ -2723,7 +2724,7 @@ The Plot in Figure\,\ref{fig:example_move_bound_a} shows all the positions that 
 We can see that in the first iterations the possible changes are larger and decrease for further iterations.
 We can also observe that it is possible to reach the same segmentation using different paths.
 The algorithm also makes sure, that the boundaries do not cross.
-Therefore some paths are not possible as these would require crossing another boundary. 
+Therefore, some paths are not possible as these would require crossing another boundary. 
 In Figure\,\ref{fig:example_move_a} these are drawn with dotted lines.
 The Figure\,\ref{fig:example_move_bound_b} shows how the segmentation is changing between the iterations. 
 
@@ -2755,11 +2756,11 @@ This search sequence also starts with lager search distances, that decrease over
 		\caption{$K=10$  $\f_{\text{FLOP}}=480573$}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.34\textwidth}
-	\caption{$K=17$ $\f_{\text{FLOP}}=494119$}
+		\caption{$K=17$ $\f_{\text{FLOP}}=494119$}
 	\end{subfigure}
 	\caption{Matrix segmentation for different numbers of Stages.
-	The areas shaded in gray represent the $D$-matrices.
-	For higher numbers of stages the portion represented by the $D_k$-Matrices gets lower.}
+		The areas shaded in gray represent the $D$-matrices.
+		For higher numbers of stages the portion represented by the $D_k$-Matrices gets lower.}
 	\label{fig:Mobilenet_diff_Ks}
 \end{figure}
 The results for $K=5$, $K=10$ and $K =17$ are illustrated in Figure\,\ref{fig:Mobilenet_diff_Ks}.
@@ -2796,7 +2797,7 @@ In Figure\,\ref{fig:mobilenet_seperation_comp} this shows as bounds converging t
 	\centering
 	\includegraphics[width=0.7\textwidth]{Plots/move_example_mobilenet_error.pdf}
 	\caption{Plot of the approximation error with respect to the number of multiplications for different $\epsilon$. 
-	The black line indicates the number of multiplications for the regular matrix vector product. 
+		The black line indicates the number of multiplications for the regular matrix vector product. 
 	}
 	\label{fig:mobilenet_err_cost}
 \end{figure}
@@ -2842,7 +2843,7 @@ It is important to choose an smaller $\epsilon$ for the approximation than for t
 Then I adapted the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
 The systems are again approximated using balanced truncation.
 After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|M\|_\text{H}$ is reduced by \todo{calc when redoing plots}.
-As the adaptation of the segemntation was not performed on the full system, but only on an approximated system, adaptation errors can be amplified.
+As the adaptation of the segmentation was not performed on the full system, but only on an approximated system, adaptation errors can be amplified.
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Plots/move_example_alexnet_error.pdf}
@@ -2854,13 +2855,13 @@ As the adaptation of the segemntation was not performed on the full system, but 
 \end{figure}
 We can see in Figure\,\ref{fig:alexnet_seperation_comp} that the approximation error actually increased after applying the Algorithm\,\ref{alg:optimize segemtnation}.
 We can also observe that the approximation error for the adapted system does not vanish for an balanced truncation with $\epsilon = 0$ as the system is based on an already approximated system.
-Therefore a new system is computed. 
-This system has the same input and output dimensions as the adapted system, but is directly calculated form the matrix $M$.
+Therefore, a new system is computed. 
+This system has the same input and output dimensions as the adapted system but is directly calculated form the matrix $M$.
 This system is subsequent approximated using balanced truncation.
 The recomputed system with the new borders has the lowest approximation error.
 The number of multiplications increases slightly for the recomputed system compared to the adapted system.
 The number of multiplication is still $31\%$ less compared with the initial system for $\epsilon = \frac{1}{4}\|M\|_\text{H}$.
-For smaller $\epsilon$s  the recomputed system behaves similar to the initial system.
+For smaller $\epsilon$s,  the recomputed system behaves similar to the initial system.
 
 
 %The number with the new segmentation is lower than for initial segmentation if $\epsilon \geq \frac{1}{4} \|A\|_H$.
@@ -2873,10 +2874,10 @@ Here an initial system with one stage is created.
 The stage is than spit up in two stages.
 This process is then repeated.
 When the stages are split, the inputs and outputs are partitioned such that a objective function is minimized.
-This makes it possible to recover a permuted sequentially semiseperable matrix.
+This makes it possible to recover a permuted sequentially semiseparable matrix.
 
 \subsection{Illustrative example}
-First the algorithm is tested on a random sequential semiseperable matrix $T$.
+First the algorithm is tested on a random sequential semiseparable matrix $T$.
 The Hankel matrices have rank $2$.
 The matrix is generated as described in Appendix\,\ref{A:random_T}. 
 The rows and columns of the matrix are then permuted with random permutations.
@@ -2904,7 +2905,7 @@ As algorithm to minimize the rank does usually increase the computational cost i
 \paragraph{Mobilenet V2}
 Next the algorithm is used to represent a weight matrix from the \emph{Mobilenet V2} model.
 Here the inputs and outputs are partitioned such that the Forbenius norm of the Hankel matrices is minimized.
-As the algorithm can only used numbers of stages that are powers of $2$, I use $K=2^3=8$ as it is closest to $K=10$.
+As the algorithm can only use numbers of stages that are powers of $2$, I use $K=2^3=8$ as it is closest to $K=10$.
 The regularization parameter is set to $\gamma=9\times10^5$.
 This makes sure that the inputs and outputs are divided into two nearly equally sized parts.
 The resulting permuted matrix is shown in Figure\,\ref{fig:mobilenet_permutation}.
@@ -2915,7 +2916,7 @@ The resulting permuted matrix is shown in Figure\,\ref{fig:mobilenet_permutation
 	}
 	\label{fig:mobilenet_permutation}
 \end{figure}
-As a  reference, a system without permutations is computed.
+As a reference, a system without permutations is computed.
 The reference system and the permuted system are approximated using balanced truncation.
 We can see in Figure\,\ref{fig:mobilenet_err_cost_perm} that permuting the matrix has only a minor impact on the number of operations and the approximation error.
 For $\epsilon = \frac{1}{4}\|M\|_\text{H}$ the reduction of the computational cost due to the permutation is $<1\%$.
@@ -2932,7 +2933,7 @@ For $\epsilon = \frac{1}{4}\|M\|_\text{H}$ the reduction of the computational co
 
 The state dimensions of the regular and permuted systems are plotted in Figure\,\ref{fig:mobilenet_state_dims_perm}.
 One can see that while most state dimensions decreased others did increase.
-In total, the number of states did only slightly decreased.
+In total, the number of states did only slightly decrease.
 This means that the algorithm is only partially successful in decreasing the number of states.
 \begin{figure}[!htb]
 	\centering
@@ -2949,40 +2950,41 @@ The number of flops is reduced by $3\%$ if the system is approximated with $\eps
 
 
 
+
 \chapter{Discussion}\label{chap:discussion}
-The two algorithm presented in this theses were able to recover the structure of simple test cases based on random sequentially matrices.
+The two algorithms presented in this thesis were able to recover the structure of simple test cases based on random sequentially matrices.
 When applied to the tested weight matrices, they were not able to identify a potential structure in the weight matrices.
 
 Regardless, optimizing the segmentation for the computational cost did lead to a noticeable reduction of the computational cost as seen in Section\,\ref{sec:test_adao}.
 The total number of states decreased, even if some state dimension got larger. 
-This reduction of the computational cost is possible without an significant worsening of the approximation error. 
+This reduction of the computational cost is possible without a significant worsening of the approximation error. 
 As the algorithm can also run on an pre-approximated system, the segmentation of relatively large matrices like the \emph{Alexnet} weight matrix can be computed on an regular notebook.
 One notable observation is that the size of the $D_k$ decrease.
 In some cases, the inputs or outputs of stages are zero-dimensional.
 It might be interesting to explore time varying systems that do not have $D_k$.
-Alternatively the $D_k$ could be represent using other matrix approximations like low rank approximations. 
+Alternatively, the $D_k$ could be represent using other matrix approximations like low rank approximations. 
 
 The second approach based on recursive splitting, tested in Section\,\ref{sec:test_perm} did not return promising results.
 Reducing the sum of the squared Hankel singular values did only lead to a very small reduction of the computational cost, as the number of states only minimally decreased.
-This also suggests, that the potential for decreasing the computational cost for system representations of weight matrices by reducing the number of states is limited.
+This also suggests that the potential for decreasing the computational cost for system representations of weight matrices by reducing the number of states is limited.
 Focusing directly on the computational cost seems to be a better approach.
 
-I was not able to identify sequentially semiseperable structures in the weight matrices using an simple adaptation of the segmentation.
-This is also not surprising, as this would require that the Hankel matrices of the weight matrices have low rank but this was not experienced in any experiment.
+I was not able to identify sequentially semiseparable structures in the weight matrices using a simple adaptation of the segmentation.
+This is also not surprising, as this would require that the Hankel matrices of the weight matrices have low rank, but this was not experienced in any experiment.
 It might be possible to find structures when allowing for permutations as this has more degrees of freedom. 
 Unfortunately, the splitting algorithm based on the minimization of the Forbenius nor was not able to do this.
 Here an optimization based on the nuclear norm, that promotes low rank solutions might be preferable, even if this would require some improvements to make the optimization problem computationally viable.
 The fact that the Hankel matrices of the weight matrices is consistent with other research.
 %Different strategy for clustering
 %Approaches in this thesis can help to reduce computational cost.
-%Not able to find sequentially semiseperable structures in weight matrices.
+%Not able to find sequentially semiseparable structures in weight matrices.
 
 %Permutation not successful
 %mainly changing the Segemntation not reducing the number of states.
 %Vanishing  input and output dimensions. Also vanishing $D$-matrices
 Research by Martin and Mahoney suggests that weight matrices usually have full rank \cite{martin_implicit_2021}.
 This might be explained with information theory \cite{papyan_traces_2020}.
-The full rank property is in principal no problem, as sequentially semiseperable matrices can have full rank, even if the Hankel matrices have low rank. 
+The full rank property is in principle no problem, as sequentially semiseparable matrices can have full rank, even if the Hankel matrices have low rank. 
 \footnote{For a trivial example consider the identity matrix as sequentially semiseperabel matrix with full rank}
 I was not able to find statements if these results also hold for submatrices.
 Even if similar results hold true for submatrices, approximations using time varying systems might be still beneficial, if the bulk of the singular values is sufficiently small.
@@ -3003,15 +3005,15 @@ An important result are the techniques to obtain the Hankel singular values with
 The Hankel singular values are important as they are needed to approximate a system with balanced truncation.
 This allows an efficient approximation of arbitrary systems similar to the technique described in \cite{chandrasekaran_fast_2005}.
 If a system has to be reduced to a minimal system using floating point arithmetic, then this also gives a good way to do this in a well-defined fashion.
-The Algorithm to split stages stated in \cite{chandrasekaran_fast_2005} was extended such that it is able to compute the Hankel singular values.
-This makes it possible to use the algorithm to identify and later refine systems and also obtain the Hankel singular values on the fly.
-Also algorithms to change the input and output dimensions are devised. 
+The Algorithm to split stages stated in \cite{chandrasekaran_fast_2005} was extended such that it can compute the Hankel singular values.
+This makes it possible to use the algorithm to identify and later refine systems and obtain the Hankel singular values on the fly.
+Also, algorithms to change the input and output dimensions are devised. 
 Such algorithms are required if systems with not compatible dimensions have to be added or multiplied.
 The work on this thesis also lead to improvements in the \emph{tvsclib}-library \cite{kissel_time_2022}.
 
 To devise the number of stages, the computational cost for computing the matrix vector product with a time varying system was estimated.
-Using this estimation it is possible to choose the number of stages for approximations.
-This estimation might also serve as a baseline if one needs to determine how the structural parameters have to be chosen to reduce the computational cost.
+Using this estimation, it is possible to choose the number of stages for approximations.
+This estimation might also serve as a baseline if one needs to determine how the structural parameters must be chosen to reduce the computational cost.
 These are not only required if an existing matrix is approximated but also could be used as a baseline if a neural network based on a time varying system is trained from scratch.
 
 These results where combined with optimization problems to approximate weight matrices form neural networks.
@@ -3024,7 +3026,7 @@ When weight matrices are approximated with $\mathcal{H}$-matrices, this require 
 
 The techniques to change the segmentation can be used without increasing the approximation error measured in the spectral norm.
 In this thesis I did not test how this influences the total accuracy of the neural network. 
-The approximation error does give an indication, but does not fully describe the behavior.
+The approximation error does give an indication but does not fully describe the behavior.
 Future research is needed to determine how the approximation and the changing of the segmentation influences the accuracy of the neural network.
 \todo[inline]{maybes something more optimistic}
 
@@ -3466,30 +3468,30 @@ The relation $\|\breve{\Delta}_k e_i\|_2^2 \leq \|\Delta_k e_i\|_2^2$ implies th
 	\|\breve{\Delta}_k\|_\text{F} \leq \|\Delta_k\|_\text{F}
 \end{equation}
 \begin{equation}
-\|T-\hat{T}\| \leq
+\|T-\hat{T}\|_\text{F} \leq
 \Bigg\|
 \begin{bmatrix}
 &\Delta_0^*\\
 \breve{\Delta}_1
 \end{bmatrix}
-\Bigg\|+\Bigg\|
+\Bigg\|_\text{F}+\Bigg\|
 \begin{bmatrix}
 &\breve{\Delta}_1^*\\
 \breve{\Delta}_2
 \end{bmatrix}
-\Bigg\|+\dots+\Bigg\|
+\Bigg\|_\text{F}+\dots+\Bigg\|
 \begin{bmatrix}
 &\breve{\Delta}_{K-1}\\
 \Delta_K
 \end{bmatrix}
-\Bigg\|.
+\Bigg\|_\text{F}.
 \end{equation}
 
 
-\chapter{Random Sequentially Semiseperable matrices}\label{A:random_T}
+\chapter{Random Sequentially semiseparable matrices}\label{A:random_T}
 
-%In this section the construction of the random sequentially semiseperable matrices are  
-In this section the algorithm to construct the sequentially semiseperable matrices used in Chapter\,\ref{chap:experiments} is explained.
+%In this section the construction of the random sequentially semiseparable matrices are  
+In this section the algorithm to construct the sequentially semiseparable matrices used in Chapter\,\ref{chap:experiments} is explained.
 The matrices can be parameterized with the the input dimensions $m_k$, the output dimensions $p_k$ and the rank of the  Hankel matrices.
 The generated matrices have the property, that the range of $C$, $D$ and $G$ are orthogonal to each other.
 Also the range of $B^\top$, $D^\top$ and $G^\top$ are orthogonal.
