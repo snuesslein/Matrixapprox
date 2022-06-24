@@ -8,7 +8,7 @@ textwidth = 369.88588 * 0.0138
 
 def setup():
     line_cycler   = (cycler(color=plt.rcParams['axes.prop_cycle'].by_key()['color']) +
-                 cycler(linestyle=["-", "--", "-.", ":", "-", "--", "-.", ":", "-", "--",]))
+                 cycler(linestyle=["-", "--", ":", "-.", "-", "--", "-.", ":", "-", "--",]))
     plt.rc("axes", prop_cycle=line_cycler)
 
     plt.rc("text", usetex=True)

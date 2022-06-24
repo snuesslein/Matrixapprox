@@ -117,30 +117,27 @@
 
 
 \chapter*{Abstract}
-\textcolor{blue}{Background:}
+\textcolor{gray}{Background:}
 There are different approaches to approximate matrices using structured matrices to reduce the computational cost.% more efficient structures 
-
-\textcolor{blue}{
+\textcolor{gray}{
 Aims:}
 One possible structure is sequentially semiseparable matrices, that represent the behavior of time varying systems.
 %These have structural parameters that are usually determined by a underlying physical system.
 If time varying systems are used to approximate weight matrices form neural networks, structural parameters have to be determined.
-
-\textcolor{blue}{Methods:}
+\textcolor{gray}{Methods:}
 In this thesis two algorithms to obtain the structural parameters are described.
 The first refines a initial segmentation by optimizing the input and output dimensions of the system.
 The second algorithm recursively splits the subsystems in a way that makes it possible to recover permuted sequentially semiseparable matrices.
-
-\textcolor{blue}{Results and conclusions}
+\textcolor{gray}{Results and conclusions}
 The algorithms were able to recover the structure of simple test matrices.
 When used to represent weight matrices form neural networks, the algorithms were able to reduce the computational cost of the matrix representation.
 
 \vspace{3cm}
 
-\textcolor{blue}{
+\textcolor{gray}{
 Are they needed?
 }
-
+\todo{keywords? Classification? remove gray text}
 Keywords: Sequentially Semiseparable, Time Varying Systems,
 %\begin{itemize}
 %	\item neural nets
@@ -240,6 +237,7 @@ In Chapter\,\ref{chap:methods} the methods to create system representation for a
 First different prerequisites are discussed.
 In Section\,\ref{sec:approx} an algorithm for the approximation of a system is explored
 and a strategy to efficiently compute the Hankel singular values is presented.
+Additionally a error bound for the matrix approximation is derived.
 The number of operations is derived in Section\,\ref{sec:cost}.
 In Section\,\ref{sec:Choose_K} an approach to determine the number of stages for a system will be presented.
 Based on this, the input and output dimensions have to be determined.
@@ -1683,7 +1681,6 @@ The algorithms to move the horizontal boundaries up or down are described in App
 
 \FloatBarrier
 \subsection{Computing Hankel Singular Values when Moving Boundaries}\label{subsec:move_sig}
-\todo[inline]{check indexing in algorithms}
 In this section the ideas from Section\,\ref{sec:approx} are used to calculate the singular values for a moved system.
 The main idea is that this algorithm iterates over the different stages and moves them if needed.
 This algorithm not only calculates the moved system but also returns the singular values.
@@ -1691,8 +1688,8 @@ The Algorithms\,\ref{alg:move_left}-\ref{alg:move_up} are only able to move the 
 The algorithm derived here can move the boundaries by arbitrary distances, as long as the other boundaries are not crossed. 
 
 
-I will describe the algorithm to move the bounds left or right in this subsection.. 
-\todo[inline]{The algorithms for moving up or down will be omitted for brevity/Can be found in the appendix}
+I will describe the algorithm to move the bounds left or right in this subsection. The algorithms for moving up or down will be omitted for brevity.
+A reference implementation of the algorithm can be found in the supplementary code \todo{add github}
 The algorithm starts with an output normal system and transforms it into a ordered input normal system, by iterating over the stages from $k=1$ up to $K$.
 
 
@@ -2029,7 +2026,7 @@ is again a singular value decomposition.
 	\tilde{U}^\top \tilde{U} = U^\top \Pi_C^\top \Pi_C U = U^\top U = \eye 
 	.
 	\end{equation}
-	This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation $\Pi$.
+	This uses the fact that $\Pi^\top \Pi = \eye$ for a permutation matrix $\Pi$.
 	Analogously 
 	\begin{equation}
 	\tilde{V}^\top \tilde{V} = V^\top \Pi_C \Pi_C^\top V = V^\top V = \eye
@@ -2083,8 +2080,7 @@ This immediately gives us most of the matrices for the new stages
 Now we want to compute the remaining matrices.
 The new realization should be minimal.
 For this we consider the Hankel matrix associated with the new intermediate state $x_\beta$.
-
-This is 
+The matrix can be factored into
 \begin{equation}
 H_\beta = \Ob_\beta \R_\beta 
 = \begin{bmatrix} C_\beta \\ C_{k+1} A_\beta \\ C_{k+2} A_{k+1} A_\beta \\ \vdots \end{bmatrix}
@@ -2311,14 +2307,14 @@ and $\partition(y_k)$ for $y_k$ accordingly.
 Here $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ have the same singular values as the Hankel matrices $H_\beta$ and $H_\alpha^*$.
 These singular values determine the state dimensions $d_\beta$ and $d_\alpha^*$.
 When we represent a system, we want both of them to be minimal.
-Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ some sense. 
+Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ in some sense. 
 The properties of the remaining parts of the matrix $X$ are not relevant, as they do not influence the state dimensions.
 
 
 Ideally the algorithm directly optimizes the singular values.
 For this we need a way to compute or approximate the singular values for different configurations. 
 There are some approaches to decrease the cost for low rank updates of SVDs \cite{brand_fast_2006}.
-But these still require a diagonalization step and are therefore to expensive to calculate the singular values for multiple times per iteration.
+But these still require a diagonalization step and are therefore to expensive to calculate the singular values multiple times per iteration.
 Also, techniques for low rank optimizations described in \cite{liu_interior-point_2010} and \cite{recht_guaranteed_2010} did not proof helpful.
 
 Therefore, I use two strategies to reduce the state dimensions.
@@ -2415,7 +2411,7 @@ At every iteration the algorithm computes for every input in $u_\alpha$ how much
 The input with the smallest value is moved to $u_\beta$, if it is negative.
 Analogously the same is done for the inputs in $u_\beta$.
 If there is neither a negative value for  $u_\alpha$ nor a negative value for $u_\beta$, the inputs with the smallest values are flipped.
-Simultaneously the same is done with the outputs with the objective function $f_row$.
+Simultaneously the same is done with the outputs with the objective function $f_{row}$.
 
 The initial partition of $u_k$ is obtained using spectral clustering.
 For this the columns of $X$ are represented by nodes connected by weighted edges.
@@ -2492,8 +2488,10 @@ a_k & b_k^\top & 0
 \end{bmatrix}
 .
 \end{equation}
+The size of the matrix is $W$ is independent of the state dimensions.
+This technique makes it possible to apply the strategy to large matrices.
 
-\todo[inline]{make a clearer ending}
+%\todo[inline]{make a clearer ending}
 %Also the Size of the matrix $X$ can be decreased by replacing the matrices $B_k$ and $F_k^*$ by their column-wise sums $b_k^\top$ and $f_k^top$. 
 %The matrices $C_k$ and $G_k$ are replaced by their row wise sum $c_k$ and $g_k$.
 %Finally the matrices $A_k$ and $E_k$ are replaced by their elementwise sum $a$ and $c$
@@ -2719,19 +2717,18 @@ It is important to choose an smaller $\epsilon$ for the approximation than for t
 \end{figure}
 Then I adapted the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
 The systems are again approximated using balanced truncation.
-After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|M\|_\text{H}$ is reduced by \todo{calc when redoing plots}.
+After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|M\|_\text{H}$ is reduced by $37\%$.
 As the adaptation of the segmentation was not performed on the full system, but only on an approximated system, adaptation errors can be amplified.
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Plots/move_example_alexnet_error.pdf}
 	\caption{Plot of the approximation error with respect to the number of multiplications for different $\epsilon$. 
 		The black line indicates the number of multiplications for the regular matrix vector product. 
-		TODO: recomputed,add eps,readability
 	}
 	\label{fig:allexnet_err_cost}
 \end{figure}
 We can see in Figure\,\ref{fig:alexnet_seperation_comp} that the approximation error actually increased after applying the Algorithm\,\ref{alg:optimize segemtnation}.
-We can also observe that the approximation error for the adapted system does not vanish for an balanced truncation with $\epsilon = 0$ as the system is based on an already approximated system.
+We can also observe that the approximation error for the adapted system does not vanish for the balanced truncation with $\epsilon = 0$ as the system is based on an already approximated system.
 Therefore, a new system is computed. 
 This system has the same input and output dimensions as the adapted system but is directly calculated form the matrix $M$.
 This system is subsequent approximated using balanced truncation.
@@ -2803,7 +2800,6 @@ For $\epsilon = \frac{1}{4}\|M\|_\text{H}$ the reduction of the computational co
 	\includegraphics[width=0.7\textwidth]{Plots/perm_example_mobilenet_error.pdf}
 	\caption{Plot of the approximation error with respect to the number of multiplications for different $\epsilon$. 
 		The black line indicates the number of multiplications for the regular matrix vector product. 
-		TODO: regular,add eps,readability
 	}
 	\label{fig:mobilenet_err_cost_perm}
 \end{figure}
@@ -2851,11 +2847,11 @@ This is also not surprising, as this would require that the Hankel matrices of t
 It might be possible to find structures when allowing for permutations as this has more degrees of freedom. 
 Unfortunately, the splitting algorithm based on the minimization of the Forbenius nor was not able to do this.
 Here an optimization based on the nuclear norm, that promotes low rank solutions might be preferable, even if this would require some improvements to make the optimization problem computationally viable.
-The fact that the Hankel matrices of the weight matrices is consistent with other research.
+
+The fact that the Hankel matrices of the weight matrices do not have low rank is not surprising considering other research.
 %Different strategy for clustering
 %Approaches in this thesis can help to reduce computational cost.
 %Not able to find sequentially semiseparable structures in weight matrices.
-
 %Permutation not successful
 %mainly changing the Segemntation not reducing the number of states.
 %Vanishing  input and output dimensions. Also vanishing $D$-matrices
@@ -2865,7 +2861,7 @@ The full rank property is in principle no problem, as sequentially semiseparable
 \footnote{For a trivial example consider the identity matrix as sequentially semiseperabel matrix with full rank}
 I was not able to find statements if these results also hold for submatrices.
 Even if similar results hold true for submatrices, approximations using time varying systems might be still beneficial, if the bulk of the singular values is sufficiently small.
-In this case the approximation error would be small, even if many nonzero singular values would have to be removed.
+In this case the approximation error would be small, even if many nonzero singular values would have to be removed by applying balanced truncation.
 
 
 
@@ -2882,6 +2878,9 @@ An important result are the techniques to obtain the Hankel singular values with
 The Hankel singular values are important as they are needed to approximate a system with balanced truncation.
 This allows an efficient approximation of arbitrary systems similar to the technique described in \cite{chandrasekaran_fast_2005}.
 If a system has to be reduced to a minimal system using floating point arithmetic, then this also gives a good way to do this in a well-defined fashion.
+Also a error bound was derived for the approximation of matrices with balanced truncation.
+The error bound is similar to existing error bounds, but allows a tighter bound if a mixed system is approximated.
+Additionally the error bound makes it possible to bound the error in the Frobenius norm,
 The Algorithm to split stages stated in \cite{chandrasekaran_fast_2005} was extended such that it can compute the Hankel singular values.
 This makes it possible to use the algorithm to identify and later refine systems and obtain the Hankel singular values on the fly.
 Also, algorithms to change the input and output dimensions are devised. 
@@ -2905,7 +2904,7 @@ The techniques to change the segmentation can be used without increasing the app
 In this thesis I did not test how this influences the total accuracy of the neural network. 
 The approximation error does give an indication but does not fully describe the behavior.
 Future research is needed to determine how the approximation and the changing of the segmentation influences the accuracy of the neural network.
-\todo[inline]{maybes something more optimistic}
+
 
 \appendix
 \chapter{Matrix Approximation Error Bounds}\label{A:Error Bounds}
@@ -3314,15 +3313,20 @@ C_{k[2]}\\
 .
 \end{equation}
 This allows us to decompose $\|\Delta_k u\|_2^2$ into the sum
-\begin{equation}
+\begin{equation*}
 \|\Delta_k u\|_2^2
 	  =
 	    \|\breve{\Delta}_k u\|_2^2
-	  + \dots + \Big\|
-	  \Ob_{k+1[2]}A_{k[21]}
+	  + \dots +
+	  \Big\|
+	  \Ob_{k+2[2]}A_{k+2[21]}A_{k[12]}
 	  \R_{k[2]} u
 	  \Big\|_2^2
-\end{equation}
+	  + \Big\|
+	  \Ob_{k+1[2]}A_{k[22]}
+	  \R_{k[2]} u
+	  \Big\|_2^2
+\end{equation*}
 Be reordering and using the fact that the squared norms larger or equal than $0$ we obtain the relation
 \begin{equation}
 	\|\breve{\Delta}_k u\|_2 \leq \|\Delta_k u\|_2 
@@ -3531,7 +3535,7 @@ to the matrix $C_{k+1}$.
 
 The pseudocode can be found in Algorithm\,\ref{alg:move_up}.
 
-\chapter{Random Sequentially semiseparable matrices}\label{A:random_T}
+\chapter{Random Sequentially Semiseparable Matrices}\label{A:random_T}
 
 %In this section the construction of the random sequentially semiseparable matrices are  
 In this section the algorithm to construct the sequentially semiseparable matrices used in Chapter\,\ref{chap:experiments} is explained.

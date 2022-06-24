@@ -17,9 +17,9 @@
 		\node[anchor=mid]  (dots_x) {$\mathbf{\vdots}$}; &
 		\node[]  (dots_y) {}; \\[0.9cm,between origins]
 		%--------------------------------------------------------------------
-		\node[]                  (u_k) {$u_n$};          &
-		\node[style_stage, stage, name=sys_k,A=$A_{n}$,B=$B_{n}$,C=$C_{n}$,D=$D_{n}$] {};&
-		\node[]                  (y_k) {$y_n$};          \\[0.8cm,between origins]
+		\node[]                  (u_k) {$u_K$};          &
+		\node[style_stage, stage, name=sys_k,A=$A_{K}$,B=$B_{K}$,C=$\!C_{K}$,D=$D_{K}$] {};&
+		\node[]                  (y_k) {$y_K$};          \\[0.8cm,between origins]
 		%--------------------------------------------------------------------
 		 &		\node[coordinate]  (xout) {}; & \\
 	};
@@ -33,6 +33,6 @@
 	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_1$} (sys_1.xin);
 	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$x_2$} (sys_2.xin);
 	\draw[signalflow] (sys_2.xout)               -- node[near end,anchor=west]   {$x_3$} ($(dots_x.north)+(0,-0.1)$);
-	\draw[signalflow] ($(dots_x.south)+(0,-0.0)$) -- node[near start,anchor=west] {$x_k$}(sys_k.xin);
-	\draw[signalflow] (sys_k.xout)               -- node[near end,anchor = west] {$x_{n+1}$} (xout);
+	\draw[signalflow] ($(dots_x.south)+(0,-0.0)$) -- node[near start,anchor=west] {$x_K$}(sys_k.xin);
+	\draw[signalflow] (sys_k.xout)               -- node[near end,anchor = west] {$x_{K+1}$} (xout);
 \end{tikzpicture}
