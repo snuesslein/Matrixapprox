@@ -1,0 +1,343 @@
+\documentclass{beamer}
+\mode<presentation>
+{
+  \usetheme{ldv}
+  \setbeamercovered{transparent}
+}
+
+% Uncomment this if you're giving a presentation in german...
+%\usepackage[ngerman]{babel}
+
+% ...and rename this to "Folie"
+\newcommand{\slidenomenclature}{Slide}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{tabularx}
+
+\definecolor{C0}{HTML}{1f77b4}
+\definecolor{C1}{HTML}{ff7f0e}
+\definecolor{C2}{HTML}{2ca02c}
+\definecolor{C3}{HTML}{d62728}
+\definecolor{C4}{HTML}{9467bd}
+\definecolor{C5}{HTML}{8c564b}
+\definecolor{C6}{HTML}{e377c2}
+\definecolor{C7}{HTML}{7f7f7f}
+\definecolor{C8}{HTML}{bcbd22}
+\definecolor{C9}{HTML}{17becf}
+
+
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{matrix}
+\usetikzlibrary{ decorations.markings}
+\usetikzlibrary {decorations.shapes}
+\usetikzlibrary {shapes.arrows}
+\input{../Thesis/diagrams/systems.tex}
+
+\usepackage{pdfrender}
+
+\tikzset{
+	invisible/.style={opacity=0,text opacity=0},
+	visible on/.style={alt=#1{}{invisible}},
+	alt/.code args={<#1>#2#3}{%
+		\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+	},
+}
+
+\tikzstyle{colmarking} = [C0,line width=1.5pt]
+\def\colortext{C0}
+\newcommand{\m}{\triangledown} %indexing for moved inputs/outouta
+
+% Uncomment me when you need to insert code
+\usepackage{color}
+\usepackage{listings}
+% End Code
+
+% Uncomment me when you need video or sound
+\usepackage{multimedia}
+\usepackage{hyperref}
+% End video
+
+% Header
+\newcommand{\zwischentitel}{}
+\newcommand{\leitthema}{}
+% End Header
+
+% Titlepage
+\title{Algorithms for Matrix Representation with Time Varying Systems}
+\author{Stephan Nüßlein}
+\date{July 1,2022}
+\newcommand{\presdatum}{July 1, 2022}
+\institute
+{
+  Lehrstuhl für Datenverarbeitung\\
+}
+\subtitle{}
+% End Titlepage
+
+
+\newcommand{\chapterpage}[1]{
+	{\small 
+	\textcolor{tumcolor-blue}{Algorithms} 
+	\textcolor{gray}{for} 
+	\textcolor{tumcolor-blue}{Matrix Representation} 
+	\textcolor{gray}{with} 
+	\textcolor{tumcolor-blue}{Time Varying Systems}
+}
+\newline
+\phantom{\Huge\emph{} H}
+\newline
+{\LARGE \textcolor{tumcolor-blue}{#1}}
+}
+
+
+% Slides
+\begin{document}
+
+% 1. Slide: Titlepage
+\begin{frame}
+	\titlepage
+\end{frame}
+
+
+\begin{frame}
+	\chapterpage{\phantom{Time Varying Systems}}
+\end{frame}
+
+
+\begin{frame}
+	\chapterpage{Time Varying Systems}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Stage}
+	\centering
+	\input{diagrams/Stage.pgf}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Time Varying System}
+	\centering
+	\scalebox{0.8}{\input{diagrams/Example_system.pgf}}
+\end{frame}
+
+\begin{frame}
+	\chapterpage{Matrix Approximation}
+\end{frame}
+
+\begin{frame}
+\frametitle{Matrix representation}
+	\centering
+	\begin{columns}
+\begin{column}{4cm}
+	\scalebox{0.7}{\input{diagrams/Example_system.pgf}}
+\end{column}
+\begin{column}{1cm}
+	\begin{tikzpicture}
+	\node [single arrow, draw,fill=gray,minimum height = 1.5cm,minimum width=0.8cm,visible on=<1>] {};
+	\node [double arrow, draw,fill=gray,minimum height = 1.5cm,minimum width=0.8cm,visible on=<2->] {};
+	\end{tikzpicture}
+\end{column}
+	\begin{column}{5cm}
+	%\includegraphics[width=\textwidth]{Plots/Matrix.pdf}
+	%\includegraphics[width=\textwidth]{}
+	%\vspace{-1cm}
+	\begin{tikzpicture}
+	\node[visible on=<1-2>] at (0,2) {\includegraphics[width=\textwidth]{Plots/example_move.pdf}};
+	\node[visible on=<3->] at (0,2) {\includegraphics[width=\textwidth]{Plots/example_move_2.pdf}};
+	%\draw (-3,0) rectangle (3,-2);
+	\node[anchor = west,C1,visible on=<2->] (Hankel) at (0,-0.7) {Hankel matrix};
+	\draw[->,C1,signal    ,visible on=<2->] (Hankel) to [out=180,in=270] (-0.7,0);
+	\end{tikzpicture}
+	\end{column}
+	
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Approximation}
+	\vspace{-1cm}
+	\begin{tikzpicture}
+	\node[] at (2,0) {\includegraphics[width=3.5cm]{Plots/example_move_2.pdf}};
+	%\draw (-3,0) rectangle (3,-2);
+	\node[anchor = east,C1] (Hankel) at (-1,-0) {Hankel matrix};
+	\draw[->,C1,signal    ] (Hankel) to [out=0,in=180] (0.5,-0.5);
+	\end{tikzpicture}
+	\begin{block}{State dimensions depend on Hankel matrices}
+		$$\text{rank}(H_k) = \text{dim}(x_k)$$
+	\end{block}
+\pause
+$ $\\
+\textbf{Balanced Truncation:}\\
+Remove states corresponding to small singular values
+\end{frame}
+
+\begin{frame}
+	\begin{exampleblock}{Reseach Question}
+		How do we choose the input and output dimensions?
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}
+	\chapterpage{Algorithms}
+\end{frame}
+
+\begin{frame}
+\frametitle{Optimizing Input and Output Dimensions}
+\begin{block}{Optimization Problem}
+	\begin{itemize}
+		\item Discrete optimization
+		\item Objective function
+	\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Algorithms}
+	\begin{exampleblock}{A}
+		Adapt initial dimensions
+	\end{exampleblock}
+	\pause
+	\begin{exampleblock}{B}
+		Recursive splitting
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{A: Change dimensions}
+\scalebox{0.8}{\input{diagrams/Move_right.pgf}}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A: Objective Function}
+	\begin{block}{Nuclear Norm}
+		$$f =  \frac{\|T\|_*}{\|T\|}$$
+		Convex hull of $\text{rank}(T)$
+	\end{block}
+	\begin{block}{Computational cost}
+	$$f = \text{Number of multiplications}$$
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A: Optimize}
+	\begin{tikzpicture}
+	\node[visible on=<1>] at (0,0) {\includegraphics[width=0.8\textwidth]{Plots/example_move_iterations0.pdf}};
+	\node[visible on=<2>] at (0,0) {\includegraphics[width=0.8\textwidth]{Plots/example_move_iterations1.pdf}};
+	\node[visible on=<3>] at (0,0) {\includegraphics[width=0.8\textwidth]{Plots/example_move_iterations2.pdf}};
+	\node[visible on=<4>] at (0,0) {\includegraphics[width=0.8\textwidth]{Plots/example_move_iterations3.pdf}};
+	\node[visible on=<5>] at (0,0) {\includegraphics[width=0.8\textwidth]{Plots/example_move_iterations4.pdf}};
+	\end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Algorithms}
+	\begin{exampleblock}{A}
+		Adapt initial dimensions
+	\end{exampleblock}
+	\begin{exampleblock}{B}
+		Recursive splitting
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}
+	\frametitle{B: Permutation of Columns and Rows}
+	\centering
+	\scalebox{0.8}{\input{../Thesis/diagrams/system_permute.pgf}}
+\end{frame}
+
+\begin{frame}
+	\frametitle{B: Spiting Stage}
+	\scalebox{0.8}{\input{../Thesis/diagrams/Split_permutation.pgf}}
+\end{frame}
+
+\begin{frame}
+	\frametitle{B: Partition inputs and outputs}
+	\input{../Thesis/diagrams/Moves/Split_X.pgf}
+\end{frame}
+
+\begin{frame}
+	\frametitle{B: Optimize}
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Thesis/Plots/example_permute.pdf}
+\end{frame}
+
+\begin{frame}
+	\chapterpage{Is it useful?}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Adaptation for Neural Net Weight matrix}
+	\centering
+	\includegraphics[trim=0cm 0cm 6cm 0cm, clip,width=0.6\textwidth]{../Thesis/Plots/move_example_mobilenet_comp.pdf}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Approxiamtion}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../Thesis/Plots/move_example_mobilenet_error.pdf}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Permutation for Neural Net Weight matrix}
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Thesis/Plots/Mobilenet_permute.pdf}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Approxiamtion}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../Thesis/Plots/perm_example_mobilenet_error.pdf}
+\end{frame}
+
+\begin{frame}
+	\chapterpage{What does this mean?}
+\end{frame}
+
+
+\begin{frame}
+	Algorithms were not able to extract a clear structure from the matrix
+	
+	\pause
+	\begin{block}{Result}
+	Algorithm A is able to reduce the computational cost without increasing the approximation error
+	\end{block}
+
+\end{frame}
+
+
+
+
+
+\section{Blocks \& Math}
+\subsection{Blocks}
+\begin{frame}
+   \frametitle{Blocks}
+
+   \begin{block}{This is a simple block}
+      It should contain some text.
+   \end{block}
+
+   \begin{exampleblock}{Example Block}
+      This may be an example.
+   \end{exampleblock}
+
+
+   \begin{alertblock}{Warning}
+      The violent color indicates that this block may alert of something.
+   \end{alertblock}
+\end{frame}
+
+
+\end{document}

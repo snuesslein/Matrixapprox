@@ -1,0 +1,34 @@
+﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=15mm]
+
+
+	\matrix (m1) [row sep=8.mm, column sep=8mm]
+	{
+		&		\node[coordinate]  (xin) {}; & \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_1) {$u_k$};          &
+		\node[style_stage, stage, name=sys_1,A=$A_{k}$,B=$B_{k}$,C=$C_{k}$,D=$D_{k}$] {};&
+		\node[]                  (y_1) {$y_k$};          \\
+		%--------------------------------------------------------------------
+		 &		\node[coordinate]  (xout) {}; & \\
+	};
+
+
+
+		  \draw[signalflow] (u_1) -- (sys_1.u);
+	  	\draw[signalflow] (sys_1.y) -- (y_1);
+
+	\draw[signalflow] (xin)                      -- node[anchor = west,name=x_1]          {$x_k$} (sys_1.xin);
+	\draw[signalflow] (sys_1.xout)               -- node[near end,anchor = west,name = x_2] {$x_{k+1}$} (xout);
+
+\node[anchor = east,C0,visible on=<2->] (input) at ($(u_1)+(-1,1)$) {Input};
+\draw[->,C0,signal    ,visible on=<2->] (input) to [out=0,in=90] (u_1);
+
+\node[anchor = west,C0,visible on=<3->] (output) at ($(y_1)+(1,-1)$) {Output};
+\draw[->,C0,signal    ,visible on=<3->] (output) to [out=180,in=270] (y_1);
+
+\node[anchor = east,C0,visible on=<4->] (state_in) at ($(xin)+(-1,0.5)$) {State};
+\draw[->,C0,signal    ,visible on=<4->] (state_in) to [out=0,in=90] (x_1);
+
+\node[anchor = west,C0,visible on=<4->] (state_out) at ($(xout)+(1,-0.5)$) {State};
+\draw[->,C0,signal    ,visible on=<4->] (state_out) to [out=180,in=270] (x_2);
+\end{tikzpicture}

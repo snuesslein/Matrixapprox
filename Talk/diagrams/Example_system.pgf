@@ -1,0 +1,38 @@
+﻿\begin{tikzpicture}[font=\small,fontmatrices=\small,boxsize=8.5mm]
+
+
+	\matrix (m1) [row sep=4.mm, column sep=13mm]
+	{
+		&		\node[coordinate]  (xin) {}; & \\[0.8cm,between origins]
+		%--------------------------------------------------------------------
+		\node[]                  (u_1) {$u_1$};          &
+		\node[style_stage, stage, name=sys_1,A=$A_{1}$,B=$B_{1}$,C=$C_{1}$,D=$D_{1}$] {};&
+		\node[]                  (y_1) {$y_1$};          \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_2) {$u_2$};          &
+		\node[style_stage, stage, name=sys_2,A=$A_{2}$,B=$B_{2}$,C=$C_{2}$,D=$D_{2}$] {};&
+		\node[]                  (y_2) {$y_2$};          \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_3) {$u_3$};          &
+		\node[style_stage, stage, name=sys_3,A=$A_{3}$,B=$B_{3}$,C=$C_{3}$,D=$D_{3}$] {};&
+		\node[]                  (y_3) {$y_3$};          \\
+		%--------------------------------------------------------------------
+		\node[]                  (u_4) {$u_4$};          &
+		\node[style_stage, stage, name=sys_4,A=$A_{4}$,B=$B_{4}$,C=$C_{4}$,D=$D_{4}$] {};&
+		\node[]                  (y_4) {$y_4$};          \\[0.8cm,between origins]
+		%--------------------------------------------------------------------
+		 &		\node[coordinate]  (xout) {}; & \\
+	};
+
+
+	\foreach \i in {1,2,3,4}
+		{
+		  \draw[signalflow] (u_\i) -- (sys_\i.u);
+	  	\draw[signalflow] (sys_\i.y) -- (y_\i);
+		}
+	\draw[signalflow] (xin)                      -- node[anchor = west]          {$x_1$} (sys_1.xin);
+	\draw[signalflow] (sys_1.xout)               -- node[anchor=west]            {$x_2$} (sys_2.xin);
+	\draw[signalflow] (sys_2.xout)               -- node[anchor=west]            {$x_3$} (sys_3.xin);
+	\draw[signalflow] (sys_3.xout)               -- node[anchor=west]            {$x_4$} (sys_4.xin);
+	\draw[signalflow] (sys_4.xout)               -- node[near end,anchor = west] {$x_{5}$} (xout);
+\end{tikzpicture}
