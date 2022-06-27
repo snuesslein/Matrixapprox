@@ -1,4 +1,4 @@
-﻿\makeatletter
+\makeatletter
 \DeclareRobustCommand{\rvdots}{%
   \vbox{
     \baselineskip4\p@\lineskiplimit\z@
@@ -56,4 +56,5 @@ T = \!\!\!\!\!
 
 \end{tikzpicture} 
 \end{matrix}
+,
 \end{equation}

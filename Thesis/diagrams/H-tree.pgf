@@ -1,12 +1,12 @@
-﻿\begin{tikzpicture}[line width=1.2 pt]
+\begin{tikzpicture}[line width=1.2 pt]
 
 \def\scale{30mm}
 \def\offsetlr{0.3,-0.3}
 \tikzset{
 pics/lowrank/.style = {
 background code = { 
-		\fill[fill=blue!30] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.2,-0.4*#1);
-		\fill[fill=blue!30] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.2); 
+		\fill[fill=C0] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.2,-0.4*#1);
+		\fill[fill=C0] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.2); 
 }
 }
 }
@@ -47,17 +47,17 @@ background code = {
 \pic at (s_b-r.north west){lowrank=0.9*\scale};
 \pic at (s_d-r.north west){lowrank=0.9*\scale};
 
-\pic(t_aa)[fill=red] at (\xsec,4.5) {box=0.3*\scale};
+\pic(t_aa)[fill=C1] at (\xsec,4.5) {box=0.3*\scale};
 \pic(t_ab)[fill=white] at (\xsec,3.5) {box=0.3*\scale};
-\pic(t_ac)[fill=red] at (\xsec,2.5) {box=0.3*\scale};
+\pic(t_ac)[fill=C1] at (\xsec,2.5) {box=0.3*\scale};
 \pic(t_ad)[fill=white] at (\xsec,1.5) {box=0.3*\scale};
 
 \pic at (t_ab-r.north west){lowrank=0.4*\scale};
 \pic at (t_ad-r.north west){lowrank=0.4*\scale};
 
-\pic(t_ca)[fill=red] at (\xsec,0) {box=0.3*\scale};
+\pic(t_ca)[fill=C1] at (\xsec,0) {box=0.3*\scale};
 \pic(t_cb)[fill=white] at (\xsec,-1) {box=0.3*\scale};
-\pic(t_cc)[fill=red] at (\xsec,-2) {box=0.3*\scale};
+\pic(t_cc)[fill=C1] at (\xsec,-2) {box=0.3*\scale};
 \pic(t_cd)[fill=white] at (\xsec,-3) {box=0.3*\scale};
 
 \pic at (t_cb-r.north west){lowrank=0.4*\scale};
@@ -102,12 +102,12 @@ background code = {
 % \def\lwblk{0.3mm}
 % 
 % \draw[color=black ,line width=\lwblk] (m-1-1.north west)rectangle (m-4-4.south east);
-% \draw[color=black ,line width=\lwblk,fill=red] (m-1-1.north west)rectangle (m-2-2.south east);
-% \draw[color=black ,line width=\lwblk,fill=red] (m-3-3.north west)rectangle (m-4-4.south east);
+% \draw[color=black ,line width=\lwblk,fill=C1] (m-1-1.north west)rectangle (m-2-2.south east);
+% \draw[color=black ,line width=\lwblk,fill=C1] (m-3-3.north west)rectangle (m-4-4.south east);
 % 
 % \draw[color=black ,line width=\lwblk] (m-5-5.north west)rectangle (m-8-8.south east);
-% \draw[color=black ,line width=\lwblk,fill=red] (m-5-5.north west)rectangle (m-6-6.south east);
-% \draw[color=black ,line width=\lwblk,fill=red] (m-7-7.north west)rectangle (m-8-8.south east);
+% \draw[color=black ,line width=\lwblk,fill=C1] (m-5-5.north west)rectangle (m-6-6.south east);
+% \draw[color=black ,line width=\lwblk,fill=C1] (m-7-7.north west)rectangle (m-8-8.south east);
 % 
 % \draw[color=black ,line width=\lwblk] (m-1-5.north west)rectangle (m-4-8.south east);
 % \draw[color=black ,line width=\lwblk] (m-5-1.north west)rectangle (m-8-4.south east);

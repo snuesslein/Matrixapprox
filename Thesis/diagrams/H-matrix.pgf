@@ -1,12 +1,12 @@
-﻿\begin{tikzpicture}
+\begin{tikzpicture}
 
 
 \def\offsetlr{-0.05,0.04}
 \tikzset{
 pics/lowrank/.style = {
 background code = { 
-		\fill[fill=blue!30] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.1,-0.4*#1);
-		\fill[fill=blue!30] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.1); 
+		\fill[fill=C0] ($(0,-0.02)+(\offsetlr)$) rectangle +(-0.1,-0.4*#1);
+		\fill[fill=C0] ($(0.02,0)+(\offsetlr)$) rectangle +(0.4*#1,0.1); 
 }
 }
 }
@@ -35,12 +35,12 @@ background code = {
 \def\lwblk{0.3mm}
 
 \draw[color=black ,line width=\lwblk] (m-1-1.north west)rectangle (m-4-4.south east);
-\draw[color=black ,line width=\lwblk,fill=red] (m-1-1.north west)rectangle (m-2-2.south east);
-\draw[color=black ,line width=\lwblk,fill=red] (m-3-3.north west)rectangle (m-4-4.south east);
+\draw[color=black ,line width=\lwblk,fill=C1] (m-1-1.north west)rectangle (m-2-2.south east);
+\draw[color=black ,line width=\lwblk,fill=C1] (m-3-3.north west)rectangle (m-4-4.south east);
 
 \draw[color=black ,line width=\lwblk] (m-5-5.north west)rectangle (m-8-8.south east);
-\draw[color=black ,line width=\lwblk,fill=red] (m-5-5.north west)rectangle (m-6-6.south east);
-\draw[color=black ,line width=\lwblk,fill=red] (m-7-7.north west)rectangle (m-8-8.south east);
+\draw[color=black ,line width=\lwblk,fill=C1] (m-5-5.north west)rectangle (m-6-6.south east);
+\draw[color=black ,line width=\lwblk,fill=C1] (m-7-7.north west)rectangle (m-8-8.south east);
 
 \draw[color=black ,line width=\lwblk] (m-1-5.north west)rectangle (m-4-8.south east);
 \draw[color=black ,line width=\lwblk] (m-5-1.north west)rectangle (m-8-4.south east);
