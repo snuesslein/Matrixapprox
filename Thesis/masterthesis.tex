@@ -468,7 +468,7 @@ K-matrices can also be used to represent linear hand crafted structures like rep
 \chapter{Background}\label{chap:background}
 
 
-Sequentially semiseparable Matrices can be considered as descriptions of time varying systems.\footnote{
+Sequentially semiseparable matrices can be considered as descriptions of time varying systems.\footnote{
 The naming and structure of the matrices is not consistent in the literature.
 In this thesis I will use the notation used in \cite{tong_blind_2003}. 
 In \cite{dewilde_time-varying_1998} a similar notation is used, but the transfer operator is transposed.
@@ -505,10 +505,10 @@ The structure of a system is represented in Figure\,\ref{fig:struktur-system_a}.
 		%\resizebox{0.7\textwidth}{!}{
 		\input{diagrams/Example_system_anti.pgf}
 		%}
-		\caption{anticausal system}
+		\caption{Anticausal system}
 		\label{fig:struktur-system_b}
 	\end{subfigure}
-	\caption{Illustration of the structure of time varying systems}
+	\caption{Illustration of the structure of time varying systems.}
 	\label{fig:struktur-system}
 \end{figure}
 We can see that the system is structured in stages.
@@ -528,7 +528,7 @@ An anticausal system is described using the formula
 	\end{align}
 	\label{eq:def_anticausal}
 \end{subequations}
-In Figure\,\ref{fig:struktur-system_b} an anticausal system is illustrated.
+Figure\,\ref{fig:struktur-system_b} illustrates an anticausal system.
 The structure is analogous except for the reversed direction of the arrows for the states.
 
 When we stack the inputs for the stages to a combined input vector $u = [u_1^\top, \dots ,u_k^\top]^\top$ and stack the outputs of all stages to a combined output vector $y = [y_1^\top, \dots ,y_k^\top]^\top$ we can describe the input-output behavior of the system using a single matrix vector product 
@@ -554,24 +554,24 @@ T_{\text{anticausal}}=
 \end{equation}
 The matrices for a higher number of stages are analogous.
 We can see that the causal system results in a lower triangular blockmatrix whereas the anticausal system results in an upper triangular blockmatrix.
-If we want to represent the whole Matrix we can use mixed systems.
+If we want to represent the whole matrix we can use mixed systems.
 Mixed Systems can be defined as the sum of a causal and an anticausal system.
 These usually have the same input and output dimensions, while the state dimensions can de different for the causal and anticausal part.
 When adding the systems,  the $D_k$ matrices have to be added.
 As the use of two separate $D_k$ does usually not have any benefits, the $D$ matrices for the anticausal system are usually set to 0 and can therefore be ignored.
-When representing matrices the first state $x_1$ and the last state $x_{n+1}$ of the causal system are usually zero dimensional.
+When representing matrices, the first state $x_1$ and the last state $x_{n+1}$ of the causal system are usually zero dimensional.
 This means that the system does not have an initial or remaining state.
 For the anticausal system this is analogous.
 
 \paragraph{Hankel Operator and Minimality}
-When we are interested in properties of the system we can study the relation between the inputs, the states and the outputs. 
-The Reachability Matrix $\R_k$ is the mapping from the inputs to the state $x_k$. For a causal system the reachability matrix for state $x_k$ can be written as
+When we are interested in properties of the system, we can study the relation between the inputs, the states and the outputs. 
+The reachability Matrix $\R_k$ is the mapping from the inputs to the state $x_k$. For a causal system the reachability matrix for state $x_k$ can be written as
 \begin{equation}
 	\R_k = \begin{bmatrix}
 	 \cdots & A_{k-1}A_{k-2}B_{k-1} &A_{k-1}B_{k-2} &B_{k-1}
 	\end{bmatrix}
 \end{equation}
-The mapping from the state $x_k$ to the output is called the Observability Matrix $\Ob_k$.
+The mapping from the state $x_k$ to the output is called the observability Matrix $\Ob_k$.
 For a causal system the observability matrix for state $x_k$ can be written as
 \begin{equation}
 	\Ob_k = 
@@ -622,36 +622,36 @@ If the system is minimal we have
 for every $k$.
 Usually the Hankel matrices are low rank matrices..
 This allows us to factor the $H_k$ in a tall and a wide matrix. 
-This results in the factorization $H_k = \Ob_k\R_k$
+This results in the factorization $H_k = \Ob_k\R_k$.
 
 \paragraph{State Transforms}
-As this factorization is not unique, the state is also not uniquely defined. 
+As the aforementioned factorization is not unique, the corresponding state is not uniquely defined, as well.
 The state can be transformed with a non-singular state transformation matrix $S$ according to $\tilde{x}_k =S_kx_k$.
-This results a transformed 
+This results in a transformed 
 reachabilty matrix $\tilde{\R}_k=S_k \R_k$ and the transformed
 observability matrix $\tilde{\Ob}_k= \Ob_k S_k^{-1}$. 
 The Hankel matrix stays the same as $\tilde{H_k} = \Ob_k S_k^{-1} S_k \R_k= \Ob_k \R_k = H_k$.
-If a matrix factorization is used to construct a state transformation, then the state transformation can be considered as moving a matrix from the reachability matrix to the observability matrix
+If a matrix factorization is used to construct a state transformation, the state transformation can be considered as moving a matrix from the reachability matrix to the observability matrix
 \begin{equation}
 	\Ob_{k}R_{k} = \underbrace{\Ob_{k}A}_{\tilde{\Ob}_k}\underbrace{B\vphantom{\Ob_k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
 \end{equation}
-or moving a matrix form the observability matrix to the reachability matrix.
+or moving a matrix from the observability matrix to the reachability matrix.
 \begin{equation}
 \Ob_{k}R_{k} = \underbrace{A\vphantom{\R_k}}_{\tilde{\Ob}_k}\underbrace{B\R_{k}}_{\tilde{\R}_k} = \tilde{\Ob}_k\tilde{\R}_k
 \end{equation}
-If one uses an algorithm, that is able to work directly on the state space model, this also makes it possible to reduce the state dimension of nonminimal systems as the resulting state transformation matrix $S_k$ does not need to be nonsingular.
+An algorithm working directly on the state space model makes it possible to reduce the state dimension of non-minimal systems, as the resulting state transformation matrix $S_k$ does not need to be invertible.\todo{check}
+%If one uses an algorithm, that is able to work directly on the state space model, this also makes it possible to reduce the state dimension of nonminimal systems as the resulting state transformation matrix $S_k$ does not need to be nonsingular.
 
 There are three particular types of factorization that are called canonical forms.
 An input-normal realization has the property that the columns of each $\Ob_k$ are orthonormal. Whereas in an output-normal realization, all rows of each $\R_k$ are orthonormal.
-The balanced realization results from the reduced Singular value decomposition $H_k = U_k \Sigma_k V_k^\top$. 
+The balanced realization results from the reduced Singular Value Decomposition $H_k = U_k \Sigma_k V_k^\top$. 
 In a balanced realization $\Ob_k = U_k \Sigma^{1/2}_k$ and $\R_k = \Sigma^{1/2}_k V_k^\top$.
-These canonical forms usually also require that the system is minimal. In this thesis the minimality is usually omitted as the algorithms described also work on non-minimal systems and minimality is nontrivial to define for systems where the singular values decay slowly. If minimality is required, it will be explicitly stated.
+These canonical forms usually also require that the system is minimal. In this thesis the minimality is usually omitted, as the algorithms described also work on non-minimal systems and minimality is nontrivial to define for systems where the singular values decay slowly. If minimality is required, it will be explicitly stated.
 
 \paragraph{Matrix Factorization}
-The sequentially semiseparable matrices can also be considered as a matrix factorization.
+Sequentially semiseparable matrices can also be considered as a matrix factorization.
 For a causal system, the matrix $T$ can be expressed as a product $T = T_n T_{n-1} \dots T_2 T_1$
-where every $T_k$ represents a stage. The matrices $T_k$ is constructed according to 
-
+where every $T_k$ represents a stage. The matrix $T_k$ is constructed according to 
 \begin{equation}
 \newcommand{\sddots}{\hspace{-6pt}\ddots}
 \newcommand{\n}{\hspace{-7pt}}
@@ -669,6 +669,7 @@ where every $T_k$ represents a stage. The matrices $T_k$ is constructed accordin
 	   & & &    &      & & &\n\eye 
 	\end{array}
 	\end{bmatrix} 
+	.
 \end{equation}
 
 For a system with 3 stages this gives the factorization
@@ -682,10 +683,10 @@ For a system with 3 stages this gives the factorization
 	\left[\begin{matrix}A_{3} A_{2} A_{1} & A_{3} A_{2} B_{1} & A_{3} B_{2} & B_{3}\\C_{1} & D_{1} & 0 & 0\\C_{2} A_{1} & C_{2} B_{1} & D_{2} & 0\\C_{3} A_{2} A_{1} & C_{3} A_{2} B_{1} & C_{3} B_{2} & D_{3}\end{matrix}\right]
 \end{equation*}
 
-As $A_1$ has zero columns and $A_3$ has zero rows, the first block-column and the top block-row disappear and we get the familiar structure from Equation\,\ref{eq:T_causal}.
+As $A_1$ has zero columns and $A_3$ has zero rows, the first block-column as well as the top block-row disappear, resulting in the familiar structure show in Equation\,\ref{eq:T_causal}.
 
 An analogous factorization is possible for anticausal systems.
-Here the ordering is reversed and we have $T = T_1 T_2 \dots T_{n-1} T_{n}$
+Here the ordering is reversed $T = T_1 T_2 \dots T_{n-1} T_{n}$
 
 %We can also represent mixed systems as factorization, if we insert the factorizations for the causal part $T_{\text{causal}}$ and the anticausal parts $T_{\text{anticausal}}$ in the formula
 %\begin{equation}
@@ -709,14 +710,14 @@ It is also possible to calculate QR factorization \cite{chandrasekaran_fast_2002
 There are also a couple of other algorithms that can be used for controller design like sign iterations \cite{rice_efficient_2010}.
 
 \paragraph{Approximations}
-It is also possible, to reduce the number of states by approximating a system $T$ with a system $\tilde{T}$.
-If the system $T$ is minimal, this is not trivial, as a reduction of the number of states also result in a reduction of the Hankelrank.
+It is also possible to reduce the number of states by approximating a system $T$ with a system $\tilde{T}$.
+If the system $T$ is minimal, this is not trivial, as a reduction of the number of states also results in a reduction of the Hankelrank.
 One approach is the Hankel-Norm approximation.
-The Hankel-Norm is defined as
+The Hankel-Norm 
 \begin{equation}
 	\|T\|_H = \sup_{i}\|H_i\|.
 \end{equation}
-This norm is the supremum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
+is the supremum over the spectral norm (the matrix 2-norm) of each individual Hankel matrix.
 In \cite{dewilde_time-varying_1998} an algorithm is given for the Hankel norm approximation that computes an approximated $\tilde{T}$.  
 This is based on the results form Adamjan, Arov, and Kreĭn \cite{adamjan_analytic_1971}.
 The approximated system satisfies the condition
@@ -728,19 +729,19 @@ If we set $\Gamma = \eye\gamma$ we obtain the simplified condition
 \begin{equation}
 	\|T-\tilde{T}\|_H \leq \gamma.
 \end{equation}
-This problem has no unique solution, as the smaller singular values can be changed as long as they remain smaller as the supremum.
+This problem has no unique solution, as the smaller singular values can be changed as long as they remain smaller than the supremum.
 
-A second approach is balanced truncation. 
-This is described in \cite{sandberg_balanced_2004,hinrichsen_improved_1990}. 
+A second approach is balanced truncation,
+as described in \cite{sandberg_balanced_2004,hinrichsen_improved_1990}. 
 Here the state dimension $d_k$ is reduced to a new dimension $\tilde{d}_k$.
-The main idea of the balanced truncation is to remove states that result in a small output $y$ or need a big input $u$ to be reached.
+The main idea of the balanced truncation is to remove states that result in a small output $y$, or need a big input $u$ to be reached.
 We can calculate the norm of the output for a state $x$ using
 \begin{equation}
 	\|y\|_2^2 = y^\top y = x^\top \Ob^\top \Ob x
 	.
 \end{equation}
 The matrix $\Ob^\top \Ob$ is called the Observability Gramian.
-analogously we can calculate the norm of the input required to reach a certain state using
+Analogously, we can calculate the norm of the input required to reach a certain state using
 \begin{equation}
 	\|u\|_2^2 = x^\top (\R\R^\top)^{-1} x
 	.
@@ -802,24 +803,24 @@ A detailed discussion of approxiamtions is given in
 \cite{antoulas_approximation_2005}.
 
 \chapter{Methods}\label{chap:methods}
-In this section the methods and algorithms derived in this thesis are presented.
-First I explain the techniques to calculate the singular values of the Hankel matrices and how to use them to approximate matrices in Section\,\ref{sec:approx}.
-The cost to compute a matrix vector product using a Time Varying system is explained in Section\,\ref{sec:cost} and used in Section\,\ref{sec:Choose_K} to choose a number of stages. 
+This Chapter presents the methods and algorithms derived in this thesis.
+Section\,\ref{sec:approx} explains the techniques to calculate the singular values of the Hankel matrices and how to use them to approximate matrices.
+The cost to compute a matrix vector product using a time varying system is shown in Section\,\ref{sec:cost} and used in Section\,\ref{sec:Choose_K} to choose a number of stages. 
 In Section\,\ref{sec:Segmentation} methods to change the segmentation are presented.
+\todo{check}
 
 \section{Matrix Approximations}\label{sec:approx}
 
-In this section more details of the balanced truncation derived in this thesis are described.
-First, the class of ordered systems is presented, that makes it possible to use the balanced truncation on certain systems that are not balanced.
+In this section more details of the balanced truncation are derived.
+First, the class of ordered systems is presented, which makes it possible to use the balanced truncation on certain systems that are not balanced.
 Next a algorithm to compute the required singular values is given.
 Finally an error bound for the approximation of matrices is derived.
 
-\subsection{Balanced truncation of ordered systems}
+\subsection{Balanced Truncation of Ordered Systems}
 In Chapter\,\ref{chap:background} the balanced truncation is defined for balanced systems.
 These have the property that $\Ob_k = U_k \Sigma_{\Ob k}$ and $\R_k = \Sigma_{\R k} V_k^\top$ where $\Sigma_{\Ob k} = \Sigma_{\R k}=\Sigma_k^{1/2}$.
 The balanced truncation is also possible for a wider class of realizations.
-
-In this thesis these Realizations will be called  \emph{ordered}.
+In this thesis these realizations will be called  \emph{ordered}.
 \begin{definition}[Ordered Realization]
 	A system is ordered if 
 	\begin{subequations}
@@ -845,18 +846,18 @@ This gives the balanced system $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D}
 \end{align}
 \end{subequations}
 \begin{proof}
-	By applying the state transformations to the observability and reachability matrices we can see that we get a balanced system\\
+	By applying the state transformations to the observability and reachability matrices we get a balanced system\\
 	$\Ob_k S_k^{-1} = U_k \Sigma_{\Ob k} \Sigma_{\Ob k}^{-1}\Sigma_k^{1/2} = U_k \Sigma_k^{1/2}$\\
 	$S_k \R_k = \Sigma_k^{1/2}\Sigma_{\R k}^{-1} \Sigma_{\R k} V_k^\top = \Sigma_k^{1/2} V_k^\top$
 \end{proof}
 
 A ordered system can be reduced using the same segmentation as used for the balanced truncation.
 \begin{proof}
-	The reduction of the ordered system is equivalent to the reduction of the balanced system if both reduced systems are equivalent.  
+	The reduction of an ordered system is equivalent to the reduction of a balanced system if both reduced systems are equivalent.  
 	As the state transformations are diagonal matrices, the result of first transforming it to a balanced system and then reducing it using balanced truncation is equivalent to directly reducing the ordered system. %and then applying the reduced state transformation to the system. %is equivalent to applying the state transformation and later reducing the system.
 	
 	The ordered system $\Sigma_{[A,B,C,D]}$ is first transformed to a balanced system $\Sigma_{[\tilde{A},\tilde{B},\tilde{C},\tilde{D}]}$ as described in Equation\,\ref{eq:transform_orderd2bal}.
-	Then the matrices are segmented as described in Equation\,\ref{eq:segmented_system}.
+	Thereafter, the matrices are segmented as described in Equation\,\ref{eq:segmented_system}.
 	This results in the block matrices
 	\begin{subequations}
 	\begin{align}
@@ -893,15 +894,15 @@ A ordered system can be reduced using the same segmentation as used for the bala
 	\hat{C}_k &=C_{k[1]}S_{k[1]}^{-1}     & \hat{D}_k &= D_k
 	.
 	\end{align}
-	This system can also be obtained by reducing the ordered system and then transforming it using $S_{k+1[1]}$.
+	This system can also be obtained by first reducing the ordered system and then transforming it using $S_{k+1[1]}$.
 \end{proof}
 This allows us to use algorithms that require input normal or output normal forms, as systems can be both ordered and input normal if $\Sigma_{\R k}=\eye$ or both ordered and output normal if $\Sigma_{\Ob k}=\eye$.
 
 \paragraph{Recursive factorization of $\Ob_k$ and  $\R_k$}
-The goal of this section is to construct an algorithm to calculate the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H_k$, $\Ob_k$ or $\R_k$.
+The goal of this section is to construct an algorithm calculating the singular values of the Hankel matrices without applying the SVD on $H$ or calculating $H_k$, $\Ob_k$ or $\R_k$.
 The idea is that we can recursively factor the observability matrix, as $\Ob_k$ contains both the mapping from the state $x_k$ to the output $y_k$ and the mapping from $x_k$ to the later outputs.
 The first mapping is represented by $C_k$.
-The later mapping is represented by $\Ob_{k+1}A_k$.
+The second mapping is represented by $\Ob_{k+1}A_k$.
 This gives the recursive factorization
 \begin{equation}\label{eq:decomp_O}
 	\Ob_k = 
@@ -920,7 +921,7 @@ This gives the recursive factorization
 	\end{bmatrix}
 	.
 \end{equation}
-And analogously the reachability matrix can be factorized as
+Analogously the reachability matrix can be factorized as
 \begin{equation}\label{eq:decomp_R}
 	\R_k = 
 	\begin{bmatrix}
@@ -938,24 +939,23 @@ And analogously the reachability matrix can be factorized as
 \end{equation}
 
 \subsection{Compute Singular Values of Hankel matrices}
-This recursive factorization allows us to create algorithms, that can convert realizations into input normal and output normal form.
+The recursive factorizations of $\Ob_k$ and $\R_k$ allows us to create algorithms, that can convert realizations into input normal and output normal form.
 With a combination of both algorithms it is also possible to obtain the singular values of the Hankel matrices.
 %This is similar to the idea used in square root algorithms for the computation of normal forms.
 %\todo{Ref square, but i could only find it in the book draft on page 111}
 The algorithms to convert to input and output normal forms are also given in \cite{chandrasekaran_fast_2005}.
-Here a different derivation will be presented. Additionally a way to use these algorithms to compute the SVDs of the Hankel matrices will be explained. 
+Here a different derivation will be presented. Additionally, a way to use these algorithms to compute the SVDs of the Hankel matrices will be explained. 
 
 %\todo[inline]{More details on the fact that we do not require mininality and unlike QR based algorithms we can make sure that we do not create spurious observable states....
 %May bee some proof based on the original rank of $\Ob_{k}$ and $\R_k$.
 %Also note that a Rank revealing QR-algorithm would also work}
 
-\paragraph{Convert to input normal and reachable}
-First an algorithm to transform the system into a reachable and input normal system is given.
+\paragraph{Conversion to input normal and reachable}
+An algorithm to transform the system into a reachable and input normal system is given.
 This means that all $R_k$ have to fulfill $\R_{k}^\top \R_{k}=\eye$.
 As we do not want to calculate the reachability matrices directly, the algorithm employs the decomposition given in Equation\,\ref{eq:decomp_R}.
 If $\R_{k-1}^\top \R_{k-1}=\eye$ the next reachability matrix $\R_{k}$ can be transformed such that $\tilde{\R}_{k}^\top \tilde{\R}_{k}=\eye$.
-For this we calculate the SVD of $[A_{k-1} B_{k-1}]$.
-This can be used to obtain the new reachability matrix $\tilde{\R_{k}}$ according to
+We calculate the SVD of $[A_{k-1} B_{k-1}]$ which is used to obtain the new reachability matrix $\tilde{\R_{k}}$ according to
 \begin{equation}
 \R_k = 
 %\begin{bmatrix}
@@ -982,7 +982,6 @@ The usage of the reduced SVD also removes states that are not reachable.% by not
 The product with the inverse $S_k^{-1}$ is implicitly calculated by computing the SVD.
 We can set the matrices $\tilde{A}_k$ and $\tilde{B}_k$ to $[\tilde{A}_k,\tilde{B}_k]=V_k^\top$.
 The matrices $A_{k}$ and $B_{k}$ have to be updated with the state transformation $S_k$.
-
 The algorithm is formalized in Algorithm\,\ref{alg:inp_normal}
 
 \begin{algorithm}[htb]
@@ -1001,7 +1000,7 @@ The algorithm is formalized in Algorithm\,\ref{alg:inp_normal}
 		\State $C_{k+1}\gets C_{k+1}U\diag(\sigma)$
 	\EndFor
 	\end{algorithmic}
-\caption{Algorithm to convert to input normal system}\label{alg:inp_normal}
+\caption{Conversion to input normal system.}\label{alg:inp_normal}
 \end{algorithm}
 
 The result is input normal and reachable.
@@ -1034,11 +1033,11 @@ The result is input normal and reachable.
 
 
 
-\paragraph{Convert to output normal and observable}
+\paragraph{Conversion to output normal and observable}
 The algorithm to transform the system into an observable and output normal system is analogous.
 Here all $\Ob_k$ have to fulfill $\Ob_{k} \Ob_{k}^\top=\eye$.
 We use the decomposition given in Equation\,\ref{eq:decomp_O} to avoid a computation of $\Ob_k$.
-If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$ the algorithm transforms $\Ob_{k}$ such that $\tilde{\Ob}_{k+1} \tilde{\Ob}_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
+If $\Ob_{k+1} \Ob_{k+1}^\top=\eye$, the algorithm transforms $\Ob_{k}$ such that $\tilde{\Ob}_{k+1} \tilde{\Ob}_{k+1}^\top=\eye$  by calculating the SVD of $[C_k^\top A_k^\top]^\top$.
 By inserting the SVD we can obtain the new observability matrix according to
 \begin{equation}
 	\Ob_{k}
@@ -1082,7 +1081,7 @@ This gives the Algorithm\,\ref{alg:out_normal}.
 		\State $B_{k-1} \gets\diag(\sigma)V^\top C_{k+1}$
 	\EndFor
 	\end{algorithmic}
-	\caption{Algorithm to convert to output normal system}\label{alg:out_normal}
+	\caption{Conversion to output normal system.}\label{alg:out_normal}
 \end{algorithm}
 The result is output normal and observable.
 \begin{proof}
@@ -1115,7 +1114,7 @@ The result is output normal and observable.
 \end{proof}
 
 
-\paragraph{Obtain sigmas}
+\paragraph{Obtaining sigmas}
 By converting an input normal system to an output normal system it is possible to calculate the singular values of $H$.
 This uses the factorization in Equation\,\ref{eq:decomp_O}
 to get
@@ -1133,7 +1132,7 @@ to get
  .
  \end{equation}
 As the algorithm started with an input normal system, $\R_k\R_k^\top = \eye$ is still fulfilled.
-And due to the fact the algorithm has transformed the states $x_i$ for $i>k$ to output normal form $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ is already fulfilled.
+And due to the fact the algorithm has transformed the states $x_i$ for $i>k$ to output normal form, $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ is already fulfilled.
 When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in the SVD of $H$
  \begin{equation}
  H = 
@@ -1151,7 +1150,7 @@ When the SVD is applied to the matrix $[C_k^\top A_k^\top]^\top$ this results in
  \end{equation}
 
  \begin{proof}
- 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is the singular value decomposition we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
+ 	To prove that $H = \breve{U}_k\Sigma_k\breve{V}^\top$ is the SVD we have to prove that $\breve{U}_k^\top \breve{U}_k= \eye$ and $\breve{V}^\top \breve{V} = \eye$.
  	If $\Ob_{k+1}$, $R_k$, $U_k$ and $V$ are orthogonal the proof directly follows. For the sub unitary case we have 
  	$
  	\breve{V}_k^\top \breve{V}_k
@@ -1205,12 +1204,12 @@ The proof and the algorithms for the anticausal case are omitted for brevity.
 In the following I give an upper bound for the error for the matrix approximation for the balanced truncation.
 The algorithm given in \cite{chandrasekaran_fast_2002} makes it possible to create a mixed system representing an arbitrary matrix.
 The mixed system can be approximated by separately approximating the
-causal system $T_{\text{c}}$ and anticausal system $T_{\text{a}}$.
-This results in the approximated system
+causal part $T_{\text{c}}$ and the anticausal part $T_{\text{a}}$.
+This results in the transfer matrix of the approximated system
 \begin{equation}
 	\tilde{T} = \tilde{T_{\text{c}}} + \tilde{T_{\text{a}}}
 \end{equation}
-The error for the approximation of the causal and anticausal system can be bounded using the results form \cite{lall_error-bounds_2003}.
+The error for the approximation of the causal and anticausal system can be bounded using the results from \cite{lall_error-bounds_2003}.
 Using this bound one can obtain the trivial bound 
 \begin{equation}
 	\|T-\tilde{T}\| \leq \|T_\text{c} - \tilde{T_{\text{c}}}\| + \|T_\text{a} -\tilde{T_{\text{a}}}\|
@@ -1226,7 +1225,7 @@ are replaced with the low rank approximation $\hat{H}_k$ and $\hat{H}^*_{k-1}$.
 The low rank approximation is constructed taking the first $\hat{d_k}$ columns of $\Ob_{k}$ and the first $\hat{d_k}$ rows of $\R_{k}$.
 Analogously the anticausal Hankel matrix is approximated.
 These approximations are based on the SVD of $H_k$ and $H^*_{k-1}$ because a balanced system is used.
-According to the Schmidt–Mirsky Theorem \cite{bai_matrix_2021} the approximation is optimal for the spectral norm $\|X\|$ and the Frobenius norm $\|X\|_\text{F}$.
+According to the Schmidt–Mirsky Theorem the approximation is optimal for the spectral norm $\|X\|$ and the Frobenius norm $\|X\|_\text{F}$ \cite{bai_matrix_2021}.
 
 This results in the approximated system with the transfer matrix $\hat{T}^{(k)}$.
 The approximation error is the norm of the matrix
@@ -1265,13 +1264,13 @@ V_{k}^\top
 \end{equation*}
 and then permuting the matrices such that the singular values are ordered in decreasing order.
 The matrices $\Sigma_k$ and $\Sigma_{k-1}^*$ contain the singular values corresponding to the cut states.
-Using the singular value decomposition, the spectral norm is
+Using the Singular Value Decomposition, the spectral norm is
 \begin{equation}\label{eq:bound_single}
 	\|T-\hat{T}^{(k)}\| = \max\left(\|H_k-\hat{H}_k\|,\;\|H^*_{k-1}-\hat{H}^*_{k-1}\|\right)
 \end{equation}
 and the Frobenius norm is
 \begin{equation}
-	\|T-\hat{T}^{(k)}\|_\text{F} = \sqrt{\|H_k-\hat{H}_k\|_\text{F}^2,\;\|H^*_{k-1}-\hat{H}^*_{k-1}\|_\text{F}^2}
+	\|T-\hat{T}^{(k)}\|_\text{F} = \sqrt{\|H_k-\hat{H}_k\|_\text{F}^2+\|H^*_{k-1}-\hat{H}^*_{k-1}\|_\text{F}^2}
 \end{equation}
 
 
@@ -1299,21 +1298,21 @@ and for the Frobenius norm by
 
 For the spectral norm this results in the upper bound 
 \begin{equation}\label{eq:bound_spectral_K}
-	\|T-\hat{T}\| \leq \sum_{i=1}^K \epsilon \leq K\epsilon
+	\|T-\hat{T}\| \leq \sum_{i=2}^K \epsilon \leq (K-1)\epsilon
 \end{equation}
-for the balanced truncation of a system with an approxiamtion parameter $\epsilon$ of a system with $K$ stages,
+for the balanced truncation of a system $K$ stages, using an approxiamtion parameter $\epsilon$,
 because all singular values of $T-\hat{T}^{(k)}$ are smaller than $\epsilon$ for all $k \in {1,\dots,K-1}$.
 
 
 
 \section{Cost of Computation} \label{sec:cost}
 When using Time Varying Systems to approximate weight matrices, we are mainly interested in the cost of computing the product $y = Tu$ using time varying systems.
-The cost is the number of Floating Point Operations(FLOPs).
+The cost is the number of Floating Point Operations\,(FLOPs).
 The number of parameters is also important as this determines the required memory.
 
 The cost depends on the state dimensions $d_k$, the input dimensions $m_k$ and the output dimensions $p_k$.
 
-First the cost for a causal stage is derived.
+First, the cost for a causal stage is derived:
 Without considering additions, the cost $C_k$ for the stage $k$ is 
 \begin{equation}
 	C_k = d_{k+1}d_k + d_{k+1}m_k+p_kd_k+p_km_k
@@ -1377,7 +1376,7 @@ K(d^2 + {\da}^2) + (d+\da)M +(d+\da)P +\frac{1}{K}PM
 This relation describes how the general computational cost depends on the number of stages.
 This approximation is not helpful if we want to approximate matrices, as in these cases the state dimensions are usually not constant.
 Usually the state dimensions are small for the first and last states and larger for the states in the middle.
-Here different approximations of the state dimensions have to be used.
+Here, different approximations of the state dimensions have to be used.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\textwidth]{Plots/approx_degree.pdf}
@@ -1402,7 +1401,7 @@ I approximate the degree using the relation
 The variable $\gamma$ is a proportionality factor that represents the required accuracy. 
 If a high accuracy is wanted, this results in a higher number of states. 
 This can be modeled with a larger $\gamma$.
-If we do not need a high accuracy we can use less states.
+If we do not need a high accuracy, we can use fewer states.
 This is modeled with a smaller $\gamma$.
 The factor $1/\min(P,M)$ is used to normalize the state dimensions in such a way that for $\gamma = 1$ the approximation is compatible to the maximum rank of $H_k$. 
 As I suppose that the statedimensions for the anticausal case are equivalent to the statedimensions for the causal case, I can calculate the cost using
@@ -1442,7 +1441,7 @@ and the input and output dimensions are modeled as constant, which is not true f
 %This means that the number of stages can be higher if the stete diemsniuon 
 %This is not surprising, as for a high number of stages and a high state dimension, the 
 It is also possible to approximate the state dimension based on the maximum possible rank of the Hankel matrix.
-The Rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
+The rank has to be lower than $\min(\text{width}(H_k),\text{height}(H_k))$.
 This approximation might have some benefits for very tall or wide matrices, as this approximation is able to represent ranks that are not symmetric in $k$. 
 
 
@@ -1490,7 +1489,7 @@ The algorithms are constructed such that they also preserve the minimality of th
 		\caption{Moved system}
 		\label{fig:move_left_b}
 	\end{subfigure}
-	\caption{Illustration of a system where a boundary is moved to the left}
+	\caption{Illustration of a system where a boundary is moved to the left.}
 	\label{fig:move_left}
 \end{figure}
 \begin{algorithm}[!htb]
@@ -1513,16 +1512,16 @@ The algorithms are constructed such that they also preserve the minimality of th
 		\State$C_{k+1} \gets C_{k+1}U$
 		\EndIf
 	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $u_k$ and $u_{k+1}$ to the left}\label{alg:move_left}
+	\caption{Move boundary between $u_k$ and $u_{k+1}$ to the left.}\label{alg:move_left}
 \end{algorithm}
 First we move the $k$-th vertical boundary to the left.
 This means that the last element of the input $u_k$ becomes the first element in $u_{k+1}$. 
 This moved input is designated as $u_\m$.
-The altered connections are drawn in color in Figure\,\ref{fig:move_left}.
+The altered connections are highlighted in Figure\,\ref{fig:move_left}.
 
 The vector $b$ is the last column of $B_k$ and describes the connection from $u_\m$ to $x_{k+1}$. The vector $d$ is the last column of $D_k$ and describes the connection from $u_\m$ to $y_{k}$.
-These vectors are removed from the matrices and we get $\breve{B}_k$ and $\tilde{D}$.
-We can see that the connection $d$ in the original system cannot by realized with a causal system as this would mean a connection from $\tilde{u}_{k+1}$ to $y_k$ in the transformed system.
+These vectors are removed from the matrices resulting in $\breve{B}_k$ and $\tilde{D}$.
+We can see that the connection $d$ in the original system cannot be realized with a causal system as this would mean a connection from $\tilde{u}_{k+1}$ to $y_k$ in the transformed system.
 This also means that the parts of the transfer matrix $T$ that can be represented using the causal system change.
 The dropped connection is illustrated using a dotted line in Figure\,\ref{fig:move_left}.
 Now we have to add the the input $u_\m$ to the next stage.
@@ -1532,7 +1531,8 @@ Analogously the connection from $u_\m$ to the state $x_{k+2}$ can be incorporate
 After these changes, the mapping from the combined inputs $[u_k^\top \: u_{k+1}^\top]^\top$
 to the state $x_{k+2}$ remains unchanged. Therefore the following states are still reachable and minimal. 
 As the last column of $\R_{k+1}$ is removed, the state $x_{k+1}$ might become non reachable.
-This is the case if the matrix $[A_b \: \breve{B}_k]$ does no longer has full rank.
+This is the case if the matrix $[A_b \: \breve{B}_k]$ 
+is no longer of full rank.
 We can check this using the SVD. 
 If the last singular value is equal to zero, one statedimension has to be removed. 
 This can be done using a state transformation based on the reduced SVD. 
@@ -1556,7 +1556,7 @@ The pseudocode to move the boundary to the left is given in Algorithm\,\ref{alg:
 		\caption{Moved system}
 		\label{fig:move_right_b}
 	\end{subfigure}
-	\caption{Illustration of a system where a boundary is moved to the right}
+	\caption{Illustration of a system where a boundary is moved to the right.}
 	\label{fig:move_right}
 \end{figure}
 \begin{algorithm}[!htb]
@@ -1602,7 +1602,7 @@ The pseudocode to move the boundary to the left is given in Algorithm\,\ref{alg:
 		D_k&d_{\text{new}}
 		\end{bmatrix}$
 	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $u_k$ and $u_{k+1}$ to the right}\label{alg:move_right}
+	\caption{Move boundary between $u_k$ and $u_{k+1}$ to the right.}\label{alg:move_right}
 \end{algorithm}
 It is also possible to reverse these changes.
 When we move the $k$-th vertical boundary to the right, the input $u_\m$ is moved from $u_{k+1}$ to $\tilde{u}_k$.
@@ -1710,7 +1710,7 @@ Based on this we have the new Hankel matrix
 	\tilde{H}_{k+1} = \tilde{\Ob}_{k+1} \tilde{\R}_{k+1} = \Ob_{k+1}\R_{k+1[:,:\en-l]}
 	.
 \end{equation}
-Using the decomposition from Equation\,\ref{eq:decomp_R} this becomes
+Using the decomposition from Equation\,\ref{eq:decomp_R} this results in
 \begin{equation}
 	\tilde{H}_{k+1}=\Ob_{k+1}
 	\begin{bmatrix}
@@ -1725,7 +1725,7 @@ If $\Ob_{k+1}^\top \Ob_{k+1} = \eye$ and $\R_{k} \R_{k}^\top = \eye$ then the si
 A_{k}&B_{k[:,:\en-(l+1)]}
 \end{bmatrix}$ are the singular values of $H_k$.
 This is the case as the initial system is output normal and the previous stages were already transformed to input normal form.
-Based on the singular value decomposition, the stage can be transformed such that $\R_{k+1} \R_{k+1}^\top = \eye$.
+Based on the Singular Value Decomposition, the stage can be transformed such that $\R_{k+1} \R_{k+1}^\top = \eye$.
 This also gives an ordered realization.
 The pseudocode can be found in Algorithm\,\ref{alg:move_left_sig}.
 
@@ -1751,7 +1751,7 @@ The pseudocode can be found in Algorithm\,\ref{alg:move_left_sig}.
 		\State $C_{k+1}=C_{k+1}U\diag(\sigma)$
 	%\EndFor
 	\end{algorithmic}
-	\caption{Algorithm to move the boundary between $u_{k-1}$ and $u_{k}$ to the left by $l$ inputs}\label{alg:move_left_sig}
+	\caption{Move boundary between $u_{k-1}$ and $u_{k}$ to the left by $l$ inputs.}\label{alg:move_left_sig}
 \end{algorithm}
 
 
@@ -1837,7 +1837,7 @@ This results in the Algorithm\,\ref{alg:move_right_sig}.
 		\end{bmatrix}$
 	%\EndFor
 	\end{algorithmic}
-	\caption{Algorithm to move the boundary between $u_k$ and $u_{k+1}$ to the right by $l$ inputs}\label{alg:move_right_sig}
+	\caption{Move boundary between $u_k$ and $u_{k+1}$ to the right by $l$ inputs.}\label{alg:move_right_sig}
 \end{algorithm}
 
 Analogous algorithms can be derived for the anticausal part.
@@ -1845,32 +1845,33 @@ Analogous algorithms can be derived for the anticausal part.
 \subsection{Algorithm to optimize Input and Output dimensions}\label{subsec:optim_segmentation}
 
 
-When we want to obtain the optimal segmentation of a system, 
-we want to solve the optimization problem
+In order to obtain the optimal segmentation of a system, 
+ the optimization problem
 \begin{equation}
 \underset{\text{segmentation}}{\min} \f(\Sigma_{[A,B,C,D]})
 ,
 \end{equation}
-where $f(\Sigma_{[A,B,C,D]})$ is some objective function.
-The problem is discrete and in general nonconvex, which makes it hard for us to solve it.
+needs to be solved.
+Here $f(\Sigma_{[A,B,C,D]})$ is some objective function.
+The problem is discrete and, in general nonconvex, which makes it hard for to solve.
 
 To get a solution of the optimization problem, an iterative algorithm is used.
 For this, both the input dimensions and the output dimensions have to be changed.
 This algorithm alternately changes the input and output dimensions.
 
 The general strategy is to start with an input normal causal system in combination with an output normal anticausal system.
-First we adapt the dimensions of the outputs.
-For every boundary, the algorithm computes a preliminary system in which the boundary is moved down, not moved or moved up.
+First, we adapt the dimensions of the outputs.
+For every boundary, the algorithm computes a preliminary system in which the boundary is either moved down, not moved, or moved up.
 For these three options the objective function is calculated. 
 Then the system with the lowest objective function is adopted.
 This is done for every boundary.
 By doing this using the algorithms described in the previous subsection, the systems are transformed into a causal input normal system and an anticausal output normal system.
 These algorithms also compute the singular values of the Hankel matrices. This makes it possible to use these in the objective function.
-After this, we adapt the input dimensions.
-Again, this is done by computing three preliminary systems were the 
-  bounds are moved to the left, not moved and moved to the right.
+After the output dimensions are adapted, we adapt the input dimensions.
+Again, the adaptation is done by computing three preliminary systems were the 
+  bounds are either moved to the left, not moved, or moved to the right.
 Then the option with the lowest objective function is used.
-During this, the system is transformed back to an input normal causal system in combination with an output normal anticausal system.
+Thereby, the system is transformed back to an input normal causal system in combination with an output normal anticausal system.
 This makes it possible to immediately continue with an adaption of the output dimensions.
 
 The pseudocode for the adaptation of the segmentation is given in Algorithm\,\ref{alg:optimize segemtnation}.
@@ -1907,7 +1908,7 @@ The pseudocode for the adaptation of the segmentation is given in Algorithm\,\re
 		\EndIf
 		\EndFor
 	\end{algorithmic}
-	\caption{Algorithm to optimize the segmentation}\label{alg:optimize segemtnation}
+	\caption{Optimization of segmentation.}\label{alg:optimize segemtnation}
 \end{algorithm}
 
 To avoid that the algorithm gets stuck in local minima and to improve the speed, the algorithm does not change the segmentation by a fixed search distance $l$, but uses different search distances for every iteration of the algorithm.
@@ -1943,7 +1944,7 @@ This means
 \end{proof}
 
 \paragraph{Objective function}
-When we want to recover the segmentation, the goal is to reduce the rank of the Hankel matrices.
+To recover the segmentation, the goal is to reduce the rank of the Hankel matrices.
 The rank itself is not a suitable objective function, as the algorithm has to exactly meet the segmentation.
 Therefore we use the nuclear norm $\|H\|_*$.
 The Nuclear norm is defined as the sum of the singular values
@@ -1951,8 +1952,8 @@ The Nuclear norm is defined as the sum of the singular values
 	\|X\|_* = \sum_{i=1}^r \sigma_i
 	.
 \end{equation}
-The nuclear norm can be used to get low rank solutions in optimization problems \cite{liu_interior-point_2010}.
-We get a lower bound of the rank by dividing with the spectral norm $\|H\|$ as $\rank(X) \geq \|X\|_*/\|X\|$ \cite{recht_guaranteed_2010}.
+Liu and Vandenberghe use the nuclear norm get low rank solutions in optimization problems \cite{liu_interior-point_2010}.
+We get a lower bound of the rank by dividing it with the spectral norm $\|X\|$ as $\rank(X) \geq \|X\|_*/\|X\|$ as described by Recht, et al. in \cite{recht_guaranteed_2010}.\todo{check}
 This results in the objective function
 \begin{equation}\label{eq:objective_nuc}
 	\f_{\text{nuc}}(\Sigma)= \sum_{\text{all } H} \frac{\|H\|_*}{\|H\|}
@@ -1982,13 +1983,13 @@ This objective function does not minimize the approximation error, but Equation\
 
 \section{Permutations}\label{sec:permutation}
 
-In this section the matrix is represented using a permutation  of the inputs a Time varying system and a permutation of the output.
+In this section the matrix is represented using a permutation  of the inputs a time varying system and a permutation of the output.
 
 This means that the matrix $M$ is represented as the product
 \begin{equation}
 M = \Pi_o T \Pi_i
 \end{equation}
-Here $T$ is the transfer operator of the Time Varying system and $\Pi_i$ and $\Pi_o$ are permutation matrices.
+Here $T$ is the transfer operator of the time varying system and $\Pi_i$ and $\Pi_o$ are permutation matrices.
 This is equivalent to permuting the columns and rows of the matrix $M$ before representing it as a time varying system.
 This can lead to a reduction of the Hankel rank and therefore the state dimensions as demonstrated in \cite{diepold_optic_2004}. 
 \begin{figure}[!htb]
@@ -2022,12 +2023,12 @@ These new stages are later split using the same strategy.
 The permutations can be combined, resulting in the permutation matrices $\Pi_i$ and $\Pi_o$.
 
 The order of the inputs inside the input vectors $u_k$ and the order of the outputs inside the output vectors $y_k$ is not important.
-The states of the balanced realization depend on the singular value decomposition of $H_k$.
+The states of the balanced realization depend on the Singular Value Decomposition of $H_k$.
 The SVD of $H_k$ is invariant under permutation of the rows with $\Pi_R$ and permutation of the columns with $\Pi_C$ as the new factorization
 \begin{equation}
 \Pi_R U \Sigma V^\top \Pi_C = \tilde{U} \Sigma \tilde{V}^\top 
 \end{equation}
-is again a singular value decomposition.
+is again a Singular Value Decomposition.
 \begin{proof}
 	To be an valid SVD, we have to prove that $\tilde{U}$ and $\tilde{V}$ are orthogonal.
 	This is shown by the forward multiplication
@@ -2048,16 +2049,14 @@ This means that all permutations that preserve the grouping of the inputs and ou
 %\todo{formal blockdiagonal $\Pi$}
 Therefore, the algorithm does not have to recover a unique ordering of the inputs and outputs but only has to group the inputs and outputs.
 
-The algorithm to split a stage is described in Subsection\,\ref{subsec:split_stage}.
-The algorithm uses the same strategy as described in \cite{chandrasekaran_fast_2005}.
+The algorithm to split a stage is described in Subsection\,\ref{subsec:split_stage} it uses the same strategy as described in \cite{chandrasekaran_fast_2005}.
 Before the stage is split, the inputs and outputs of the stage must be grouped. 
 The required algorithm to partition the inputs and outputs is presented in Subsection\,\ref{subsec:segment_matrix}.
 
 
 \subsection{Split Stage}\label{subsec:split_stage}
 
-We want to split the stage $k$ into the stages $\alpha$ and $\beta$.
-This is illustrated in Figure\,\ref{fig:split_up}.
+We want to split the stage $k$ into the stages $\alpha$ and $\beta$, as illustrated in Figure\,\ref{fig:split_up}.
 \begin{figure}[!htb]
 	\centering
 	\input{diagrams/Moves/Move_split.pgf}
@@ -2277,15 +2276,14 @@ In the case $\tilde{C}_\alpha$ and $\tilde{B}_\beta$ it also possible to use the
 		\\
 		\State $\Sigma_\beta \gets \diag(s)$
 	\end{algorithmic}
-	\caption{Algorithm to split the stage $k$ into the stages $\alpha$ and $\beta$}\label{alg:split}
+	\caption{Split stage $k$ into the stages $\alpha$ and $\beta$}\label{alg:split}
 \end{algorithm}
-
-The Pseudocode is given in Algorithm\,\ref{alg:split}.
 The Algorithm takes the stage in the form described in Equation\,\ref{eq:stages_sigma}.
 Then the SVD of the combined matrices are computed and the results are used to construct the new stages $\alpha$ and $\beta$.
 These can then replace the stage $k$.
 These are again in the form described in Equation\,\ref{eq:stages_sigma}.
 For this the algorithm also returns the intermediate singular values $\Sigma_\beta$.
+The pseudocode is given in Algorithm\,\ref{alg:split}.
 
 
 
@@ -2319,8 +2317,8 @@ Analogously the output $y_k$ is partitioned in the two sets $y_\alpha$ and $y_\b
 and $\partition(y_k)$ for $y_k$ accordingly.
 Here $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ have the same singular values as the Hankel matrices $H_\beta$ and $H_\alpha^*$.
 These singular values determine the state dimensions $d_\beta$ and $d_\alpha^*$.
-When we represent a system, we want both of them to be minimal.
-Therefore we want to optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ in some sense. 
+To efficiently represent a matrix, both state dimensions should be minimal.
+Therefore we optimize the singular values of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ in some sense. 
 The properties of the remaining parts of the matrix $X$ are not relevant, as they do not influence the state dimensions.
 
 
@@ -2334,7 +2332,7 @@ Therefore, I use two strategies to reduce the state dimensions.
 The first is reducing the rank of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$ by minimizing the angle between the columns and rows respectively.
 This can be used if the resulting matrix is low rank.
 In the case of weight matrices all sub matrices usually have full rank.
-Here we try to reduce the squared sum of the singular values.
+Therefore I use the second strategy that reduces the squared sum of the singular values.
 This is equivalent to minimizing the Frobenius norms of $\tilde{H_\beta}$ and $\tilde{H_\alpha^*}$.
 This does not promote low rank solutions like the nuclear norm but is far easier to compute.
 
@@ -2532,7 +2530,7 @@ In this section I test how the algorithms presented in Chapter\,\ref{chap:method
 To demonstrate the behavior for structured matrices I use random Hankel matrices.
 After this I test the algorithms on weight matrices form the \emph{Mobilenet V2} model \cite{sandler_mobilenetv2_2019} and the \emph{AlexNet} model \cite{krizhevsky_one_2014}.
 When approximating the weight matrices, the goal is to reduce the number of floating-point operations.
-The number of floating point operations was described in Section\,\ref{sec:cost}.
+The number of floating point operations is described in Section\,\ref{sec:cost}.
 At the same time the approximation error should stay small.
 To measure the approximation error, I use the spectral norm of the difference between the matrix $M$ and the approximated matrix $\tilde{T}$
 
@@ -2542,10 +2540,9 @@ The code uses the library \emph{tvsclib} \cite{kissel_time_2022} to handle the t
 
 \section{Moving Boundaries}\label{sec:axp_move}
 In this section the approach described in Section\,\ref{sec:Segmentation} is tested.
-Here an initial system with constant input and output dimensions is created.
-Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
+Here an initial system with constant input and output dimensions is created before adapting the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
 
-\subsection{Illustrative example}\label{sec:test_adao}
+\subsection{Illustrative Example}\label{sec:test_adao}
 First, I demonstrate the algorithm for a sequentially semiseparable matrix $T$.
 All Hankel matrices of $T$ are rank one. 
 The matrix is generated from random orthogonal vectors such that the range of $C$, $D$ and $G$ are orthogonal to each other.
@@ -2571,12 +2568,12 @@ The properties of the matrix $T$ are explained in more detail in Appendix\,\ref{
 		We can see that the segmentation of the optimized systems coincides with the segmentation of $A$.}
 	\label{fig:example_move}
 \end{figure}
-Now I represent the matrix with a time varying system without using the knowledge about the input and output dimensions.
-For this I first create a system with constant input and output dimensions.
+I represent the matrix with a time varying system without using the knowledge about the input and output dimensions.
+For this I create a system with constant input and output dimensions.
 This system is illustrated in Figure\,\ref{fig:example_move_a}.
 Then the segmentation is adapted using Algorithm\,\ref{alg:optimize segemtnation}.
 As an objective function I used the normalized nuclear norm as described in Equation\,\ref{eq:objective_nuc}.
-This gives the system illustrated in Figure\,\ref{fig:example_move_b}.
+This results in the system illustrated in Figure\,\ref{fig:example_move_b}.
 We can see that the algorithm can recover the original segmentation.
 
 When the algorithm adapts the segmentation, it tests different segmentations and uses the one with the lowest objective function.
@@ -2612,7 +2609,7 @@ The Figure\,\ref{fig:example_move_bound_b} shows how the segmentation is changin
 %The algorithm does not always converge to the original segmentation if the Hankel matricies have a higher rank.
 
 \subsection{Weight Matrix Approximation}
-Now the algorithm is tested for weight matrices.
+Now the algorithm is tested for weight matrices form two pretrained neural networks.
 
 
 \paragraph{Mobilenet V2}
@@ -2722,7 +2719,7 @@ It is important to choose a smaller $\epsilon$ for the approximation than for th
 	}
 	\label{fig:alexnet_seperation_comp}
 \end{figure}
-Then I adapt the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
+Subsequently I adapt the segmentation using Algorithm\,\ref{alg:optimize segemtnation}.
 The systems are again approximated using balanced truncation.
 After moving the bounds the number of multiplications for $\epsilon = \frac{1}{4}\|M\|_\text{H}$ is reduced by $37\%$.
 As the adaptation of the segmentation was not performed on the full system, but only on an approximated system, adaptation errors can be amplified.
@@ -2762,7 +2759,7 @@ First the algorithm is tested on a random sequential semiseparable matrix $T$.
 The Hankel matrices have rank $2$.
 The matrix is generated as described in Appendix\,\ref{A:random_T}. 
 The rows and columns of the matrix are then permuted with random permutations.
-Then Algorithm\,\ref{alg:split} is used to identify the system.
+Algorithm\,\ref{alg:split} is used to identify the system and the permutations.
 The result is shown in Figure\,\ref{fig:example_permute}.
 \begin{figure}[!htb]
 	\centering
@@ -2773,7 +2770,7 @@ The result is shown in Figure\,\ref{fig:example_permute}.
 	}
 	\label{fig:example_permute}
 \end{figure}
-During the first iteration the algorithm splits the initial stage into two stages
+During the first iteration the algorithm splits the initial stage into two stages.
 We can see how the algorithm partitions the inputs and outputs in two groups and reorders them accordingly.
 After this, the stages are again split into four stages total.
 In the second iteration the inputs and outputs of each stage are grouped into two subgroups each and ordered accordingly.
@@ -2814,7 +2811,7 @@ For $\epsilon = \frac{1}{4}\|M\|_\text{H}$ the reduction of the computational co
 
 The state dimensions of the regular and permuted systems are plotted in Figure\,\ref{fig:mobilenet_state_dims_perm}.
 One can see that while most state dimensions decreased others did increase.
-In total, the number of states did only slightly decrease.
+In total, the number of states only decreased slightly.\todo{odering}
 This means that the algorithm is only partially successful in decreasing the number of states.
 \begin{figure}[!htb]
 	\centering
@@ -3424,7 +3421,7 @@ In this Appendix the complemaentary algorithms to the algorithms stated in Subse
 		\State$C_{k} \gets V^\top C_{k}$
 		\EndIf
 	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
+	\caption{Move boundary between $y_k$ and $y_{k+1}$ down}\label{alg:move_down}
 \end{algorithm}
 A similar to Algorithm\,\ref{alg:move_left} can be used to move the $k$-th horizontal a boundary down.
 That means moving the first output $y_\m$ from $y_{k+1}$ to $y_k$.
@@ -3500,7 +3497,7 @@ An algorithm to move the state is given in Algorithm\,\ref{alg:move_down}.
 		d_{\text{new}} \\D_k
 		\end{bmatrix}$
 	\end{algorithmic}
-	\caption{Algorithm to move a boundary between $y_k$ and $y_{k+1}$ up}\label{alg:move_up}
+	\caption{Move boundary between $y_k$ and $y_{k+1}$ up}\label{alg:move_up}
 \end{algorithm}
 
 A similar algorithm to Algorithm\,\ref{alg:move_right} makes it possible to move the the $k$-th horizontal boundary up.
